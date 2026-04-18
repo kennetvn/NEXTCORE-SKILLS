@@ -1,6 +1,6 @@
 {
-  "version": "2.2.0",
-  "generatedAt": "2026-04-18T11:45:04.794Z",
+  "version": "2.3.0",
+  "generatedAt": "2026-04-18T11:53:25.875Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 70,
+  "totalSkills": 83,
   "skills": [
     {
       "name": "agent-browser",
@@ -575,12 +575,84 @@
       ]
     },
     {
+      "name": "nc-api-contracts",
+      "description": "API contract design: OpenAPI, tRPC, GraphQL, gRPC schemas. Use when designing REST API, generating clients from specs, enforcing contracts between frontend/backend, or versioning APIs.",
+      "loc": 183,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-auth-patterns",
+      "description": "Authentication + authorization patterns: OAuth2, JWT, session cookies, passwordless, MFA, RBAC. Use when designing auth flow, evaluating auth libraries, or hardening an existing auth system.",
+      "loc": 170,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-autoresearch",
       "description": "Autonomous iterative optimization loop — run N iterations against a mechanical metric, learn from git history, auto-keep/discard changes. Use for improving measurable metrics (coverage, performance, bundle size, etc.) through repeated experimentation.",
       "loc": 154,
       "referenceFiles": 5,
       "ideSupport": [
         "claude-code"
+      ]
+    },
+    {
+      "name": "nc-caching",
+      "description": "Caching strategies: Redis, in-memory LRU, HTTP cache headers, CDN. Use when optimizing read-heavy endpoints, reducing DB load, or architecting multi-layer cache.",
+      "loc": 157,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-ci-cd",
+      "description": "CI/CD pipeline patterns for GitHub Actions, GitLab CI, Jenkins. Use when setting up automated testing, build+deploy pipelines, matrix builds, or secrets-aware deployment workflows.",
+      "loc": 164,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -606,6 +678,114 @@
       "description": "Debug systematically with root cause analysis before fixes. Use for bugs, test failures, unexpected behavior, performance issues, call stack tracing, multi-layer validation, log analysis, CI/CD failures, database diagnostics, system investigation.",
       "loc": 124,
       "referenceFiles": 10,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-docker",
+      "description": "Containerization patterns with Docker, Compose, multi-stage builds, and production-ready images. Use when creating Dockerfiles, docker-compose.yml, optimizing image size, or setting up dev containers.",
+      "loc": 144,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-env-secrets",
+      "description": "Environment variables + secrets management. Use when setting up .env files, rotating API keys, managing secrets across dev/staging/prod, or integrating with HashiCorp Vault / AWS Secrets Manager / Doppler.",
+      "loc": 131,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-event-sourcing",
+      "description": "Event sourcing + CQRS patterns. Use for audit-heavy domains (finance, healthcare), when you need full history replay, time-travel debugging, or complex domain models.",
+      "loc": 190,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-microservices",
+      "description": "Microservice architecture: service boundaries, communication patterns, saga/outbox, service mesh. Use when designing distributed systems, breaking up a monolith, or integrating multiple services.",
+      "loc": 157,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-migration-patterns",
+      "description": "Migration strategies: framework upgrades (Next.js 15→16), DB schema migrations, API v1→v2, breaking refactors. Use when planning any migration or upgrade that can't be done in single PR.",
+      "loc": 168,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-observability",
+      "description": "Logging, metrics, tracing, and alerting for production systems. Use when setting up Sentry, OpenTelemetry, Datadog, structured logging, or when debugging production issues with existing telemetry.",
+      "loc": 155,
+      "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
         "antigravity",
@@ -659,6 +839,24 @@
       "name": "nc-predict",
       "description": "5 expert personas debate proposed changes before implementation. Catches architectural, security, performance, and UX issues early. Use before major features or risky changes.",
       "loc": 120,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-queues",
+      "description": "Background job queues: BullMQ, Redis, RabbitMQ, AWS SQS. Use for async work (emails, image processing, webhooks, scheduled jobs) or decoupling services via message passing.",
+      "loc": 151,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -749,6 +947,42 @@
       "name": "nc-skill-composition",
       "description": "Chain multiple skills without duplicate analysis. Use when a task spans multiple skill domains (plan + debug + fix + test), when composing workflows, or when skills would repeat each other's work.",
       "loc": 127,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-state-management",
+      "description": "Frontend state management patterns: Zustand, Jotai, TanStack Store, Redux, React Context. Use when choosing a state library, refactoring prop-drilling, or architecting a React app.",
+      "loc": 163,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-websockets",
+      "description": "Realtime patterns: WebSockets, Server-Sent Events (SSE), polling. Use when building chat, live dashboards, notifications, collaborative editing, or choosing realtime transport.",
+      "loc": 156,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",

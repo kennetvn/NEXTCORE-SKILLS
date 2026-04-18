@@ -533,6 +533,353 @@ Load for detailed guidance:
 
 ---
 
+## nc-api-contracts
+
+
+
+## Contract-first development
+
+Define schema → generate types, clients, docs. Single source of truth.
+
+## OpenAPI (REST)
+
+```yaml
+openapi: 3.1.0
+info: { title: "My API", version: "1.0.0" }
+paths:
+  /users/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, email]
+      properties:
+        id: { type: integer }
+        email: { type: string, format: email }
+```
+
+Tools:
+- **Generate clients** — `openapi-generator-cli` (TS, Python, Go, etc.)
+- **Mock server** — Prism, json-server
+- **Validation** — `@apidevtools/swagger-parser`, express-openapi-validator
+
+## tRPC (TypeScript end-to-end)
+
+No schema file — types flow from server to client via inference:
+
+```ts
+// server
+export const appRouter = router({
+  user: router({
+    byId: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.user.findUnique({ where: { id: input.id } });
+      }),
+  }),
+});
+export type AppRouter = typeof appRouter;
+
+// client — type-safe, auto-completion
+const user = await trpc.user.byId.query({ id: 42 });
+// ^ typed as User | null
+```
+
+Best when: Full TypeScript stack, monorepo, rapid iteration.
+
+## GraphQL
+
+Strong schema, flexible queries:
+
+```graphql
+type User {
+  id: ID!
+  email: String!
+  orders(limit: Int = 10): [Order!]!
+}
+
+type Query {
+  user(id: ID!): User
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+}
+```
+
+Best when: Multiple clients with different data needs (mobile + web + partner).
+
+## gRPC (performance, polyglot)
+
+```proto
+syntax = "proto3";
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc StreamUsers(StreamRequest) returns (stream User);
+}
+
+message User {
+  int64 id = 1;
+  string email = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+```
+
+Best when: Internal microservices, streaming, polyglot (Go + Node + Python).
+
+## Versioning
+
+### URL-based
+
+```
+/api/v1/users
+/api/v2/users  (breaking change)
+```
+
+Simple, clear. Preferred for public APIs.
+
+### Header-based
+
+```
+Accept: application/vnd.myapp.v2+json
+```
+
+More "RESTful" but harder to test/debug.
+
+### Deprecation workflow
+
+1. Release v2 alongside v1
+2. Add `Deprecation: true` + `Sunset: 2027-01-01` headers to v1
+3. Notify consumers (docs, email, dashboard)
+4. Monitor v1 usage
+5. When v1 usage < threshold, remove
+
+## Error format (consistent)
+
+```json
+{
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User with id 42 not found",
+    "details": { "id": 42 },
+    "requestId": "req_abc123"
+  }
+}
+```
+
+Include `requestId` for support correlation.
+
+## Idempotency
+
+Mutation endpoints should accept `Idempotency-Key: <uuid>` header — retry-safe:
+
+```ts
+async function createOrder(data, idempotencyKey) {
+  const existing = await db.order.findUnique({ where: { idempotencyKey } });
+  if (existing) return existing;
+  return db.order.create({ data: { ...data, idempotencyKey } });
+}
+```
+
+## Anti-patterns
+
+- Breaking changes in existing endpoint (always version)
+- No pagination on list endpoints (OOM risk)
+- Different error shapes per endpoint
+- Stringly-typed fields (use enums)
+- Exposing internal IDs as-is (use opaque IDs for public API)
+
+## Integration
+
+- `nc-auth-patterns` — authenticate API requests
+- `nc-caching` — HTTP cache headers based on contract
+- `nc-observability` — log requestId for tracing
+
+---
+
+## nc-auth-patterns
+
+
+
+## Session vs JWT decision
+
+| Session cookies | JWT tokens |
+|---|---|
+| Server-side state (DB lookup) | Stateless (self-contained) |
+| Easy to revoke (delete session) | Hard to revoke (blocklist or short TTL) |
+| Work natively with CSRF protection | Need explicit CSRF handling if cookie-based |
+| Smaller payload | Larger (header+payload+signature) |
+
+**Recommendation:** Session cookies for web apps. JWT for stateless APIs + mobile.
+
+## Session cookie pattern
+
+```ts
+// Login
+const session = await db.session.create({
+  data: { userId, expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000) }
+});
+res.cookie("sid", session.id, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+  maxAge: 7 * 24 * 3600 * 1000,
+});
+
+// Middleware
+async function authMiddleware(req) {
+  const sid = req.cookies.sid;
+  if (!sid) return null;
+  const session = await db.session.findUnique({
+    where: { id: sid, expiresAt: { gt: new Date() } },
+    include: { user: true }
+  });
+  return session?.user;
+}
+```
+
+## JWT pattern
+
+```ts
+import jwt from "jsonwebtoken";
+
+// Sign
+const token = jwt.sign(
+  { sub: userId, email, role },
+  process.env.JWT_SECRET,
+  { expiresIn: "15m" }  // short TTL
+);
+
+// Refresh token stored in DB (can revoke)
+const refreshToken = await db.refreshToken.create({ data: { userId, expiresAt: ... } });
+
+// Verify
+const payload = jwt.verify(token, process.env.JWT_SECRET);
+```
+
+**JWT rules:**
+- Short TTL (15 min) + refresh token (7 days, revocable)
+- RS256 (asymmetric) for public-facing APIs; HS256 only for internal
+- Never store secrets in JWT payload (it's base64, not encrypted)
+- Validate `iss`, `aud`, `exp`, `nbf` on every request
+
+## OAuth2 / OIDC
+
+Use for: "Sign in with Google/GitHub/Apple", B2B SSO.
+
+Libraries: `better-auth`, `next-auth`, `@auth/core`, `passport`.
+
+Flow (Authorization Code + PKCE):
+
+```
+Client → redirect to /authorize (with PKCE challenge)
+Provider → login → redirect back with code
+Client → POST /token (exchange code + verifier)
+Provider → returns access_token + id_token
+Client → store tokens, use for API calls
+```
+
+## Passwordless (magic link)
+
+```ts
+// Request
+async function sendMagicLink(email) {
+  const token = crypto.randomBytes(32).toString("hex");
+  await db.magicToken.create({
+    data: { email, token, expiresAt: new Date(Date.now() + 15 * 60 * 1000) }
+  });
+  await sendEmail(email, `https://app.com/auth/verify?token=${token}`);
+}
+
+// Verify
+async function verifyMagicLink(token) {
+  const record = await db.magicToken.findUnique({
+    where: { token, expiresAt: { gt: new Date() } }
+  });
+  if (!record) throw new Error("Invalid or expired");
+  await db.magicToken.delete({ where: { token } });  // single-use
+  return createSession(record.email);
+}
+```
+
+## MFA (TOTP)
+
+```ts
+import { authenticator } from "otplib";
+
+// Enroll
+const secret = authenticator.generateSecret();
+const qr = authenticator.keyuri(email, "MyApp", secret);
+// Show QR code to user, save secret encrypted
+
+// Verify
+const valid = authenticator.verify({ token, secret });
+```
+
+Always: provide backup codes (one-time recovery).
+
+## RBAC (Role-Based Access Control)
+
+```ts
+const PERMISSIONS = {
+  admin: ["*"],
+  manager: ["read:*", "write:orders", "write:users"],
+  user: ["read:own:*", "write:own:profile"],
+};
+
+function can(user, action, resource) {
+  const perms = PERMISSIONS[user.role] || [];
+  if (perms.includes("*") || perms.includes(`${action}:*`)) return true;
+  if (perms.includes(`${action}:own:*`) && resource.ownerId === user.id) return true;
+  return perms.includes(`${action}:${resource.type}`);
+}
+```
+
+For complex cases: ABAC (attribute-based) via Casbin, OPA.
+
+## Security checklist
+
+- [ ] Passwords: bcrypt/argon2, never MD5/SHA1
+- [ ] Cookies: httpOnly, secure, sameSite
+- [ ] CSRF: double-submit cookie or SameSite=strict
+- [ ] Rate limit: login, password reset, signup endpoints
+- [ ] Session rotation on privilege change
+- [ ] Logout invalidates session (session table) or rotates signing key (JWT)
+- [ ] Audit log: admin actions, failed logins
+
+## Anti-patterns
+
+- Storing passwords in plaintext or MD5
+- JWT in localStorage (XSS steals it)
+- No rate limit on login (brute force)
+- Long-lived JWTs without revocation path
+- MFA without backup codes
+- Missing CSRF protection on state-changing endpoints
+
+## Integration
+
+- `nc-env-secrets` — JWT secrets, OAuth client secrets
+- `nc-caching` — rate limit counters in Redis
+- `nc-observability` — alert on failed login spikes
+
+---
+
 ## nc-backend-development
 
 
@@ -846,6 +1193,160 @@ When brainstorming concludes with agreement, create a markdown summary report in
 **Remember:** Your role is the user's most trusted technical advisor — someone who will tell them hard truths to ensure they build something great, maintainable, and successful.
 
 **DO NOT** implement anything. Just brainstorm, answer questions, and advise.
+
+---
+
+## nc-caching
+
+
+
+## Cache layers (fastest to slowest)
+
+1. **Browser** — HTTP cache headers (`Cache-Control`, `ETag`)
+2. **CDN** — Cloudflare, Fastly, AWS CloudFront (edge)
+3. **Reverse proxy** — Varnish, nginx (origin edge)
+4. **Application memory** — LRU in-process (Node `lru-cache`)
+5. **Distributed** — Redis, Memcached (cross-instance)
+6. **Database** — query result cache (Postgres shared_buffers)
+
+## HTTP cache headers
+
+```
+Cache-Control: public, max-age=3600, s-maxage=86400
+ETag: "abc123"
+Vary: Accept-Encoding, Authorization
+```
+
+- `max-age` — browser cache seconds
+- `s-maxage` — CDN cache seconds (overrides max-age for shared caches)
+- `public` — cacheable by shared caches; `private` — browser only
+- `stale-while-revalidate=60` — serve stale up to 60s while refetching in bg
+- `immutable` — never revalidate (for hashed static assets)
+
+## Redis patterns
+
+### Cache-aside (read-through)
+
+```ts
+async function getUser(id) {
+  const key = `user:${id}`;
+  const cached = await redis.get(key);
+  if (cached) return JSON.parse(cached);
+
+  const user = await db.user.findUnique({ where: { id } });
+  await redis.setex(key, 300, JSON.stringify(user));  // 5 min TTL
+  return user;
+}
+```
+
+### Write-through
+
+```ts
+async function updateUser(id, data) {
+  const user = await db.user.update({ where: { id }, data });
+  await redis.setex(`user:${id}`, 300, JSON.stringify(user));
+  return user;
+}
+```
+
+### Cache invalidation
+
+```ts
+async function deleteUser(id) {
+  await db.user.delete({ where: { id } });
+  await redis.del(`user:${id}`);
+  // Also invalidate related caches
+  await redis.del(`users:list:*`);  // pattern delete — see below
+}
+```
+
+### Rate limiting
+
+```ts
+async function rateLimit(userId, limit = 100, windowSec = 60) {
+  const key = `rate:${userId}:${Math.floor(Date.now() / 1000 / windowSec)}`;
+  const count = await redis.incr(key);
+  if (count === 1) await redis.expire(key, windowSec);
+  return count <= limit;
+}
+```
+
+## In-memory LRU
+
+Good for small, hot, per-instance data:
+
+```ts
+import { LRUCache } from "lru-cache";
+
+const cache = new LRUCache<string, User>({
+  max: 500,
+  ttl: 1000 * 60 * 5,  // 5 min
+});
+
+function getUser(id) {
+  let user = cache.get(id);
+  if (user) return user;
+  user = await db.user.findUnique({ where: { id } });
+  cache.set(id, user);
+  return user;
+}
+```
+
+## CDN strategies
+
+- **Static assets**: cache forever with content-hash in filename (`/app.abc123.js`)
+- **HTML pages**: short cache (5-60s) with stale-while-revalidate
+- **API responses**: CDN for public GET; bypass for authenticated
+- **Purge**: support explicit purge on deploy (CDN API)
+
+## Cache invalidation strategies
+
+| Strategy | When |
+|---|---|
+| **TTL expiry** | Eventually-consistent data (user profiles, product lists) |
+| **Explicit invalidate** | On write (delete cached key after DB update) |
+| **Tag-based** | Group related caches, invalidate by tag (Redis + tagged keys) |
+| **Write-through** | Update cache atomically with DB write |
+| **Never cache** | Strongly consistent data (user balance, auth tokens) |
+
+## Cache stampede protection
+
+When cache expires + many concurrent requests → DB floods.
+
+```ts
+// Use lock or probabilistic early expiration
+async function getUserWithLock(id) {
+  const key = `user:${id}`;
+  const cached = await redis.get(key);
+  if (cached) return JSON.parse(cached);
+
+  const lockKey = `lock:${key}`;
+  const acquired = await redis.set(lockKey, "1", "NX", "EX", 5);
+  if (!acquired) {
+    await new Promise(r => setTimeout(r, 100));
+    return getUserWithLock(id);  // retry
+  }
+
+  const user = await db.user.findUnique({ where: { id } });
+  await redis.setex(key, 300, JSON.stringify(user));
+  await redis.del(lockKey);
+  return user;
+}
+```
+
+## Anti-patterns
+
+- Caching frequently-changing data (defeats cache)
+- No TTL (memory leak in Redis/LRU)
+- Caching personalized responses as `public`
+- Cache key collisions (forgot user scope)
+- No stampede protection on hot keys
+
+## Integration
+
+- `nc-websockets` — cache doesn't apply to realtime, use pub/sub
+- `nc-observability` — metric: cache hit rate, eviction rate
+- `nc-databases` — ORM query cache complements app-level cache
 
 ---
 
@@ -1521,6 +2022,167 @@ Read detailed selectors and patterns from:
 - All permissions must be declared in manifest.json
 - Use chrome.storage.local for state (not localStorage)
 - Anti-detection: randomize delays, mimic human scroll patterns
+
+---
+
+## nc-ci-cd
+
+
+
+## GitHub Actions templates
+
+### Standard Node.js pipeline
+
+```yaml
+name: CI
+on:
+  push: { branches: [main, develop] }
+  pull_request: { branches: [main] }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: bash scripts/deploy.sh
+```
+
+### Matrix test (multiple Node/OS)
+
+```yaml
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+```
+
+### Docker build + push
+
+```yaml
+- uses: docker/login-action@v3
+  with:
+    registry: ghcr.io
+    username: ${{ github.actor }}
+    password: ${{ secrets.GITHUB_TOKEN }}
+
+- uses: docker/build-push-action@v5
+  with:
+    push: true
+    tags: |
+      ghcr.io/${{ github.repository }}:latest
+      ghcr.io/${{ github.repository }}:${{ github.sha }}
+    cache-from: type=gha
+    cache-to: type=gha,mode=max
+```
+
+## GitLab CI templates
+
+```yaml
+stages: [test, build, deploy]
+
+test:
+  stage: test
+  image: node:22-alpine
+  script:
+    - npm ci
+    - npm test
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths: [node_modules/]
+
+deploy:
+  stage: deploy
+  only: [main]
+  script:
+    - bash scripts/deploy.sh
+  environment:
+    name: production
+    url: https://example.com
+```
+
+## Patterns
+
+### Fail-fast + concurrency control
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+### Artifact passing between jobs
+
+```yaml
+- uses: actions/upload-artifact@v4
+  with: { name: build, path: dist/ }
+
+# In next job:
+- uses: actions/download-artifact@v4
+  with: { name: build, path: dist/ }
+```
+
+### Conditional steps
+
+```yaml
+- if: github.event_name == 'pull_request'
+  run: npm run test:integration
+
+- if: startsWith(github.ref, 'refs/tags/v')
+  run: npm publish
+```
+
+### Secrets
+
+- Repository secrets for per-repo
+- Organization secrets for shared (API keys, deploy keys)
+- Environment secrets for production-only (`environment: production`)
+- Never echo secrets in logs
+
+## Deployment strategies
+
+| Strategy | When |
+|---|---|
+| **Direct push** | Solo/small team, main = prod |
+| **Blue-green** | Zero-downtime, need prior version standby |
+| **Canary** | Risky changes, gradual rollout (5% → 25% → 100%) |
+| **Rolling update** | Orchestrator-native (k8s), batches of pods |
+| **Feature flags** | Deploy code, gate feature (decouple deploy/release) |
+
+## Anti-patterns
+
+- Building in deploy job (do build in test stage, pass artifact)
+- Running slow tests on every push (use schedule or label-gated)
+- Secrets in plain `env:` value (use `secrets.FOO` reference)
+- No timeout on jobs (runaway = cost)
+- No concurrency control (race conditions on shared deploy targets)
+
+## Integration
+
+- `nc-docker` — build images in CI
+- `nc-env-secrets` — secret management in pipelines
+- `nc-ship` — local pipeline that mirrors CI
 
 ---
 
@@ -2510,6 +3172,147 @@ $SSH_CMD "cd $VPS_PATH && npx prisma migrate deploy"
 
 ---
 
+## nc-docker
+
+
+
+## Principles
+
+- **Minimal base** — alpine > slim > full, when runtime supports it
+- **Multi-stage builds** — separate build deps from runtime
+- **Layer caching** — copy lockfiles before source; order COPY by change frequency
+- **No root user** in production
+- **Health checks** mandatory for long-running services
+- **Secrets** via env + docker-compose `secrets:` or orchestrator; never bake into image
+
+## Dockerfile templates
+
+### Node.js (Next.js/Express)
+
+```dockerfile
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+RUN addgroup -g 1001 app && adduser -u 1001 -G app -s /bin/sh -D app
+USER app
+COPY --from=builder --chown=app:app /app/.next/standalone ./
+COPY --from=builder --chown=app:app /app/.next/static ./.next/static
+COPY --from=builder --chown=app:app /app/public ./public
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
+  CMD wget --spider -q http://localhost:3000/api/health || exit 1
+CMD ["node", "server.js"]
+```
+
+### Python (FastAPI/Django)
+
+```dockerfile
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+WORKDIR /app
+RUN useradd -m -u 1001 app
+COPY --from=builder --chown=app /root/.local /home/app/.local
+COPY --chown=app . .
+USER app
+ENV PATH=/home/app/.local/bin:$PATH
+EXPOSE 8000
+HEALTHCHECK CMD curl -f http://localhost:8000/health || exit 1
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## docker-compose.yml patterns
+
+### Dev stack (app + db + redis)
+
+```yaml
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgres://postgres:pass@db:5432/app
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+    volumes:
+      - .:/app
+      - /app/node_modules
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: pass
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 5s
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+volumes:
+  redis_data:
+```
+
+## Image optimization
+
+- **Layer order** — least-changing first (package.json before src/)
+- **.dockerignore** — exclude node_modules, .git, tests, docs
+- **Squash** — `--squash` flag in buildkit for fewer layers
+- **Distroless** — `gcr.io/distroless/nodejs22-debian12` for smallest runtime
+- **Size target** — Node < 200MB, Python < 150MB, Go < 50MB
+
+## Common mistakes
+
+- `COPY . .` before install → cache busted on every source change
+- Running as root → security hole, breaks non-root volume mounts
+- No health check → orchestrator can't detect zombie
+- Secrets in `ENV` or `LABEL` → leaked in image history
+
+## Dev containers (.devcontainer/)
+
+For consistent dev environments (VS Code/Codespaces):
+
+```json
+{
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "postCreateCommand": "npm install",
+  "forwardPorts": [3000]
+}
+```
+
+## Production deploy
+
+- **Orchestrator** — Kubernetes (enterprise), Docker Swarm (simple), Fly.io (PaaS)
+- **Registry** — GitHub Container Registry (free), Docker Hub, AWS ECR
+- **Tagging** — `:latest` never in prod; use `:v1.2.3` or `:<git-sha>`
+- **Rollback** — keep 3-5 previous image tags for rollback
+
+## Integration
+
+- `nc-ci-cd` — build + push images in pipeline
+- `nc-env-secrets` — inject secrets at runtime, not build time
+- `nc-observability` — sidecar pattern for log/metric collection
+
+---
+
 ## nc-docs
 
 
@@ -2658,6 +3461,321 @@ cat llms.txt | node scripts/analyze-llms-txt.js -  # → {totalUrls, distributio
 Scripts load `.env`: `process.env` > `.claude/skills/docs-seeker/.env` > `.claude/skills/.env` > `.claude/.env`
 
 See `.env.example` for configuration options.
+
+---
+
+## nc-env-secrets
+
+
+
+## Golden rules
+
+1. **Never commit secrets** — `.env*` in `.gitignore`; commit `.env.example` with dummy values only
+2. **Rotate on exposure** — if leaked, assume compromised; rotate immediately
+3. **Least privilege** — API keys scoped to minimum needed operation
+4. **Per-environment separation** — dev/staging/prod have distinct secrets
+5. **Audit trail** — log who accessed what secret when (enterprise)
+
+## File conventions
+
+```
+.env                    # local dev (gitignored)
+.env.example            # committed, lists required vars with dummy values
+.env.development        # committed OK if no secrets (public config)
+.env.production         # NEVER commit — use secret manager
+.env.test               # committed OK (test-only dummy values)
+```
+
+## .env.example format
+
+```bash
+# Database
+DATABASE_URL=postgres://user:password@localhost:5432/myapp
+
+# API keys (get from https://dashboard.example.com/keys)
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxx
+SENDGRID_API_KEY=SG.xxxxxxxxxx
+
+# Feature flags
+ENABLE_NEW_DASHBOARD=false
+
+# URLs
+PUBLIC_APP_URL=http://localhost:3000
+```
+
+## Validation at boot
+
+```ts
+// lib/env.ts (Next.js / Node)
+import { z } from "zod";
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
+  NODE_ENV: z.enum(["development", "production", "test"]),
+});
+
+export const env = envSchema.parse(process.env);
+// Fails fast on missing/invalid vars at boot
+```
+
+## Secret manager integration
+
+### HashiCorp Vault
+
+```bash
+export VAULT_ADDR=https://vault.example.com
+vault login
+vault kv get secret/myapp/prod
+```
+
+### AWS Secrets Manager
+
+```bash
+aws secretsmanager get-secret-value \
+  --secret-id prod/myapp/db --query SecretString --output text
+```
+
+### Doppler (modern SaaS)
+
+```bash
+doppler setup
+doppler run -- npm start
+# Injects secrets into process.env at runtime
+```
+
+### GitHub Actions (CI)
+
+```yaml
+env:
+  STRIPE_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+steps:
+  - run: npm run deploy
+    env:
+      DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+```
+
+## Rotation workflow
+
+When rotating a secret:
+
+1. Generate new secret at provider dashboard
+2. Add to secret manager as `FOO_NEW`
+3. Deploy code that reads `FOO_NEW || FOO` (dual-read)
+4. Verify new value works
+5. Remove old `FOO`
+6. Rename `FOO_NEW` → `FOO`
+7. Revoke old secret at provider
+
+## Audit checklist
+
+- [ ] `.gitignore` includes `.env*` (with `!.env.example` exception)
+- [ ] `.env.example` up-to-date with all required vars
+- [ ] All secrets loaded via env (no hardcoded in source)
+- [ ] `git log --all -S'password' -S'api_key'` returns clean
+- [ ] Production secrets in manager (not committed, not in CI plaintext)
+- [ ] Rotation schedule documented (e.g., every 90 days)
+
+## Anti-patterns
+
+- Committing `.env` accidentally → use pre-commit hook to block
+- Hardcoding secrets in code "temporarily" → permanent risk
+- Sharing secrets via Slack/email → use secret manager invite
+- Same secret across environments → compromise in staging = prod leak
+- No validation at boot → silent failures in prod
+
+## Integration
+
+- `nc-docker` — pass secrets via `--env-file` or orchestrator
+- `nc-ci-cd` — use CI secret stores, never echo
+- `nc-security` — audit for leaked secrets in git history
+
+---
+
+## nc-event-sourcing
+
+
+
+## Core idea
+
+State = reduce(events). Don't store current state — store append-only event log. Derive state by replaying events.
+
+## Example: Order domain
+
+Traditional:
+
+```
+UPDATE orders SET status = 'SHIPPED' WHERE id = 42;
+-- Previous state lost
+```
+
+Event-sourced:
+
+```
+INSERT INTO events (stream_id, type, payload, version) VALUES
+  (42, 'OrderCreated', {...}, 1),
+  (42, 'PaymentReceived', {...}, 2),
+  (42, 'Shipped', {tracking: 'XYZ'}, 3);
+
+-- Current state: fold(events for stream 42)
+```
+
+## When to use
+
+Good fit:
+- **Finance / accounting** — audit trail mandatory
+- **E-commerce orders** — show "what happened when"
+- **Collaborative editing** — replay other users' changes
+- **Versioned configuration** — deployment history
+- **Compliance-heavy** (HIPAA, SOC 2)
+
+Bad fit:
+- Simple CRUD app
+- Real-time low-latency (projection rebuild is slow)
+- Small team without event discipline
+
+## CQRS: Command vs Query side
+
+```
+Write side (commands):
+  POST /orders/42/ship → validate → emit ShippedEvent → append to event store
+
+Read side (queries):
+  GET /orders/42 → read from projection table (denormalized, optimized)
+```
+
+Separate models. Write side optimizes for business logic. Read side optimizes for queries.
+
+## Event schema
+
+```ts
+type Event = {
+  streamId: string;       // "order-42"
+  version: number;        // monotonic within stream
+  type: string;           // "OrderCreated"
+  payload: Record<string, unknown>;
+  metadata: {
+    userId: string;
+    timestamp: Date;
+    correlationId: string;
+  };
+};
+```
+
+Event table:
+
+```sql
+CREATE TABLE events (
+  id BIGSERIAL PRIMARY KEY,
+  stream_id TEXT NOT NULL,
+  version INT NOT NULL,
+  type TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  metadata JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (stream_id, version)  -- optimistic concurrency
+);
+CREATE INDEX ON events (stream_id, version);
+```
+
+## Rebuilding state
+
+```ts
+async function getOrder(id: number): Promise<Order> {
+  const events = await db.event.findMany({
+    where: { streamId: `order-${id}` },
+    orderBy: { version: "asc" },
+  });
+  return events.reduce(applyEvent, { id, status: "pending", items: [] });
+}
+
+function applyEvent(order: Order, event: Event): Order {
+  switch (event.type) {
+    case "OrderCreated": return { ...order, ...event.payload };
+    case "PaymentReceived": return { ...order, paidAt: event.metadata.timestamp };
+    case "Shipped": return { ...order, status: "shipped", tracking: event.payload.tracking };
+    default: return order;
+  }
+}
+```
+
+## Snapshots (performance)
+
+Problem: replaying 10,000 events per query is slow.
+
+Solution: periodic snapshots:
+
+```ts
+// Every 100 events, store snapshot
+if (order.version % 100 === 0) {
+  await db.snapshot.create({
+    data: { streamId, version: order.version, state: order }
+  });
+}
+
+// On read: load snapshot, apply events since snapshot.version
+const snapshot = await db.snapshot.findFirst({
+  where: { streamId },
+  orderBy: { version: "desc" },
+});
+const events = await db.event.findMany({
+  where: { streamId, version: { gt: snapshot.version } },
+});
+const order = events.reduce(applyEvent, snapshot.state);
+```
+
+## Projections (read models)
+
+Maintain denormalized tables for fast queries:
+
+```ts
+// On new event, update projection
+async function projectOrderEvent(event: Event) {
+  switch (event.type) {
+    case "OrderCreated":
+      await db.orderReadModel.create({ data: { ...event.payload } });
+      break;
+    case "Shipped":
+      await db.orderReadModel.update({
+        where: { id: event.streamId },
+        data: { status: "shipped" }
+      });
+      break;
+  }
+}
+```
+
+Queries hit `orderReadModel`, not event stream.
+
+## Event versioning
+
+Events are immutable. If schema evolves:
+
+1. **Upcasters** — transform old events to new format on read
+2. **Versioned event types** — `OrderCreatedV2` alongside `OrderCreatedV1`
+3. **Never delete or edit** past events (breaks audit)
+
+## Libraries
+
+- **EventStoreDB** — purpose-built event store
+- **Marten** (.NET) — Postgres-backed event sourcing
+- **Axon** (Java) — full CQRS framework
+- **Equinox** (F#/.NET) — functional event sourcing
+- **Custom with Postgres JSONB** — simplest, works for most cases
+
+## Anti-patterns
+
+- Event sourcing "everything" (overkill for simple domains)
+- Editing past events (breaks history, defeats purpose)
+- No snapshots with large streams (slow reads)
+- Projections + event store in separate DB (eventual consistency nightmare)
+- Storing full state in each event (not events, snapshots with extra steps)
+
+## Integration
+
+- `nc-queues` — async projection update after event append
+- `nc-observability` — metric: event lag (write → projection update time)
+- `nc-databases` — Postgres JSONB for event payload storage
 
 ---
 
@@ -4555,6 +5673,325 @@ Load `nc-mermaidjs-v11/references/examples.md` for:
 
 ---
 
+## nc-microservices
+
+
+
+## When NOT to use microservices
+
+- Team < 10 engineers
+- Product still finding fit (architecture churn)
+- No existing DevOps maturity
+- Single deployable solves the problem (monolith is fine)
+
+Start monolith. Extract services when pain justifies overhead.
+
+## Service boundary design
+
+### By domain (DDD bounded context)
+
+User domain, Order domain, Payment domain, Inventory domain.
+
+Each service owns its data. No cross-service DB joins — all communication via API.
+
+### Ownership rules
+
+- One team owns 1-3 services (not shared)
+- Service has clear contract (OpenAPI / gRPC)
+- Service can deploy independently
+- Service can scale independently
+
+## Communication patterns
+
+### Synchronous (HTTP/gRPC)
+
+```
+Client → Order Service → User Service (validate user) → Payment Service (charge)
+                  ↓
+                Database
+```
+
+Pros: simple, strong consistency  
+Cons: cascading failures, latency adds up, tight coupling
+
+### Asynchronous (events)
+
+```
+Order Service → [OrderCreated event] → Queue/Bus
+                                        ├→ Email Service (send confirmation)
+                                        ├→ Inventory Service (reserve)
+                                        └→ Analytics Service (log)
+```
+
+Pros: loose coupling, resilient  
+Cons: eventual consistency, harder to trace
+
+### Recommendation
+
+- Sync for request/response where caller needs answer
+- Async (events) for notifications, side effects, decoupling
+
+## Saga pattern (distributed transaction)
+
+Example: Place Order = reserve inventory + charge payment + create order.
+
+No 2PC — use compensating actions:
+
+```
+1. Reserve inventory (can undo: release)
+2. Charge payment (can undo: refund)
+3. Create order (can undo: cancel)
+
+If step N fails, run compensations for 1..N-1 in reverse.
+```
+
+Orchestrator (central coordinator) or Choreography (each service emits events, others react) — choose per domain.
+
+## Outbox pattern
+
+Problem: "Save order AND publish OrderCreated event" — no distributed transaction.
+
+Solution:
+
+```
+1. In same DB transaction:
+   - Insert order into orders table
+   - Insert event into outbox table
+2. Separate worker polls outbox → publishes to message bus → marks sent
+```
+
+Guaranteed: event published if and only if order saved.
+
+## Service mesh (Istio, Linkerd)
+
+For: > 10 services, need traffic management, mTLS, fine-grained observability.
+
+Features:
+- **mTLS** between services
+- **Circuit breaker** — stop calling failing service
+- **Retry + backoff** — automatic
+- **Canary routing** — 5% traffic to v2
+- **Distributed tracing** — automatic span propagation
+
+If < 10 services: overkill. Use lightweight patterns (client-side circuit breakers).
+
+## API gateway
+
+Single entry point for external clients:
+
+```
+Client → API Gateway → { User, Order, Payment services }
+                       ↑
+                       auth, rate limit, caching, logging
+```
+
+Tools: Kong, AWS API Gateway, Cloudflare Workers, Traefik.
+
+## Data ownership
+
+**Rule:** one service owns a table. Other services read via API, never direct DB.
+
+### Data duplication is OK
+
+User Service owns `users`. Order Service cache `userId + userName` per order — denormalized intentionally for query efficiency.
+
+Staleness handled via events: `UserUpdated` → update cache.
+
+## Service discovery
+
+- **DNS** — simple: `http://user-service.internal`
+- **Service registry** — Consul, etcd (for dynamic hosts)
+- **Kubernetes Services** — native in k8s
+
+## Distributed debugging
+
+- **Trace ID** propagated via `traceparent` header
+- **OpenTelemetry** instrumentation per service
+- **Central log aggregation** — ELK, Datadog, Grafana Loki
+
+Without this, debugging a cross-service bug is a nightmare.
+
+## Anti-patterns
+
+- Shared DB across services (distributed monolith, worst of both worlds)
+- Sync calls in long chains (5-hop latency)
+- No distributed tracing (can't debug prod)
+- Fine-grained services (nano-services overhead > monolith pain)
+- Premature extraction (extract when pain justifies)
+
+## Integration
+
+- `nc-api-contracts` — OpenAPI / gRPC schemas per service
+- `nc-observability` — distributed tracing across services
+- `nc-queues` — event bus for async communication
+
+---
+
+## nc-migration-patterns
+
+
+
+## Principle: Expand + Contract
+
+Never break. Always:
+
+1. **Expand** — add new alongside old
+2. **Migrate** — gradually move consumers to new
+3. **Contract** — remove old when no consumers remain
+
+## Framework upgrade (e.g., Next.js 15 → 16)
+
+1. **Read migration guide** — list all breaking changes
+2. **Branch + codemod** — run official codemods first (`@next/codemod`)
+3. **Incremental** — if possible, pin portions to old version
+4. **Test in canary** — deploy to 5% traffic, monitor errors
+5. **Roll forward** — if stable, 100%; if not, rollback image tag
+
+## DB schema migration
+
+### Additive changes (safe)
+
+- Add new column (nullable, no default) → deploy → backfill → add constraint
+- Add new table → deploy → populate lazily
+- Add index → `CREATE INDEX CONCURRENTLY` (Postgres) to avoid lock
+
+### Breaking changes (multi-step)
+
+Example: rename column `user_name` → `username`:
+
+```
+Step 1: Add column "username"
+Step 2: Deploy code that writes to BOTH (dual-write)
+Step 3: Backfill: UPDATE users SET username = user_name WHERE username IS NULL
+Step 4: Deploy code that reads from "username" only
+Step 5: Deploy code that writes to "username" only
+Step 6: Drop column "user_name"
+```
+
+Never: drop + add in same migration (data loss).
+
+### Prisma safe pattern
+
+```bash
+# Dev
+npx prisma migrate dev --name add_username
+
+# Prod (non-destructive)
+npx prisma migrate deploy
+```
+
+For destructive changes: raw SQL in a new migration, manually reviewed.
+
+## API v1 → v2 migration
+
+### URL versioning
+
+```
+/api/v1/users  (existing, keep alive)
+/api/v2/users  (new shape)
+```
+
+### Migration workflow
+
+1. Ship v2 alongside v1
+2. Add `Deprecation: true` + `Sunset: 2027-01-01` headers on v1
+3. Update docs to point to v2
+4. Monitor v1 usage per client (log `user-agent` or API key)
+5. Email v1 consumers: deadline, migration guide
+6. After sunset date + 30 day grace, remove v1
+
+### Dual-read, single-write transition
+
+If v2 backend is incompatible:
+
+```ts
+app.get("/api/v1/users/:id", async (req, res) => {
+  const user = await v2_getUser(req.params.id);
+  res.json(v1_transform(user));  // adapter layer
+});
+```
+
+v1 endpoint becomes a thin wrapper over v2 logic.
+
+## Large refactor strategy
+
+### Strangler fig pattern
+
+1. New code written alongside old
+2. Feature by feature, route traffic to new
+3. Old code "strangled" as consumers migrate
+4. Delete old when 0 consumers
+
+Origin: Martin Fowler, Strangler Fig Application.
+
+### Feature flag guarded
+
+```ts
+if (flags.USE_NEW_CHECKOUT) {
+  return newCheckout(order);
+}
+return oldCheckout(order);
+```
+
+Benefits: instant rollback, gradual rollout per user cohort.
+
+## Data backfill
+
+### Large table (millions of rows)
+
+Bad: `UPDATE users SET ...` — locks table, blocks writes for hours.
+
+Good: batched + throttled:
+
+```sql
+-- Postgres: update in chunks
+DO $$
+DECLARE
+  batch_size INT := 1000;
+  max_id INT;
+  current_id INT := 0;
+BEGIN
+  SELECT MAX(id) INTO max_id FROM users WHERE new_col IS NULL;
+  WHILE current_id < max_id LOOP
+    UPDATE users SET new_col = compute(old_col)
+    WHERE id BETWEEN current_id AND current_id + batch_size
+      AND new_col IS NULL;
+    current_id := current_id + batch_size;
+    COMMIT;
+    PERFORM pg_sleep(0.1);  -- throttle
+  END LOOP;
+END $$;
+```
+
+Or: dedicated backfill job (background queue).
+
+## Rollback checklist
+
+Before shipping migration:
+
+- [ ] Can I rollback the code? (yes if dual-read enabled)
+- [ ] Can I rollback the DB? (usually no — design forward-compatible)
+- [ ] Health check covers new path?
+- [ ] Monitoring alerts on error rate spike?
+- [ ] Backup snapshot before migration executes?
+
+## Anti-patterns
+
+- Dropping column in same PR that adds it (no migration path)
+- Big-bang cutover (all users at once, no rollback window)
+- Skipping dual-write phase
+- No backward compat period after v2 ships
+- Breaking change without versioning API
+- Migrating without backup
+
+## Integration
+
+- `nc-ci-cd` — automated migration in deploy pipeline (with gate)
+- `nc-prisma-helper` — safe Prisma workflow
+- `nc-observability` — track migration progress (rows migrated, errors)
+
+---
+
 ## nc-nextcore-design
 
 
@@ -4649,6 +6086,158 @@ export async function GET(req: NextRequest) {
 ## Reference
 - TanStack Query patterns: `<storage-project>/resources/skill-library/tanstack-query/SKILL.md`
 - Security: `<storage-project>/resources/skill-library/security-nextjs/` (if exists in external-skills)
+
+---
+
+## nc-observability
+
+
+
+Three pillars: **logs** (what happened), **metrics** (how many/fast), **traces** (where time went).
+
+## Logging
+
+### Structured logs (JSON, not plain text)
+
+```ts
+import pino from "pino";
+const log = pino({ level: process.env.LOG_LEVEL || "info" });
+
+log.info({ userId: 42, action: "checkout" }, "user completed purchase");
+// {"level":30,"userId":42,"action":"checkout","msg":"user completed purchase","time":...}
+```
+
+### Log levels
+
+- `fatal` — unrecoverable, process exits
+- `error` — handled exception, investigation needed
+- `warn` — degraded state, not fatal
+- `info` — business events (user signup, order placed)
+- `debug` — detail for development
+- `trace` — very verbose, disabled in prod
+
+### Never log
+
+- Secrets (API keys, passwords, tokens)
+- PII without consent (GDPR — hash email, no credit card)
+- Full request/response bodies by default (sample if needed)
+
+## Metrics
+
+### Golden signals (SRE)
+
+1. **Latency** — p50, p95, p99 of request duration
+2. **Traffic** — requests per second
+3. **Errors** — error rate (5xx / total)
+4. **Saturation** — CPU, memory, queue depth
+
+### Prometheus + Grafana
+
+```ts
+import { Counter, Histogram } from "prom-client";
+
+const httpRequests = new Counter({
+  name: "http_requests_total",
+  help: "Total HTTP requests",
+  labelNames: ["method", "route", "status"],
+});
+
+const httpDuration = new Histogram({
+  name: "http_request_duration_seconds",
+  labelNames: ["method", "route"],
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 5],
+});
+```
+
+## Tracing (OpenTelemetry)
+
+Distributed trace across services:
+
+```ts
+import { trace } from "@opentelemetry/api";
+
+const tracer = trace.getTracer("myapp");
+
+async function checkout(order) {
+  const span = tracer.startSpan("checkout");
+  try {
+    await chargePayment(order);
+    await sendEmail(order);
+    span.setStatus({ code: 0 });
+  } catch (e) {
+    span.recordException(e);
+    span.setStatus({ code: 2, message: e.message });
+    throw e;
+  } finally {
+    span.end();
+  }
+}
+```
+
+Export to Jaeger, Tempo, Datadog, Honeycomb.
+
+## Error tracking (Sentry)
+
+```ts
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 0.1,  // 10% of requests traced
+  release: process.env.GIT_SHA,
+});
+
+try { /* ... */ } catch (e) {
+  Sentry.captureException(e, { tags: { feature: "checkout" } });
+  throw e;
+}
+```
+
+## Alerting
+
+### SLO-based alerts (not threshold-based)
+
+Bad: "CPU > 80%" (fires on normal spikes)  
+Good: "error rate > 1% over 5 min" (user-facing symptom)
+
+### Alert fatigue
+
+- Every alert should be actionable (page someone)
+- If alert fires > 5x/week without action → tune or delete
+- Use notification channels: page (critical), slack (warning), email (info)
+
+## NextCore integration
+
+For `example-homestay.com`:
+
+```ts
+// src/lib/logger.ts
+import pino from "pino";
+export const log = pino({
+  level: process.env.LOG_LEVEL || "info",
+  transport: process.env.NODE_ENV === "development"
+    ? { target: "pino-pretty" }
+    : undefined,
+});
+
+// src/app/api/vip/route.ts
+log.info({ userId, amount }, "vip subscription created");
+```
+
+## Anti-patterns
+
+- `console.log` in production (no structured, no level filter)
+- Logging secrets/PII
+- Alerting on everything → alert fatigue
+- No error tracking (bugs invisible to team)
+- Traces with sample rate 100% → storage cost explodes
+
+## Integration
+
+- `nc-security` — log security events (auth failures, admin actions)
+- `nc-env-secrets` — inject DSN/API keys securely
+- `nc-queues` — trace job execution across queue boundary
 
 ---
 
@@ -5691,6 +7280,154 @@ Before writing any file:
 4. Apply body template if markdown (Rule 4)
 5. Check if file/folder exists (avoid overwrite)
 6. Create directory structure if needed
+
+---
+
+## nc-queues
+
+
+
+## When to queue
+
+Queue work when:
+- User request shouldn't wait (email sends, thumbnail generation)
+- Work may fail/retry (webhook calls, external API)
+- Work is expensive (PDF export, video transcoding)
+- Work is scheduled (daily reports, cleanup jobs)
+
+**Don't queue** sync-critical work the user waits for.
+
+## BullMQ (Redis-backed, Node.js)
+
+```ts
+import { Queue, Worker } from "bullmq";
+
+const queue = new Queue("emails", { connection: redis });
+
+// Enqueue
+await queue.add("welcome", { userId: 42, template: "welcome" }, {
+  attempts: 3,
+  backoff: { type: "exponential", delay: 1000 },
+  removeOnComplete: 100,  // keep last 100
+  removeOnFail: 1000,
+});
+
+// Worker
+new Worker("emails", async (job) => {
+  const { userId, template } = job.data;
+  await sendEmail(userId, template);
+}, { connection: redis, concurrency: 5 });
+```
+
+## Delayed + scheduled jobs
+
+```ts
+// Delayed
+await queue.add("reminder", { orderId }, { delay: 1000 * 60 * 60 });  // 1 hour
+
+// Recurring (cron)
+await queue.add("cleanup", {}, {
+  repeat: { pattern: "0 2 * * *" }  // daily at 2am
+});
+```
+
+## Failure handling
+
+### Exponential backoff
+
+Retry 1 → 1s, retry 2 → 2s, retry 3 → 4s, retry N → 2^N seconds
+
+### Dead letter queue
+
+After max retries, move to DLQ for manual inspection:
+
+```ts
+new Worker("emails", async (job) => { /* ... */ }, {
+  connection: redis,
+});
+
+queue.on("failed", async (job, err) => {
+  if (job.attemptsMade >= job.opts.attempts) {
+    await dlq.add("failed-email", { job: job.toJSON(), error: err.message });
+  }
+});
+```
+
+### Idempotency
+
+Jobs can retry — make handlers idempotent:
+
+```ts
+async function sendEmail({ userId, messageId }) {
+  const sent = await db.emailLog.findUnique({ where: { messageId } });
+  if (sent) return;  // already processed
+  await mailer.send(...);
+  await db.emailLog.create({ data: { messageId, userId } });
+}
+```
+
+## NextCore job system pattern
+
+Following the `<website-project>/example-homestay.com/src/lib/jobs/` convention:
+
+```ts
+// definitions/cleanup-expired-vip.ts
+import { defineJob } from "../registry";
+
+export default defineJob({
+  name: "cleanup-expired-vip",
+  schedule: "0 3 * * *",  // 3am daily
+  description: "Mark PENDING VIP orders >24h as CANCELLED",
+  async handler() {
+    const cutoff = new Date(Date.now() - 24 * 3600 * 1000);
+    const result = await db.vipOrder.updateMany({
+      where: { status: "PENDING_PAYMENT", createdAt: { lt: cutoff } },
+      data: { status: "CANCELLED" },
+    });
+    return { cancelled: result.count };
+  },
+});
+```
+
+Registry auto-discovers + DB mutex prevents PM2 cluster duplicate execution.
+
+## Priorities
+
+```ts
+await queue.add("urgent", data, { priority: 1 });  // high
+await queue.add("normal", data, { priority: 10 });
+await queue.add("background", data, { priority: 100 });  // low
+```
+
+## Monitoring
+
+- **Queue depth** — alert if > threshold (workers falling behind)
+- **Failure rate** — alert if > 5%
+- **Processing time** — p95 should be stable
+- **DLQ count** — should be zero; any entry = investigation needed
+
+## Anti-patterns
+
+- Long-running jobs in web process (blocks requests)
+- No idempotency on retry-able jobs
+- Synchronous DB writes in job worker without transaction
+- No monitoring (silent failures)
+- Running jobs in-process when you have multiple web instances (race conditions)
+
+## Alternatives by scale
+
+| Scale | Tool |
+|---|---|
+| Small (< 1k jobs/day) | BullMQ + Redis |
+| Medium (< 100k/day) | BullMQ + Redis cluster, or pg-boss (Postgres-backed) |
+| Large (> 100k/day) | RabbitMQ, Kafka, AWS SQS |
+| Realtime push | Kafka, NATS |
+
+## Integration
+
+- `nc-caching` — Redis serves both cache + queue (share connection, separate DB)
+- `nc-observability` — track queue metrics
+- `nc-websockets` — job completion → broadcast to subscribed clients
 
 ---
 
@@ -7334,6 +9071,166 @@ If budget exceeds 60%, split into 2 sessions:
 
 ---
 
+## nc-state-management
+
+
+
+## Decision tree
+
+```
+Is it server state (from API)?
+  → TanStack Query / SWR (don't use global store)
+
+Is it URL state?
+  → useSearchParams / nuqs (URL is truth)
+
+Is it form state?
+  → react-hook-form / TanStack Form
+
+Is it UI state (modals, theme)?
+  → React Context (small) or Zustand (growing)
+
+Is it complex domain state?
+  → Zustand / Jotai (simple) or Redux Toolkit (complex, time-travel debug)
+```
+
+## Zustand (recommended default)
+
+Minimal boilerplate, works outside React, great DX:
+
+```ts
+import { create } from "zustand";
+
+interface CartStore {
+  items: Item[];
+  add: (item: Item) => void;
+  remove: (id: string) => void;
+  total: () => number;
+}
+
+export const useCart = create<CartStore>((set, get) => ({
+  items: [],
+  add: (item) => set((s) => ({ items: [...s.items, item] })),
+  remove: (id) => set((s) => ({ items: s.items.filter(i => i.id !== id) })),
+  total: () => get().items.reduce((sum, i) => sum + i.price, 0),
+}));
+
+// Component
+const items = useCart((s) => s.items);  // subscribes to items only
+const add = useCart((s) => s.add);
+```
+
+### Persist middleware
+
+```ts
+import { persist } from "zustand/middleware";
+
+export const useCart = create(persist<CartStore>(
+  (set, get) => ({ /* ... */ }),
+  { name: "cart-storage" }  // localStorage
+));
+```
+
+## Jotai (atomic, fine-grained)
+
+```ts
+import { atom, useAtom } from "jotai";
+
+const countAtom = atom(0);
+const doubleAtom = atom((get) => get(countAtom) * 2);
+
+function Counter() {
+  const [count, setCount] = useAtom(countAtom);
+  const [double] = useAtom(doubleAtom);
+  return <button onClick={() => setCount(c => c + 1)}>{count} ({double})</button>;
+}
+```
+
+Best when: Fine-grained reactivity, derived state is complex.
+
+## TanStack Store (framework-agnostic)
+
+```ts
+import { Store } from "@tanstack/store";
+
+const store = new Store({ count: 0 });
+
+store.setState((s) => ({ count: s.count + 1 }));
+store.subscribe(() => console.log(store.state));
+```
+
+Best when: Cross-framework (React + Vue + Solid), or outside component tree.
+
+## Redux Toolkit
+
+```ts
+import { createSlice, configureStore } from "@reduxjs/toolkit";
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: { items: [] },
+  reducers: {
+    add: (state, action) => { state.items.push(action.payload); },  // immer handles immutability
+    remove: (state, action) => {
+      state.items = state.items.filter(i => i.id !== action.payload);
+    },
+  },
+});
+
+export const { add, remove } = cartSlice.actions;
+export const store = configureStore({ reducer: { cart: cartSlice.reducer } });
+```
+
+Best when: Large team, need Redux DevTools time-travel, complex async (createAsyncThunk), or existing Redux codebase.
+
+## React Context (careful)
+
+```tsx
+const ThemeContext = createContext<"light" | "dark">("light");
+
+function App() {
+  const [theme, setTheme] = useState("light");
+  return <ThemeContext.Provider value={theme}>...</ThemeContext.Provider>;
+}
+```
+
+**Pitfall:** every context update re-renders all consumers. Split into multiple contexts or use selector pattern.
+
+Best when: Small, rarely-changing (auth user, theme, locale).
+
+## Server state vs client state
+
+**Critical distinction** — don't put server data in Zustand/Redux:
+
+```ts
+// BAD — server state in global store
+const users = useUsersStore((s) => s.users);  // stale, no refetch
+
+// GOOD — TanStack Query
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => api.users.list(),
+});
+```
+
+TanStack Query handles: caching, background refetch, stale-while-revalidate, optimistic updates, retry, offline.
+
+## Anti-patterns
+
+- Global store for server data (stale, no refetch)
+- Redux for small app (boilerplate overkill)
+- Context for frequently-changing data (re-render storm)
+- Prop drilling 5+ levels (use store)
+- Mixing server + client state in same slice
+
+## Integration
+
+- `nc-frontend-development` — Suspense + useSuspenseQuery for async
+- `nc-react-best-practices` — avoid unnecessary re-renders
+- `nc-tanstack` — TanStack Query for server state
+
+---
+
 ## nc-tanstack
 
 
@@ -8968,6 +10865,159 @@ Building with this stack:
 - [ ] Configure remote caching (if monorepo)
 - [ ] Set up CI/CD pipeline
 - [ ] Configure deployment platform
+
+---
+
+## nc-websockets
+
+
+
+## Transport choice
+
+| Transport | Pros | Cons | Use when |
+|---|---|---|---|
+| **WebSockets** | Bidirectional, binary, low overhead | Complex scaling, sticky sessions | Chat, collab, games |
+| **SSE** | HTTP-native, auto-reconnect, simple | One-way (server→client), no binary | Notifications, dashboards, feeds |
+| **Long polling** | Works everywhere, simple | Inefficient at scale | Fallback only |
+| **Short polling** | Trivial | Wasteful, high latency | Low-frequency data |
+
+## SSE (recommended for 80% of use cases)
+
+```ts
+// Server (Next.js route)
+export async function GET() {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      const interval = setInterval(() => {
+        const msg = `data: ${JSON.stringify({ time: Date.now() })}\n\n`;
+        controller.enqueue(encoder.encode(msg));
+      }, 1000);
+      // Cleanup on disconnect
+      return () => clearInterval(interval);
+    }
+  });
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive"
+    }
+  });
+}
+
+// Client
+const es = new EventSource("/api/events");
+es.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  // handle
+};
+es.onerror = () => {
+  // browser auto-reconnects with Last-Event-ID
+};
+```
+
+## WebSocket (bidirectional)
+
+```ts
+// Server (ws lib)
+import { WebSocketServer } from "ws";
+const wss = new WebSocketServer({ port: 8080 });
+
+wss.on("connection", (ws, req) => {
+  const userId = authFromReq(req);
+  if (!userId) return ws.close(4001, "Unauthorized");
+
+  ws.on("message", (data) => {
+    const msg = JSON.parse(data.toString());
+    // broadcast or handle
+  });
+
+  ws.on("close", () => {
+    // cleanup
+  });
+});
+
+// Client
+const ws = new WebSocket("wss://example.com/socket");
+ws.onopen = () => ws.send(JSON.stringify({ type: "hello" }));
+ws.onmessage = (e) => {
+  const msg = JSON.parse(e.data);
+};
+```
+
+## Scaling realtime
+
+### Problem: multiple app instances
+
+User A connected to instance 1, User B to instance 2. A sends message to B → instance 1 doesn't know B exists.
+
+### Solution: Redis pub/sub
+
+```ts
+// On message from client
+await redis.publish(`chat:${roomId}`, JSON.stringify(msg));
+
+// On each instance, subscribe
+redis.subscribe(`chat:${roomId}`);
+redis.on("message", (chan, msg) => {
+  // forward to connected clients in this room on THIS instance
+  localRoomClients.forEach(ws => ws.send(msg));
+});
+```
+
+### Sticky sessions
+
+Load balancer must route same user's requests to same instance (required for WebSocket reconnect handling):
+
+- nginx: `ip_hash`
+- AWS ALB: sticky cookies
+- Cloudflare: session affinity
+
+SSE avoids this — stateless HTTP, any instance can handle.
+
+## Reconnection + replay
+
+SSE native: browser sends `Last-Event-ID` header on reconnect.
+
+```ts
+// Server: assign unique ID to each event
+controller.enqueue(encoder.encode(`id: ${eventId}\ndata: ...\n\n`));
+
+// On reconnect with Last-Event-ID header:
+const lastId = req.headers.get("Last-Event-ID");
+// Replay missed events from lastId to now
+```
+
+## NextCore pattern (example-homestay.com)
+
+NextCore uses SSE for:
+- VIP order status updates (PENDING → PAID → ACTIVE)
+- Invoice updates
+- Finance transaction stream
+
+Pattern: multi-channel emit — mutation emits to all affected entity channels.
+
+```ts
+// On webhook PAID event
+await emitSSE('vip-subscriptions', { subId, status: 'ACTIVE' });
+await emitSSE('vip-orders', { orderId, status: 'PAID' });
+await emitSSE('finance-transactions', { txId });
+```
+
+## Anti-patterns
+
+- WebSocket for one-way server push → use SSE (simpler)
+- Polling every 1s → use SSE or WS
+- No auth on WS → anyone can eavesdrop
+- No reconnection logic on client → silent failure on network blip
+- No backpressure handling → message queue overflow
+
+## Integration
+
+- `nc-caching` — Redis pub/sub for cross-instance
+- `nc-auth-patterns` — authenticate WS/SSE connection at handshake
+- `nc-observability` — track connection count, message rate
 
 ---
 

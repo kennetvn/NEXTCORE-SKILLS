@@ -91,3 +91,34 @@ Tier 1 shipped: 5 agent-performance skills.
 - Per-IDE workflow count: 59 → 64 on all 10 IDEs
 - catalog.json v2.2.0 regenerated
 - catalog.html regenerated
+
+## [2.3.0] - 2026-04-18
+
+Tier 2 shipped: 13 core missing skills (backend + infrastructure + patterns).
+
+### Added skills
+
+**Infrastructure:**
+- `nc-docker` — containerization, multi-stage builds, dev containers
+- `nc-ci-cd` — GitHub Actions, GitLab CI, matrix builds, secrets
+- `nc-env-secrets` — .env management, rotation, Vault/Doppler integration
+- `nc-observability` — logging (pino), metrics (Prometheus), tracing (OpenTelemetry), Sentry
+
+**Communication:**
+- `nc-caching` — HTTP headers, Redis patterns, LRU, stampede protection
+- `nc-websockets` — SSE + WebSocket patterns, Redis pub/sub for scale
+- `nc-queues` — BullMQ, background jobs, retry+DLQ, NextCore job pattern
+- `nc-api-contracts` — OpenAPI, tRPC, GraphQL, gRPC, versioning
+
+**Patterns:**
+- `nc-auth-patterns` — OAuth2, JWT, session, passwordless, MFA, RBAC
+- `nc-state-management` — Zustand, Jotai, TanStack Store, Redux decision tree
+- `nc-migration-patterns` — expand+contract, framework upgrade, DB schema
+- `nc-microservices` — service boundaries, saga, outbox, service mesh
+- `nc-event-sourcing` — event stores, CQRS, snapshots, projections
+
+### Stats
+
+- Skills: 70 → 83
+- Per-IDE workflows: 64 → 77 on all 10 IDEs
+- Total cross-IDE: 704 → 847
