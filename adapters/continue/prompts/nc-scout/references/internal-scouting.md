@@ -4,7 +4,7 @@ Use Explore subagents when SCALE >= 6 or external tools unavailable.
 
 ## How It Works
 
-Spawn multiple `Explore` subagents via `Task` tool to search codebase in parallel.
+Spawn multiple `Explore` subagents via agent dispatch to search codebase in parallel.
 
 ## Task Tool Configuration
 
@@ -43,7 +43,7 @@ Split codebase logically:
 - `api/` - API routes
 
 ### Parallel Execution
-- Spawn all agents in single `Task` tool call
+- Spawn all agents in single agent dispatch call
 - Each agent gets distinct directory scope
 - No overlap between agents
 

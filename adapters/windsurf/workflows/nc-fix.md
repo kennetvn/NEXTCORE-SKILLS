@@ -117,8 +117,8 @@ See `nc-fix/references/skill-activation-matrix.md` for complete matrix.
 
 **Always activate:** `nc-debug` (all workflows)
 **Conditional:** `nc-brainstorm`, `nc-context-engineering`, `nc-project-management` (moderate+ for task hydration/sync-back)
-**Subagents:** `debugger`, `researcher`, `planner`, `code-reviewer`, `tester`, `Bash`
-**Parallel:** Multiple `Explore` agents for scouting, `Bash` agents for verification
+**Subagents:** `debugger`, `researcher`, `planner`, `code-reviewer`, `tester`, terminal command
+**Parallel:** Multiple `Explore` agents for scouting, terminal command agents for verification
 
 ## Output Format
 

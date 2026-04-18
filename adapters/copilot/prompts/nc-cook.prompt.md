@@ -144,7 +144,7 @@ Human review required at these checkpoints (skipped with `--auto`):
 - Steps 4, 5, 6 **MUST** use Task tool to spawn subagents
 - DO NOT implement testing, review, or finalization yourself - DELEGATE
 - If workflow ends with 0 Task tool calls, it is INCOMPLETE
-- Pattern: `Task(subagent_type="[type]", prompt="[task]", description="[brief]")`
+- Pattern: parallel agent dispatch pattern
 
 ## References
 

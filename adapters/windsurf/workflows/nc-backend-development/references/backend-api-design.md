@@ -179,7 +179,6 @@ type Post {
   id: ID!
   title: String!
   content: String!
-  author: User!
   published: Boolean!
   createdAt: DateTime!
 }
@@ -451,7 +450,6 @@ server.bindAsync(
 openapi: 3.0.0
 info:
   title: User API
-  version: 1.0.0
 paths:
   /api/v1/users:
     get:

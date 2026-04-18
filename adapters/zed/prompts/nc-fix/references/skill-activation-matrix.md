@@ -34,7 +34,7 @@ Skip Tasks for Quick workflow (< 3 steps). See `references/task-orchestration.md
 |----------|---------------|
 | `debugger` | Root cause unclear, need deep investigation |
 | `Explore` (parallel) | Scout multiple areas simultaneously |
-| `Bash` (parallel) | Verify implementation (typecheck, lint, build) |
+| terminal command (parallel) | Verify implementation (typecheck, lint, build) |
 | `researcher` | External docs needed, latest best practices |
 | `planner` | Complex fix needs breakdown, multiple phases |
 | `tester` | After implementation, verify fix works |
@@ -52,15 +52,15 @@ See `references/parallel-exploration.md` for detailed patterns.
 |------|-------------------|
 | Root cause unclear | 2-3 `Explore` agents on different areas |
 | Multi-module fix | `Explore` each module in parallel |
-| After implementation | `Bash` agents: typecheck + lint + build |
-| Before commit | `Bash` agents: test + build + lint |
+| After implementation | terminal command agents: typecheck + lint + build |
+| Before commit | terminal command agents: test + build + lint |
 | 2+ independent issues | Task trees + `fullstack-developer` agents per issue |
 
 ## Workflow → Skills Map
 
 | Workflow | Skills Activated |
 |----------|------------------|
-| Quick | `nc-debug`, `nc-code-review`, parallel `Bash` verification |
+| Quick | `nc-debug`, `nc-code-review`, parallel terminal command verification |
 | Standard | Above + Tasks, `nc-project-management`, `tester`, parallel `Explore` |
 | Deep | All above + `nc-brainstorm`, `nc-context-engineering`, `nc-project-management`, `researcher`, `planner` |
 | Parallel | Per-issue Task trees + `nc-project-management` + `fullstack-developer` agents + coordination via `TaskList` |

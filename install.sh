@@ -50,6 +50,21 @@ for arg in "$@"; do
 done
 
 # Default target based on IDE
+
+# Auto-detect IDE if not specified (based on existing directories)
+if [ "$IDE" = "claude-code" ] && [ -z "$TARGET" ] && [ $# -eq 0 ]; then
+  if   [ -d "${PWD}/.agent/workflows" ];    then IDE="antigravity"; log "Auto-detected: antigravity"
+  elif [ -d "${PWD}/.cursor" ];              then IDE="cursor";      log "Auto-detected: cursor"
+  elif [ -d "${PWD}/.windsurf" ];            then IDE="windsurf";    log "Auto-detected: windsurf"
+  elif [ -d "${PWD}/.continue" ];            then IDE="continue";    log "Auto-detected: continue"
+  elif [ -d "${PWD}/.zed" ];                 then IDE="zed";         log "Auto-detected: zed"
+  elif [ -d "${PWD}/.void" ];                then IDE="void";        log "Auto-detected: void"
+  elif [ -d "${PWD}/.codeium" ];             then IDE="codeium";     log "Auto-detected: codeium"
+  elif [ -d "${PWD}/.idea" ];                then IDE="jetbrains";   log "Auto-detected: jetbrains"
+  elif [ -d "${PWD}/.aider" ];               then IDE="aider";       log "Auto-detected: aider"
+  elif [ -d "${PWD}/.github" ] && [ -f "${PWD}/.github/copilot-instructions.md" ]; then IDE="copilot"; log "Auto-detected: copilot"
+  fi
+fi
 if [ -z "$TARGET" ]; then
   case "$IDE" in
     claude-code) TARGET="${PWD}/.claude" ;;

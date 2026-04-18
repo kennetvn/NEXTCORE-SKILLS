@@ -805,7 +805,6 @@ export const webhookEvents = pgTable('webhook_events', {
 ### Comprehensive Audit Trail
 ```typescript
 // Store everything needed for debugging and reconciliation
-metadata: JSON.stringify({
   // Pricing history
   originalAmount: 9900,
 

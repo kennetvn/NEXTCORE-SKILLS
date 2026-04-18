@@ -35,9 +35,9 @@ Launch multiple `Explore` subagents in parallel to scout and verify the root cau
 
 **Pattern:** In SINGLE message, launch 2-3 Explore agents:
 ```
-Task("Explore", "Find [area1] files related to issue", "Scout area1")
-Task("Explore", "Find [area2] patterns/usage", "Scout area2")
-Task("Explore", "Find [area3] tests/dependencies", "Scout area3")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 - Only if unclear which files need changes
@@ -55,11 +55,11 @@ Fix the issue following debugging findings.
 - If stuck after 2 attempts, step back and question assumptions before continuing
 
 **After implementation - Parallel Verification:**
-Launch `Bash` agents in parallel to verify:
+Launch terminal command agents in parallel to verify:
 ```
-Task("Bash", "Run typecheck", "Verify types")
-Task("Bash", "Run lint", "Verify lint")
-Task("Bash", "Run build", "Verify build")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 `TaskUpdate(T3, status="completed")`
@@ -101,7 +101,7 @@ See `references/review-cycle.md` for mode-specific handling.
 |------|------------------|
 | 1 | `nc-debug`, `debugger` subagent |
 | 2 | Multiple `Explore` subagents in parallel (optional) |
-| 3 | parallel `Bash` for verification |
+| 3 | parallel terminal command for verification |
 | 4 | `tester` subagent |
 | 5 | `code-reviewer` subagent |
 | 6 | `nc-project-management`, `git-manager`, `docs-manager` subagents |

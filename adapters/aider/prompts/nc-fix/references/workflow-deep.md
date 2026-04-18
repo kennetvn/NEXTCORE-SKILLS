@@ -23,9 +23,9 @@ T8 = TaskCreate(subject="Finalize & docs",            activeForm="Finalizing",  
 `TaskUpdate(T1, status="in_progress")`
 follow the `nc-debug` workflow. Launch 2-3 `Explore` subagents in parallel:
 ```
-Task("Explore", "Find error origin", "Trace error")
-Task("Explore", "Find affected components", "Map deps")
-Task("Explore", "Find similar patterns", "Find patterns")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 See `references/parallel-exploration.md` for patterns.
 
@@ -69,7 +69,7 @@ Use `planner` subagent to create implementation plan.
 `TaskUpdate(T5, status="in_progress")`
 Implement per plan. Use `nc-context-engineering` for token-budget-aware implementation.
 
-**Parallel Verification:** Launch `Bash` agents: typecheck + lint + build
+**Parallel Verification:** Launch terminal command agents: typecheck + lint + build
 See `references/parallel-exploration.md`
 
 `TaskUpdate(T5, status="completed")`
@@ -112,10 +112,10 @@ See `references/review-cycle.md` for mode-specific handling.
 | 2 | `researcher` (runs parallel with step 1) |
 | 3 | `nc-brainstorm` |
 | 4 | `planner` |
-| 5 | `nc-context-engineering`, parallel `Bash` |
+| 5 | `nc-context-engineering`, parallel terminal command |
 | 6 | `tester` |
 | 7 | `code-reviewer` |
-| 8 | `nc-project-management`, `docs-manager`, `Bash` |
+| 8 | `nc-project-management`, `docs-manager`, terminal command |
 
 **Rules:** Don't skip steps. Validate before proceeding. One phase at a time.
 **Frontend:** Use `chrome`, `nc-chrome-devtools` or any relevant skills/tools to verify.

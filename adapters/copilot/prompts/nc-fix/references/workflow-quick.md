@@ -18,10 +18,10 @@ Implement the fix directly.
 - Follow existing patterns
 
 **Parallel Verification:**
-Launch `Bash` agents in parallel:
+Launch terminal command agents in parallel:
 ```
-Task("Bash", "Run typecheck", "Verify types")
-Task("Bash", "Run lint", "Verify lint")
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 See `references/parallel-exploration.md` for patterns.

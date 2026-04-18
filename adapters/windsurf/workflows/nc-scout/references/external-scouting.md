@@ -61,7 +61,7 @@ If not installed, ask user:
 
 ## Spawning Parallel Bash Agents
 
-Use `Task` tool with `subagent_type: "Bash"` to spawn parallel agents:
+Use agent dispatch with `subagent_type: "Bash"` to spawn parallel agents:
 
 ```
 Task 1: subagent_type="Bash", prompt="Run: gemini -y -m gemini-3-flash-preview '[prompt1]'"

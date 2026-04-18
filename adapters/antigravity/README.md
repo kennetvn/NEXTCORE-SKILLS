@@ -15,11 +15,11 @@ Ports NEXTCORE skills to [Google Antigravity](https://antigravity.google) IDE.
 
 | Claude Code | Antigravity equivalent |
 |---|---|
-| `name: nc:brainstorm` | Filename `nc-brainstorm.md` (no frontmatter `name` field) |
+| `name: nc-brainstorm` | Filename `nc-brainstorm.md` (no frontmatter `name` field) |
 | `argument-hint: "[topic]"` | Remove (use `$ARGUMENTS` inline instead) |
 | `metadata.author/version` | Remove (lives in repo git history) |
 | `license: MIT` | Remove (repo LICENSE covers) |
-| `AskUserQuestion` tool call | "Ask user clarifying questions in chat" |
+| chat question tool call | "Ask user clarifying questions in chat" |
 | `WebSearch` tool | "Use web search via the browser or search tool" |
 | `Skill` tool invoke | "Follow the `workflow-name` workflow instructions" |
 | Subagent `Task(...)` | "Delegate to the `ai-developer` workflow" (or inline the steps) |

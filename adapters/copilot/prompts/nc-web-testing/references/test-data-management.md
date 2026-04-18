@@ -43,11 +43,9 @@ const users = userFactory.buildList(5);
 const postFactory = Factory.define<Post>(({ associations }) => ({
   id: faker.string.uuid(),
   title: faker.lorem.sentence(),
-  author: associations.author || userFactory.build(),
 }));
 
 const post = postFactory.build({
-  author: userFactory.build({ role: 'admin' }),
 });
 ```
 

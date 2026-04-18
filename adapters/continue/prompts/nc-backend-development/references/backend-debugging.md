@@ -577,7 +577,6 @@ import tracer from 'dd-trace';
 tracer.init({
   service: 'backend-api',
   env: process.env.NODE_ENV,
-  version: '1.0.0',
   logInjection: true
 });
 ```

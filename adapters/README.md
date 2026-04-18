@@ -25,7 +25,7 @@ adapters/
 |---|---|---|
 | Instructional content (prose, process, principles) | Yes | 1:1 copy with syntax adjustments |
 | Frontmatter `description` | Yes | Most IDEs use similar hint |
-| Slash command invocation | Partial | Name differs per IDE (`/nc:plan` vs workflow filename) |
+| Slash command invocation | Partial | Name differs per IDE (`/nc-plan` vs workflow filename) |
 | Claude Code `Skill` tool | No | Convert to "invoke workflow X" prose |
 | Subagent dispatch (`Task`/`Agent`) | No | Map to IDE's equivalent or inline the steps |
 | Hooks (session-init, post-edit) | No | IDE-specific; skip for other IDEs |

@@ -19,14 +19,14 @@ Task(subagent_type="Explore", prompt="Find [Z] in [area3]", description="Scout a
 **Example - Multi-area scouting:**
 ```
 // Launch in SINGLE message with multiple Task calls:
-Task("Explore", "Find auth-related files in src/", "Scout auth")
-Task("Explore", "Find API routes handling users", "Scout API")
-Task("Explore", "Find test files for auth module", "Scout tests")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 ## Parallel Verification (Bash)
 
-Launch multiple `Bash` subagents to verify implementation from different angles.
+Launch multiple terminal command subagents to verify implementation from different angles.
 
 **Pattern:**
 ```
@@ -37,9 +37,9 @@ Task(subagent_type="Bash", prompt="Run [command2]", description="Verify Y")
 **Example - Multi-verification:**
 ```
 // Launch in SINGLE message:
-Task("Bash", "Run typecheck: bun run typecheck", "Verify types")
-Task("Bash", "Run lint: bun run lint", "Verify lint")
-Task("Bash", "Run build: bun run build", "Verify build")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 ## Task-Coordinated Parallel (Moderate+)
@@ -57,8 +57,8 @@ T_B2 = TaskCreate(subject="[Issue B] Fix",   activeForm="Fixing B",   addBlocked
 T_final = TaskCreate(subject="Integration verify", addBlockedBy=[T_A2, T_B2])
 
 // Spawn agents per issue tree
-Task("fullstack-developer", "Fix Issue A. Claim tasks via TaskUpdate.", "Fix A")
-Task("fullstack-developer", "Fix Issue B. Claim tasks via TaskUpdate.", "Fix B")
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 Agents claim work via `TaskUpdate(status="in_progress")` and complete via `TaskUpdate(status="completed")`. Blocked tasks auto-unblock when dependencies resolve.
@@ -81,15 +81,15 @@ Agents claim work via `TaskUpdate(status="in_progress")` and complete via `TaskU
 
 ```
 // Scout phase - parallel
-Task("Explore", "Find payment handlers", "Scout payments")
-Task("Explore", "Find order processors", "Scout orders")
+delegate to $1 agent
+delegate to $1 agent
 
 // Wait for results, implement fix, TaskUpdate each phase
 
 // Verify phase - parallel
-Task("Bash", "Run tests: bun test", "Run tests")
-Task("Bash", "Run typecheck", "Check types")
-Task("Bash", "Run build", "Verify build")
+delegate to $1 agent
+delegate to $1 agent
+delegate to $1 agent
 ```
 
 ## Resource Limits
