@@ -1,55 +1,40 @@
-# Credits & Attribution
+# Credits
 
-NEXTCORE-SKILLS is a fork and evolution of [prior ecosystem work](https://prior ecosystem work),
-an open-source Claude Code enhancement framework licensed under MIT.
+## Architecture inspiration
 
-## Upstream: prior ecosystem work
+Some early architectural patterns in this repo (YAML-frontmatter skill discovery, Node CJS hook system, file-based configuration) were inspired by [prior ecosystem work](https://prior ecosystem work) (MIT licensed). We credit prior ecosystem work for pioneering these patterns in the Claude Code ecosystem.
 
-- **Project:** prior ecosystem work / prior ecosystem work-engineer
-- **License:** MIT
-- **Website:** https://prior ecosystem work
+Per MIT license requirements, the original copyright notice is preserved in `LICENSE`.
 
-We gratefully acknowledge the foundational work by prior ecosystem work authors, including:
+## NEXTCORE-SKILLS own contributions
 
-- Core hook system for Claude Code event integration
-- Skill framework with frontmatter + auto-discovery
-- Statusline system
-- Config loader utilities (originally ck-config-utils.cjs)
-- Session state + orchestration patterns
-- Many of the generic skills shipped in this repo
+This repo is actively evolving toward full independence. Current custom work:
 
-## What NEXTCORE-SKILLS adds/changes
+### Framework (NextCore-authored)
+- Install system (`install.sh`, `install.ps1`, `uninstall.sh`) with update/minimal modes
+- Directory structure + naming conventions (`nc:` prefix, `.nc.json` config)
+- Skill consolidation (duplicate detection, typo fixes, env cleanup)
+- Cross-IDE compatibility roadmap (see ROADMAP.md)
 
-This fork focuses on Vietnamese SMB tooling (hotel booking, Facebook group
-automation, Chrome extension development, VPS deployment).
+### Domain skills (NextCore-authored)
+- **nextcore-design** — NextCore CSS class convention (`.nextcore-ext-*`)
+- **nextjs-api** — Next.js 16 API route patterns with Prisma + CORS for Chrome Extension access
+- **prisma-helper** — Safe Prisma migrations for production MySQL/PostgreSQL
+- **facebook-dom** — Facebook DOM interaction SDK (Manifest V3 content scripts)
+- **chrome-extension-dev** — Manifest V3 patterns + service worker debugging
+- **deploy-vps** — VPS deployment workflows with backup/rollback/health-check
 
-### Rebrand
-- Prefix `ck:` -> `nc:` across 75+ skill identifiers
-- Renamed `ck-*` folders -> `nc-*`
-- Renamed `ck-config-utils.cjs` -> `nc-config-utils.cjs`
-- Renamed `.ck.json` -> `.nc.json`
-- Brand strings `prior ecosystem work` -> `nextcoreskill`
+### Agents + Commands (NextCore-authored)
+- Custom commands: `/pair`, `/standup`, `/ux-audit`, `/tm`, `/team-stop`, `/website`, `/extensions`
+- Output styles (God Mode Level 5, terse engineering mode)
+- Project rules (`development-rules.md`, `orchestration-protocol.md`, `agent-workspace-policy.md`)
 
-### Consolidation
-- Removed duplicate `nc-loop` (identical to `nc-autoresearch`)
-- Removed placeholder `template-skill`
-- Fixed typo `ckm:design` -> `nc:design`
-- Cleaned legacy CLAUDEKIT_API_KEY env var
+## Related open-source projects used
 
-### Additions
-- **nextcore-design** - NextCore CSS class convention
-- **nextjs-api** - Next.js 16 API + Prisma + CORS patterns
-- **prisma-helper** - Safe Prisma migrations
-- **facebook-dom** - FB DOM interaction SDK
-- **chrome-extension-dev** - Manifest V3 patterns
-- **deploy-vps** - VPS deployment with rollback
-- **install.sh** / **install.ps1** - one-command installer
-- Hook tests in hooks/__tests__/
+- **Claude Code** (Anthropic) — the CLI this framework extends
+- **lucide-react** (ISC) — icon references in design skills
+- **mermaid** (MIT) — diagram syntax in `mermaidjs-v11` skill
 
-## Attribution policy
+## Roadmap to independence
 
-When using, modifying, or redistributing:
-
-1. Retain the MIT license notice in LICENSE
-2. Retain this CREDITS.md file
-3. Do not misrepresent the origin - it is a fork of prior ecosystem work
+See [ROADMAP.md](./ROADMAP.md) for the plan to progressively replace inherited components with NextCore-authored originals. Current target: ~12 months to 100% independent codebase.

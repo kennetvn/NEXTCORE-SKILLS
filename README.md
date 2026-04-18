@@ -1,11 +1,8 @@
 # NEXTCORE-SKILLS
 
-> File-based enhancement framework for Claude Code — 81 skills, 15 hooks, slash commands, agents, output styles.
->
-> **Originally forked from [prior ecosystem work](https://prior ecosystem work)** (MIT licensed). Rebranded + consolidated + extended for NextCore ecosystem (Vietnamese SMB tooling: hotel booking, Facebook group automation, Chrome extension dev, VPS operations). See [CREDITS.md](./CREDITS.md) for full attribution.
+> File-based enhancement framework for Claude Code — 81 skills, 15 hooks, slash commands, agents, output styles. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Based on prior ecosystem work](https://img.shields.io/badge/Based_on-prior ecosystem work-blue.svg)](https://prior ecosystem work)
 
 ---
 
@@ -215,7 +212,7 @@ PRs welcome. Each new skill should:
 - Work offline (no required API keys)
 - Not duplicate existing skills
 
-Generic improvements should be considered for upstream contribution to [prior ecosystem work](https://prior ecosystem work).
+See [ROADMAP.md](./ROADMAP.md) for the path toward full independence and cross-IDE support.
 
 ---
 
@@ -250,5 +247,5 @@ MIT. See [LICENSE](./LICENSE). Upstream attribution in [CREDITS.md](./CREDITS.md
 
 - **Repo:** https://github.com/kennetvn/NEXTCORE-SKILLS
 - **Issues:** https://github.com/kennetvn/NEXTCORE-SKILLS/issues
-- **Upstream:** https://prior ecosystem work
+- **Roadmap:** [ROADMAP.md](./ROADMAP.md)
 - **Claude Code:** https://docs.claude.com/claude-code
