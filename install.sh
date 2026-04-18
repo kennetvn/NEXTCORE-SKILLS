@@ -59,13 +59,17 @@ if [ -z "$TARGET" ]; then
     copilot)     TARGET="${PWD}/.github" ;;
     continue)    TARGET="${PWD}/.continue" ;;
     aider)       TARGET="${PWD}/.aider/nextcore" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider)" ;;
+    codeium)     TARGET="${PWD}/.codeium" ;;
+    zed)         TARGET="${PWD}/.zed" ;;
+    jetbrains)   TARGET="${PWD}/.idea/ai-prompts" ;;
+    void)        TARGET="${PWD}/.void" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, codeium, zed, jetbrains, void)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity|cursor|windsurf|copilot|continue|aider) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider)" ;;
+  claude-code|antigravity|cursor|windsurf|copilot|continue|aider|codeium|zed|jetbrains|void) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, codeium, zed, jetbrains, void)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -230,6 +234,18 @@ elif [ "$IDE" = "aider" ]; then
   [ "$MINIMAL" = true ] && warn "--minimal ignored for aider (no skill assets to trim)"
   SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
+
+elif [ "$IDE" = "codeium" ] || [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
+  SRC_X="$NC_SOURCE/adapters/$IDE/prompts"
+  [ -d "$SRC_X" ] || err "Adapter source missing: $SRC_X"
+  mkdir -p "$TARGET/prompts"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_X/" "$TARGET/prompts/"
+  else
+    cp -r "$SRC_X"/* "$TARGET/prompts/"
+  fi
+  SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
 fi
 
 # Cleanup temp clone
@@ -273,4 +289,22 @@ elif [ "$IDE" = "copilot" ]; then
   echo "  1. Enable chat.promptFiles in VS Code settings"
   echo "  2. Add ".github/prompts" to chat.promptFilesLocations"
   echo "  3. Reload VS Code, then type /nc- in Copilot Chat"
+elif [ "$IDE" = "continue" ]; then
+  echo "  Prompts:  $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart Continue extension"
+  echo "  2. Type /nc- in Continue chat"
+elif [ "$IDE" = "aider" ]; then
+  echo "  Prompts:  $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. aider --read .aider/nextcore/nextcore-conventions.md"
+  echo "  2. /read .aider/nextcore/prompts/nc-plan.md"
+elif [ "$IDE" = "codeium" ] || [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
+  echo "  Prompts:  $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart $IDE IDE"
+  echo "  2. Type /nc- in the IDE chat"
 fi

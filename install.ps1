@@ -25,7 +25,7 @@ function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
 function Fail { param($msg) Write-Host "[nc] $msg" -ForegroundColor Red; exit 1 }
 
-$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot", "continue", "aider")
+$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot", "continue", "aider", "codeium", "zed", "jetbrains", "void")
 if ($SupportedIdes -notcontains $Ide) {
     Fail "Unsupported IDE: $Ide (supported: $($SupportedIdes -join ', '))"
 }
@@ -39,6 +39,10 @@ if ([string]::IsNullOrEmpty($Target)) {
         "copilot"     { $Target = "$(Get-Location)\.github" }
         "continue"    { $Target = "$(Get-Location)\.continue" }
         "aider"       { $Target = "$(Get-Location)\.aider\nextcore" }
+        "codeium"     { $Target = "$(Get-Location)\.codeium" }
+        "zed"         { $Target = "$(Get-Location)\.zed" }
+        "jetbrains"   { $Target = "$(Get-Location)\.idea\ai-prompts" }
+        "void"        { $Target = "$(Get-Location)\.void" }
     }
 }
 
@@ -200,6 +204,20 @@ if ($Ide -eq "claude-code") {
     $HookCount = 0
 }
 
+} elseif ($Ide -in @("codeium","zed","jetbrains","void")) {
+    $SrcX = Join-Path $NcSource "adapters\$Ide\prompts"
+    if (-not (Test-Path $SrcX)) { Fail "Adapter source missing: $SrcX" }
+    $DstX = Join-Path $Target "prompts"
+    New-Item -ItemType Directory -Path $DstX -Force | Out-Null
+    if ($Mode -eq "update") {
+        Copy-Item -Path "$SrcX\*" -Destination $DstX -Recurse -Force:$false -ErrorAction SilentlyContinue
+    } else {
+        Copy-Item -Path "$SrcX\*" -Destination $DstX -Recurse -Force
+    }
+    $SkillCount = (Get-ChildItem -Path $DstX -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
+    $HookCount = 0
+}
+
 if ($TmpDir -and (Test-Path $TmpDir)) {
     Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
 }
@@ -242,7 +260,7 @@ if ($Ide -eq "claude-code") {
     Write-Host "  1. Enable chat.promptFiles in VS Code settings"
     Write-Host "  2. Add .github/prompts to chat.promptFilesLocations"
     Write-Host "  3. Reload VS Code, then type /nc- in Copilot Chat"
- elseif ($Ide -eq "continue") {
+} elseif ($Ide -eq "continue") {
     Write-Host "  Prompts:  $SkillCount"
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Cyan
@@ -254,4 +272,10 @@ if ($Ide -eq "claude-code") {
     Write-Host "Next steps:" -ForegroundColor Cyan
     Write-Host "  1. aider --read .aider/nextcore/nextcore-conventions.md"
     Write-Host "  2. /read .aider/nextcore/prompts/nc-plan.md (or any workflow)"
+} elseif ($Ide -in @("codeium","zed","jetbrains","void")) {
+    Write-Host "  Prompts:  $SkillCount"
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  1. Restart $Ide IDE"
+    Write-Host "  2. Type /nc- in the IDE chat"
 }

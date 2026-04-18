@@ -1,7 +1,20 @@
 {
-  "version": "1.0.0",
-  "generatedAt": "2026-04-18T07:12:46.300Z",
-  "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
+  "version": "1.1.0",
+  "generatedAt": "2026-04-18T10:27:22.815Z",
+  "repository": "https://github.com/kennetvn/EXTCORE-SKILLS",
+  "supportedIdes": [
+    "claude-code",
+    "antigravity",
+    "cursor",
+    "windsurf",
+    "copilot",
+    "continue",
+    "aider",
+    "codeium",
+    "zed",
+    "jetbrains",
+    "void"
+  ],
   "totalSkills": 65,
   "skills": [
     {
@@ -10,7 +23,17 @@
       "loc": 298,
       "referenceFiles": 3,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -19,7 +42,17 @@
       "loc": 124,
       "referenceFiles": 12,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -34,7 +67,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -49,7 +86,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -58,7 +99,17 @@
       "loc": 106,
       "referenceFiles": 5,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -73,7 +124,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -82,7 +137,17 @@
       "loc": 631,
       "referenceFiles": 3,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -91,7 +156,17 @@
       "loc": 53,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -100,7 +175,17 @@
       "loc": 200,
       "referenceFiles": 12,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -109,7 +194,17 @@
       "loc": 60,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -118,7 +213,17 @@
       "loc": 111,
       "referenceFiles": 10,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -133,7 +238,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -148,7 +257,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -163,7 +276,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -172,7 +289,17 @@
       "loc": 111,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -187,7 +314,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -202,7 +333,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -211,7 +346,17 @@
       "loc": 30,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -220,7 +365,17 @@
       "loc": 138,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -235,7 +390,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -244,7 +403,17 @@
       "loc": 113,
       "referenceFiles": 28,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -259,7 +428,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -268,7 +441,17 @@
       "loc": 117,
       "referenceFiles": 8,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -277,7 +460,17 @@
       "loc": 95,
       "referenceFiles": 4,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -292,7 +485,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -316,7 +513,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -334,7 +535,17 @@
       "loc": 333,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -343,7 +554,17 @@
       "loc": 214,
       "referenceFiles": 3,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -358,7 +579,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -373,7 +598,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -397,7 +626,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -412,7 +645,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -427,7 +664,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -442,7 +683,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -457,7 +702,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -466,7 +715,17 @@
       "loc": 44,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -475,7 +734,17 @@
       "loc": 58,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -490,7 +759,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -514,7 +787,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -523,7 +800,17 @@
       "loc": 39,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -538,7 +825,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -553,7 +844,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -568,7 +863,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -577,7 +876,17 @@
       "loc": 252,
       "referenceFiles": 2,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -592,7 +901,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -607,7 +920,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -622,7 +939,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -631,7 +952,17 @@
       "loc": 142,
       "referenceFiles": 2,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -640,7 +971,17 @@
       "loc": 120,
       "referenceFiles": 3,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -664,7 +1005,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -682,7 +1027,17 @@
       "loc": 114,
       "referenceFiles": 3,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -697,7 +1052,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -712,7 +1071,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -721,7 +1084,17 @@
       "loc": 46,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -736,7 +1109,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -751,7 +1128,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -760,7 +1141,17 @@
       "loc": 328,
       "referenceFiles": 8,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -775,7 +1166,11 @@
         "windsurf",
         "copilot",
         "continue",
-        "aider"
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -784,7 +1179,17 @@
       "loc": 100,
       "referenceFiles": 0,
       "ideSupport": [
-        "claude-code"
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "codeium",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     }
   ]
