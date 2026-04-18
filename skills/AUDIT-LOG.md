@@ -55,3 +55,35 @@ All 7 skills checked against: NextCore stack (Next.js 16, Prisma, MySQL, Chrome 
 
 ### Net result
 7 skills deleted. -1185 LOC dead weight.
+
+---
+
+## 2026-04-18 — Infrastructure cluster
+
+Reviewed: `deploy`, `deploy-vps`, `devops`, `worktree`, `git`, `ship`
+
+NextCore stack: VPS only (example-homestay.com, <YOUR_VPS_IP>). No Cloudflare Workers/D1, no GCP, no K8s, no Docker orchestration.
+
+| Skill | LOC | Decision | Reason |
+|---|---|---|---|
+| `deploy-vps` | 110 | Keep | NextCore-specific with backup/rollback/health-check. Primary deploy workflow. |
+| `worktree` | 99 | Keep | Used by `/ck:team` + `/pair` for parallel flows. |
+| `git` | 116 | Keep | Conventional commits + PR + security scans. Daily use. |
+| `ship` | 119 | Keep | Higher-abstraction ship pipeline (merge → test → review → commit → push → PR). |
+| `deploy` | 157 | **DELETE** | Generic multi-platform (Vercel, Netlify, CF, Railway, AWS, Heroku, 13 platforms). NextCore uses VPS only — `deploy-vps` covers it. |
+| `devops` | 99 | **DELETE** | Cloudflare Workers/R2/D1, Docker, GCP/GKE, Kubernetes/Helm. None used in NextCore. |
+
+### Net result
+6 → 4 active. -2 skills, -256 LOC.
+
+---
+
+## Session 2026-04-18 total
+
+| Cluster | Before | After | Deleted | LOC removed |
+|---|---|---|---|---|
+| Documentation | 6 | 5+1 internal | -1 | -123 |
+| Design | 6 | 4 | -2 | -471 |
+| Niche | 7 | 0 | -7 | -1185 |
+| Infrastructure | 6 | 4 | -2 | -256 |
+| **Total** | **81** | **69 active** | **-12** | **-2035 LOC** |
