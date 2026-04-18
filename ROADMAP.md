@@ -127,7 +127,7 @@ Goal: replace inherited framework code with NextCore originals. After this, `LIC
 
 ---
 
-## Phase 4 — Cross-IDE Adapters, completion wave (superseded by Phase 2.5, retained for niche IDEs)
+## Phase 4 — Niche IDE Adapters ✅ (Complete 2026-04-18)
 
 Goal: skill content (not hooks) portable to non-Claude-Code environments.
 

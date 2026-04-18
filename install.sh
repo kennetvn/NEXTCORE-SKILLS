@@ -54,13 +54,15 @@ if [ -z "$TARGET" ]; then
     cursor)      TARGET="${PWD}/.cursor" ;;
     windsurf)    TARGET="${PWD}/.windsurf" ;;
     copilot)     TARGET="${PWD}/.github" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot)" ;;
+    continue)    TARGET="${PWD}/.continue" ;;
+    aider)       TARGET="${PWD}/.aider/nextcore" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity|cursor|windsurf|copilot) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot)" ;;
+  claude-code|antigravity|cursor|windsurf|copilot|continue|aider) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -176,6 +178,35 @@ elif [ "$IDE" = "copilot" ]; then
   fi
   [ "$MINIMAL" = true ] && warn "--minimal ignored for copilot (no skill assets to trim)"
   SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.prompt.md" | wc -l)
+  HOOK_COUNT=0
+
+elif [ "$IDE" = "continue" ]; then
+  SRC_CPR="$NC_SOURCE/adapters/continue/prompts"
+  [ -d "$SRC_CPR" ] || err "Adapter source missing: $SRC_CPR"
+  mkdir -p "$TARGET/prompts"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_CPR/" "$TARGET/prompts/"
+  else
+    cp -r "$SRC_CPR"/* "$TARGET/prompts/"
+  fi
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for continue (no skill assets to trim)"
+  SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
+
+elif [ "$IDE" = "aider" ]; then
+  SRC_AP="$NC_SOURCE/adapters/aider/prompts"
+  SRC_AC="$NC_SOURCE/adapters/aider/conventions"
+  [ -d "$SRC_AP" ] || err "Adapter source missing: $SRC_AP"
+  mkdir -p "$TARGET/prompts"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_AP/" "$TARGET/prompts/"
+    rsync -a --ignore-existing "$SRC_AC/" "$TARGET/"
+  else
+    cp -r "$SRC_AP"/* "$TARGET/prompts/"
+    cp "$SRC_AC"/*.md "$TARGET/"
+  fi
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for aider (no skill assets to trim)"
+  SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
 fi
 

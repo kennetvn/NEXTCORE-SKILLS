@@ -25,7 +25,7 @@ function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
 function Fail { param($msg) Write-Host "[nc] $msg" -ForegroundColor Red; exit 1 }
 
-$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot")
+$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot", "continue", "aider")
 if ($SupportedIdes -notcontains $Ide) {
     Fail "Unsupported IDE: $Ide (supported: $($SupportedIdes -join ', '))"
 }
@@ -37,6 +37,8 @@ if ([string]::IsNullOrEmpty($Target)) {
         "cursor"      { $Target = "$(Get-Location)\.cursor" }
         "windsurf"    { $Target = "$(Get-Location)\.windsurf" }
         "copilot"     { $Target = "$(Get-Location)\.github" }
+        "continue"    { $Target = "$(Get-Location)\.continue" }
+        "aider"       { $Target = "$(Get-Location)\.aider\nextcore" }
     }
 }
 
@@ -168,6 +170,36 @@ if ($Ide -eq "claude-code") {
     $HookCount = 0
 }
 
+} elseif ($Ide -eq "continue") {
+    $SrcCPR = Join-Path $NcSource "adapters\continue\prompts"
+    if (-not (Test-Path $SrcCPR)) { Fail "Adapter source missing: $SrcCPR" }
+    $DstCPR = Join-Path $Target "prompts"
+    New-Item -ItemType Directory -Path $DstCPR -Force | Out-Null
+    if ($Mode -eq "update") {
+        Copy-Item -Path "$SrcCPR\*" -Destination $DstCPR -Recurse -Force:$false -ErrorAction SilentlyContinue
+    } else {
+        Copy-Item -Path "$SrcCPR\*" -Destination $DstCPR -Recurse -Force
+    }
+    $SkillCount = (Get-ChildItem -Path $DstCPR -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
+    $HookCount = 0
+
+} elseif ($Ide -eq "aider") {
+    $SrcAP = Join-Path $NcSource "adapters\aider\prompts"
+    $SrcAC = Join-Path $NcSource "adapters\aider\conventions"
+    if (-not (Test-Path $SrcAP)) { Fail "Adapter source missing: $SrcAP" }
+    $DstAP = Join-Path $Target "prompts"
+    New-Item -ItemType Directory -Path $DstAP -Force | Out-Null
+    if ($Mode -eq "update") {
+        Copy-Item -Path "$SrcAP\*" -Destination $DstAP -Recurse -Force:$false -ErrorAction SilentlyContinue
+        Copy-Item -Path "$SrcAC\*" -Destination $Target -Recurse -Force:$false -ErrorAction SilentlyContinue
+    } else {
+        Copy-Item -Path "$SrcAP\*" -Destination $DstAP -Recurse -Force
+        Copy-Item -Path "$SrcAC\*" -Destination $Target -Force
+    }
+    $SkillCount = (Get-ChildItem -Path $DstAP -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
+    $HookCount = 0
+}
+
 if ($TmpDir -and (Test-Path $TmpDir)) {
     Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
 }
@@ -210,4 +242,16 @@ if ($Ide -eq "claude-code") {
     Write-Host "  1. Enable chat.promptFiles in VS Code settings"
     Write-Host "  2. Add .github/prompts to chat.promptFilesLocations"
     Write-Host "  3. Reload VS Code, then type /nc- in Copilot Chat"
+ elseif ($Ide -eq "continue") {
+    Write-Host "  Prompts:  $SkillCount"
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  1. Restart Continue extension"
+    Write-Host "  2. Type /nc- in Continue chat"
+} elseif ($Ide -eq "aider") {
+    Write-Host "  Prompts:  $SkillCount"
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  1. aider --read .aider/nextcore/nextcore-conventions.md"
+    Write-Host "  2. /read .aider/nextcore/prompts/nc-plan.md (or any workflow)"
 }
