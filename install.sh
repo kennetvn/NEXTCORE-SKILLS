@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# NextCoreSkill — one-command installer for Claude Code projects
+# NextCoreSkill — one-command installer
 #
 # Usage:
 #   curl -sSL https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.sh | bash
 #   or locally:
-#   ./install.sh [--target=PATH] [--update] [--ide=claude-code] [--minimal]
+#   ./install.sh [--target=PATH] [--update] [--ide=IDE] [--minimal]
 #
 # Options:
-#   --target=PATH   Where to install (default: ./.claude)
+#   --target=PATH   Install path (default: .claude for Claude Code, .agent for Antigravity)
 #   --update        Update existing install (preserve user overrides)
-#   --ide=NAME      Target IDE (claude-code|cursor|continue) — only claude-code for now
-#   --minimal       Install core hooks + essential skills only (no docs/tutorials)
-#   --force         Overwrite existing .claude without prompt
+#   --ide=NAME      Target IDE: claude-code (default) | antigravity
+#   --minimal       Install core hooks + essential skills only (Claude Code only)
+#   --force         Overwrite existing target without prompt
 #
 # Environment:
 #   NC_SOURCE       Source directory (default: this script's parent)
-#   NC_REPO         Git repo for remote install (https://github.com/kennetvn/NEXTCORE-SKILLS)
+#   NC_REPO         Git repo (https://github.com/kennetvn/NEXTCORE-SKILLS)
 
 set -euo pipefail
 
@@ -23,19 +23,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NC_SOURCE="${NC_SOURCE:-$SCRIPT_DIR}"
 NC_REPO="${NC_REPO:-https://github.com/kennetvn/NEXTCORE-SKILLS}"
 
-TARGET="${PWD}/.claude"
+TARGET=""
 MODE="fresh"
 IDE="claude-code"
 MINIMAL=false
 FORCE=false
 
-# Colors
 R='\033[0;31m'; G='\033[0;32m'; Y='\033[1;33m'; C='\033[0;36m'; NC='\033[0m'
 log() { echo -e "${G}[nc]${NC} $1"; }
 warn() { echo -e "${Y}[nc]${NC} $1"; }
 err() { echo -e "${R}[nc]${NC} $1" >&2; exit 1; }
 
-# Parse args
 for arg in "$@"; do
   case "$arg" in
     --target=*) TARGET="${arg#*=}" ;;
@@ -43,14 +41,26 @@ for arg in "$@"; do
     --ide=*)    IDE="${arg#*=}" ;;
     --minimal)  MINIMAL=true ;;
     --force)    FORCE=true ;;
-    --help|-h)  grep '^#' "$0" | head -20 ; exit 0 ;;
+    --help|-h)  grep '^#' "$0" | head -22 ; exit 0 ;;
     *) err "Unknown arg: $arg" ;;
   esac
 done
 
-[ "$IDE" = "claude-code" ] || err "Only claude-code supported currently (requested: $IDE)"
+# Default target based on IDE
+if [ -z "$TARGET" ]; then
+  case "$IDE" in
+    claude-code) TARGET="${PWD}/.claude" ;;
+    antigravity) TARGET="${PWD}/.agent" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity)" ;;
+  esac
+fi
 
-log "Installing NextCoreSkill → $TARGET (mode: $MODE)"
+case "$IDE" in
+  claude-code|antigravity) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity)" ;;
+esac
+
+log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
 
 # Detect source: local dir or remote repo
 if [ ! -d "$NC_SOURCE/skills" ]; then
@@ -70,60 +80,83 @@ if [ -d "$TARGET" ] && [ "$MODE" = "fresh" ] && [ "$FORCE" = false ]; then
   log "Backed up to $BACKUP"
 fi
 
-# Install
 mkdir -p "$TARGET"
-for dir in hooks skills agents commands output-styles rules schemas scripts; do
-  if [ -d "$NC_SOURCE/$dir" ]; then
-    if [ "$MODE" = "update" ] && [ -d "$TARGET/$dir" ]; then
-      # Update: merge, don't overwrite user customizations
-      rsync -a --ignore-existing "$NC_SOURCE/$dir/" "$TARGET/$dir/"
-    else
-      cp -r "$NC_SOURCE/$dir" "$TARGET/"
+
+if [ "$IDE" = "claude-code" ]; then
+  # Full Claude Code install: hooks + skills + agents + commands + hooks + settings
+  for dir in hooks skills agents commands output-styles rules schemas scripts; do
+    if [ -d "$NC_SOURCE/$dir" ]; then
+      if [ "$MODE" = "update" ] && [ -d "$TARGET/$dir" ]; then
+        rsync -a --ignore-existing "$NC_SOURCE/$dir/" "$TARGET/$dir/"
+      else
+        cp -r "$NC_SOURCE/$dir" "$TARGET/"
+      fi
     fi
-  fi
-done
+  done
 
-# Copy root files (settings template, statusline, config template)
-for f in settings.json statusline.cjs .nc.json metadata.json .env.example; do
-  if [ -f "$NC_SOURCE/$f" ]; then
-    if [ "$MODE" = "update" ] && [ -f "$TARGET/$f" ]; then
-      warn "Kept existing $f (update mode)"
-    else
-      cp "$NC_SOURCE/$f" "$TARGET/"
+  for f in settings.json statusline.cjs .nc.json metadata.json .env.example; do
+    if [ -f "$NC_SOURCE/$f" ]; then
+      if [ "$MODE" = "update" ] && [ -f "$TARGET/$f" ]; then
+        warn "Kept existing $f (update mode)"
+      else
+        cp "$NC_SOURCE/$f" "$TARGET/"
+      fi
     fi
+  done
+
+  chmod +x "$TARGET/hooks"/*.cjs 2>/dev/null || true
+  chmod +x "$TARGET/scripts"/*.cjs 2>/dev/null || true
+  chmod +x "$TARGET/statusline.cjs" 2>/dev/null || true
+
+  if [ "$MINIMAL" = true ]; then
+    log "Minimal mode: removing skill scripts/venvs..."
+    find "$TARGET/skills" -name ".venv" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$TARGET/skills" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$TARGET/skills" -name ".coverage" -exec rm -f {} + 2>/dev/null || true
   fi
-done
 
-# Make hooks executable
-chmod +x "$TARGET/hooks"/*.cjs 2>/dev/null || true
-chmod +x "$TARGET/scripts"/*.cjs 2>/dev/null || true
-chmod +x "$TARGET/statusline.cjs" 2>/dev/null || true
+  SKILL_COUNT=$(find "$TARGET/skills" -maxdepth 1 -type d | wc -l)
+  HOOK_COUNT=$(find "$TARGET/hooks" -maxdepth 1 -name "*.cjs" | wc -l)
 
-# Minimal mode: strip heavy skill assets
-if [ "$MINIMAL" = true ]; then
-  log "Minimal mode: removing skill scripts/venvs..."
-  find "$TARGET/skills" -name ".venv" -type d -exec rm -rf {} + 2>/dev/null || true
-  find "$TARGET/skills" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
-  find "$TARGET/skills" -name ".coverage" -exec rm -f {} + 2>/dev/null || true
+elif [ "$IDE" = "antigravity" ]; then
+  # Antigravity: just workflows + references from adapters/antigravity/
+  SRC_WORKFLOWS="$NC_SOURCE/adapters/antigravity/workflows"
+  [ -d "$SRC_WORKFLOWS" ] || err "Adapter source missing: $SRC_WORKFLOWS"
+
+  mkdir -p "$TARGET/workflows"
+
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_WORKFLOWS/" "$TARGET/workflows/"
+  else
+    cp -r "$SRC_WORKFLOWS"/* "$TARGET/workflows/"
+  fi
+
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for antigravity (no skill assets to trim)"
+
+  SKILL_COUNT=$(find "$TARGET/workflows" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
 fi
 
 # Cleanup temp clone
 [ -n "${TMPDIR:-}" ] && [ -d "$TMPDIR" ] && rm -rf "$TMPDIR"
 
 # Summary
-SKILL_COUNT=$(find "$TARGET/skills" -maxdepth 1 -type d | wc -l)
-HOOK_COUNT=$(find "$TARGET/hooks" -maxdepth 1 -name "*.cjs" | wc -l)
-
 log "Done!"
 echo
 echo -e "${C}Installed:${NC}"
+echo "  IDE:      $IDE"
 echo "  Target:   $TARGET"
-echo "  Skills:   $((SKILL_COUNT - 1))"
-echo "  Hooks:    $HOOK_COUNT"
-echo "  Mode:     $MODE"
-echo
-echo -e "${C}Next:${NC}"
-echo "  1. Restart Claude Code to load new skills/hooks"
-echo "  2. Check status: /nc:help"
-echo "  3. Configure: edit $TARGET/.nc.json"
-echo "  4. (Optional) Copy env template: cp $TARGET/.env.example $TARGET/.env"
+if [ "$IDE" = "claude-code" ]; then
+  echo "  Skills:   $SKILL_COUNT"
+  echo "  Hooks:    $HOOK_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart Claude Code to load hooks + skills"
+  echo "  2. Type /nc: in chat to see available slash commands"
+else
+  echo "  Workflows: $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart Antigravity to discover new workflows"
+  echo "  2. Type /nc- in chat to see available slash commands"
+fi
