@@ -34,3 +34,24 @@ Reviewed: `docs`, `docs-seeker`, `mintlify`, `llms`, `preview`, `markdown-novel-
 4. **Design** — design, nextcore-design, frontend-design, ui-styling, ui-ux-pro-max, stitch (suspected 3-4 redundant)
 5. **AI/LLM** — ai-artist, ai-multimodal, claude-api, google-adk-python, agent-browser
 6. **Niche** — shader, threejs, remotion, shopify, better-auth, mobile-development (most likely DELETE)
+
+---
+
+## 2026-04-18 — Niche cluster
+
+Reviewed: `shader`, `threejs`, `remotion`, `shopify`, `better-auth`, `mobile-development`, `google-adk-python`
+
+All 7 skills checked against: NextCore stack (Next.js 16, Prisma, MySQL, Chrome ext, VPS, Facebook automation, example-homestay.com). Grep across rules/, commands/, CLAUDE.md, package.json — **zero references**.
+
+| Skill | LOC | Decision | Reason |
+|---|---|---|---|
+| `shader` | 115 | **DELETE** | GLSL fragment shaders. Not in NextCore stack. |
+| `threejs` | 144 | **DELETE** | 3D WebGL. Not in NextCore stack. |
+| `remotion` | 46 | **DELETE** | React video generation. Not used. |
+| `shopify` | 323 | **DELETE** | E-commerce platform. Not used (homestay ≠ e-commerce). |
+| `better-auth` | 207 | **DELETE** | Auth library. NextCore uses different auth stack. |
+| `mobile-development` | 215 | **DELETE** | React Native / Swift / Kotlin. No mobile native in NextCore. |
+| `google-adk-python` | 135 | **DELETE** | Google Agent Dev Kit Python. NextCore uses Node ecosystem. |
+
+### Net result
+7 skills deleted. -1185 LOC dead weight.
