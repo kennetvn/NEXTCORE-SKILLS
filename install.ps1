@@ -5,7 +5,7 @@
 #   or locally:
 #   .\install.ps1 [-Target <path>] [-Update] [-Ide <name>] [-Minimal] [-Force]
 #
-# IDE: claude-code (default) | antigravity | cursor
+# IDE: claude-code (default) | antigravity | cursor | windsurf
 
 param(
     [string]$Target = "",
@@ -25,7 +25,7 @@ function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
 function Fail { param($msg) Write-Host "[nc] $msg" -ForegroundColor Red; exit 1 }
 
-$SupportedIdes = @("claude-code", "antigravity", "cursor")
+$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf")
 if ($SupportedIdes -notcontains $Ide) {
     Fail "Unsupported IDE: $Ide (supported: $($SupportedIdes -join ', '))"
 }
@@ -35,6 +35,7 @@ if ([string]::IsNullOrEmpty($Target)) {
         "claude-code" { $Target = "$(Get-Location)\.claude" }
         "antigravity" { $Target = "$(Get-Location)\.agent" }
         "cursor"      { $Target = "$(Get-Location)\.cursor" }
+        "windsurf"    { $Target = "$(Get-Location)\.windsurf" }
     }
 }
 
@@ -132,6 +133,24 @@ if ($Ide -eq "claude-code") {
 
     $SkillCount = (Get-ChildItem -Path $DstCmds -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
     $HookCount = 0
+
+} elseif ($Ide -eq "windsurf") {
+    $SrcWF = Join-Path $NcSource "adapters\windsurf\workflows"
+    if (-not (Test-Path $SrcWF)) { Fail "Adapter source missing: $SrcWF" }
+
+    $DstWF = Join-Path $Target "workflows"
+    New-Item -ItemType Directory -Path $DstWF -Force | Out-Null
+
+    if ($Mode -eq "update") {
+        Copy-Item -Path "$SrcWF\*" -Destination $DstWF -Recurse -Force:$false -ErrorAction SilentlyContinue
+    } else {
+        Copy-Item -Path "$SrcWF\*" -Destination $DstWF -Recurse -Force
+    }
+
+    if ($Minimal) { Warn "-Minimal ignored for windsurf (no skill assets to trim)" }
+
+    $SkillCount = (Get-ChildItem -Path $DstWF -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
+    $HookCount = 0
 }
 
 if ($TmpDir -and (Test-Path $TmpDir)) {
@@ -162,5 +181,11 @@ if ($Ide -eq "claude-code") {
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Cyan
     Write-Host "  1. Restart Cursor to discover new slash commands"
+    Write-Host "  2. Type /nc- in chat to see available commands"
+ elseif ($Ide -eq "windsurf") {
+    Write-Host "  Workflows: $SkillCount"
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  1. Restart Windsurf to discover new workflows"
     Write-Host "  2. Type /nc- in chat to see available commands"
 }

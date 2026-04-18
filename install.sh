@@ -52,13 +52,14 @@ if [ -z "$TARGET" ]; then
     claude-code) TARGET="${PWD}/.claude" ;;
     antigravity) TARGET="${PWD}/.agent" ;;
     cursor)      TARGET="${PWD}/.cursor" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor)" ;;
+    windsurf)    TARGET="${PWD}/.windsurf" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity|cursor) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor)" ;;
+  claude-code|antigravity|cursor|windsurf) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -149,6 +150,19 @@ elif [ "$IDE" = "cursor" ]; then
   [ "$MINIMAL" = true ] && warn "--minimal ignored for cursor (no skill assets to trim)"
   SKILL_COUNT=$(find "$TARGET/commands" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
+
+elif [ "$IDE" = "windsurf" ]; then
+  SRC_WF="$NC_SOURCE/adapters/windsurf/workflows"
+  [ -d "$SRC_WF" ] || err "Adapter source missing: $SRC_WF"
+  mkdir -p "$TARGET/workflows"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_WF/" "$TARGET/workflows/"
+  else
+    cp -r "$SRC_WF"/* "$TARGET/workflows/"
+  fi
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for windsurf (no skill assets to trim)"
+  SKILL_COUNT=$(find "$TARGET/workflows" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
 fi
 
 # Cleanup temp clone
@@ -178,5 +192,11 @@ elif [ "$IDE" = "cursor" ]; then
   echo
   echo -e "${C}Next steps:${NC}"
   echo "  1. Restart Cursor to discover new slash commands"
+  echo "  2. Type /nc- in chat to see available commands"
+elif [ "$IDE" = "windsurf" ]; then
+  echo "  Workflows: $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart Windsurf to discover new workflows"
   echo "  2. Type /nc- in chat to see available commands"
 fi
