@@ -1,10 +1,22 @@
 # NEXTCORE-SKILLS
 
-> Cross-IDE AI workflow framework — 65 curated skills as slash commands across **11 AI IDEs**. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
+> **Peak Agent Framework** — 111 curated skills as slash commands across **10 AI IDEs**. Beyond just workflows: includes Agent UX (persona, memory, sentiment), community contribution loop, per-install customization, and tech-company organizational modeling.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**Supported IDEs (11):** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider · Codeium · Zed · JetBrains AI · Void
+**Supported IDEs (10):** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider · Codeium · Zed · JetBrains AI · Void
+
+## What's new in v2.5.4 (April 2026)
+
+- **First-run onboarding** (`nc-onboard`) — 3-question survey calibrates persona, language, depth in <60s
+- **Agent UX layer** (`nc-persona` · `nc-memory` · `nc-clarify` · `nc-explain` · `nc-mirror` · `nc-sentiment`) — agent acts like a teammate, not a wizard
+- **Community contribution loop** (`nc-contribute`) — auto-detect skill gaps, drive upstream PRs via your GitHub
+- **Per-install tweaks** (`nc-install-tweaks`) — local overrides survive updates
+- **Org modeling** (`nc-company-os`) — agent embodies right role (PM/TL/Eng/SRE/QA/etc.) for the task
+- **Skill announce protocol** (`nc-skill-announce`) — visible skill usage builds trust + discoverability
+- **Context Protocol** (`docs/context-protocol.md`) — standardized cross-skill handoff via `plans/{session}/context/`
+- **Test scenarios** (`tests/scenarios/`) — 7 simulated user flows for QA
+- **Validator** (`scripts/validate-skills.cjs`) — static checks all 111 skills
 
 ---
 
@@ -24,7 +36,23 @@ Replace `<IDE>` with one of: `claude-code` · `antigravity` · `cursor` · `wind
 
 Default: `--ide=claude-code` (full framework: skills + hooks + subagents + commands)
 
-After install, restart your IDE. Type `/nc-` (or `/nc:` in Claude Code) to see available slash commands.
+After install, restart your IDE. Type `/nc-onboard` for the first-run setup (1-min profile), or `/nc-` to see available slash commands.
+
+### First-time user
+
+```
+> /nc-onboard
+```
+
+Walks you through a 3-question survey (role / level / response style), saves preferences to `~/.nc-memory/`, suggests 3 commands to try based on what you do. Non-blocking — skip with "skip" anytime.
+
+### Contribute back
+
+```
+> /nc-contribute
+```
+
+When you spot a missing skill or improvement, this drives a full GitHub PR via your account. The maintainer (`@kennetvn`) welcomes contributions — quality bar applies, frequency limit prevents spam.
 
 ---
 
@@ -32,17 +60,17 @@ After install, restart your IDE. Type `/nc-` (or `/nc:` in Claude Code) to see a
 
 | IDE | Install target | Workflows | Hooks | Subagents |
 |---|---|:---:|:---:|:---:|
-| Claude Code | `.claude/` | ✅ 65 | ✅ 15 | ✅ |
-| Antigravity | `.agent/workflows/` | ✅ 59 | — | via `ai-team/*` |
-| Cursor | `.cursor/commands/` | ✅ 59 | — | general agent |
-| Windsurf | `.windsurf/workflows/` | ✅ 59 | — | Cascade |
-| GitHub Copilot | `.github/prompts/` | ✅ 59 | — | Copilot agent |
-| Continue.dev | `.continue/prompts/` | ✅ 59 | — | general agent |
-| Aider | `.aider/nextcore/` | ✅ 59 | — | CLI conversation |
-| Codeium | `.codeium/prompts/` | ✅ 59 | — | general agent |
-| Zed AI | `.zed/prompts/` | ✅ 59 | — | built-in Claude |
-| JetBrains AI | `.idea/ai-prompts/` | ✅ 59 | — | Assistant agent |
-| Void | `.void/prompts/` | ✅ 59 | — | native VS Code fork agent |
+| Claude Code | `.claude/` | ✅ 111 | ✅ 15 | ✅ |
+| Antigravity | `.agent/workflows/` | ✅ 105 | — | via `ai-team/*` |
+| Cursor | `.cursor/commands/` | ✅ 105 | — | general agent |
+| Windsurf | `.windsurf/workflows/` | ✅ 105 | — | Cascade |
+| GitHub Copilot | `.github/prompts/` | ✅ 105 | — | Copilot agent |
+| Continue.dev | `.continue/prompts/` | ✅ 105 | — | general agent |
+| Aider | `.aider/nextcore/` | ✅ 105 | — | CLI conversation |
+| Codeium | `.codeium/prompts/` | ✅ 105 | — | general agent |
+| Zed AI | `.zed/prompts/` | ✅ 105 | — | built-in Claude |
+| JetBrains AI | `.idea/ai-prompts/` | ✅ 105 | — | Assistant agent |
+| Void | `.void/prompts/` | ✅ 105 | — | native VS Code fork agent |
 
 Claude Code is source of truth — other IDEs get skill **content** (portable markdown). Hooks and subagent orchestration are Claude Code exclusive.
 

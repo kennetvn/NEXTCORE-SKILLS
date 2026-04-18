@@ -2,6 +2,40 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [2.5.4] - 2026-04-18
+
+Polish + QA layer. Onboarding skill, scenario tests, validator, and refreshed README.
+
+### Added
+
+- **nc-onboard** — first-run experience for new users. 3-question survey calibrates persona/language/depth, suggests 3 try-it commands based on user role. Skip-friendly, runs once per user.
+- **Scenario test harness** (`tests/scenarios/`) — 7 simulated user flows covering Tier S Agent UX + ecosystem skills:
+  - `onboard-new-user.md` — first-run + persona calibration + memory persistence
+  - `frustration-pattern.md` — sentiment overrides verbosity
+  - `vocab-mirror.md` — terminology + language preservation
+  - `community-contribute.md` — gap detection → PR flow
+  - `company-os-feature-cycle.md` — multi-role embodiment for big features
+  - `install-tweaks-pnpm.md` — per-install customization persisting across updates
+  - `multilang-vn-en.md` — mixed VN/EN with identifier preservation
+  - `frustrated-explain.md` — sentiment dynamically overrides explanation depth
+- **Skill validator** (`scripts/validate-skills.cjs`) — static checks for frontmatter, broken refs, naming consistency, integration sections. Exit codes: 0=clean, 1=errors, 2=warnings.
+
+### Fixed
+
+- `databases` skill: removed broken reference to non-existent `db-design.md`
+
+### Changed
+
+- README refreshed for v2.5.4: "Peak Agent Framework" framing, 111 skills × 10 IDEs, first-run + contribute callouts
+
+### Coverage
+
+- 1 new skill × 10 IDEs = 10 adapter files
+- Total: **111 skills** across 10 IDEs
+- catalog.json bumped to v2.5.4
+- jetbrains/void AGENTS.md aggregated to 105 sections
+- Validator: 0 errors, 175 warnings (legacy skills missing 'Use when' phrasing or Integration sections — opportunistic cleanup)
+
 ## [2.5.3] - 2026-04-18
 
 Ecosystem layer — community + transparency + org modeling. 4 new skills + response-format upgrade.

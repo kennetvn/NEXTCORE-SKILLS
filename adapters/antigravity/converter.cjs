@@ -17,7 +17,8 @@ var ALLOWLIST = [
   "media-processing","tanstack","databases","payment-integration",
   "llms","web-testing",
   "nc-persona","nc-memory","nc-clarify","nc-explain","nc-mirror","nc-sentiment",
-  "nc-skill-announce","nc-contribute","nc-install-tweaks","nc-company-os","nc-response-format"
+  "nc-skill-announce","nc-contribute","nc-install-tweaks","nc-company-os","nc-response-format",
+  "nc-onboard"
 ];
 
 function parseFrontmatter(content) {

@@ -1,6 +1,6 @@
 {
-  "version": "2.5.3",
-  "generatedAt": "2026-04-18T12:59:26.651Z",
+  "version": "2.5.4",
+  "generatedAt": "2026-04-18T13:09:34.455Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 110,
+  "totalSkills": 111,
   "skills": [
     {
       "name": "agent-browser",
@@ -253,7 +253,7 @@
     {
       "name": "databases",
       "description": "Design schemas, write queries for MongoDB and PostgreSQL. Use for database design, SQL/NoSQL queries, aggregation pipelines, indexes, migrations, replication, performance optimization, psql CLI.",
-      "loc": 88,
+      "loc": 85,
       "referenceFiles": 8,
       "ideSupport": [
         "claude-code",
@@ -1037,6 +1037,24 @@
       "name": "nc-observability",
       "description": "Logging, metrics, tracing, and alerting for production systems. Use when setting up Sentry, OpenTelemetry, Datadog, structured logging, or when debugging production issues with existing telemetry.",
       "loc": 155,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-onboard",
+      "description": "First-run experience for new users. Use when user has just installed NEXTCORE-SKILLS, says 'help me get started', asks to 'phân tích / explain skills', or when no nc-memory profile exists yet for this user. Walks user through the ecosystem, sets preferences, suggests first useful skills.",
+      "loc": 184,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
