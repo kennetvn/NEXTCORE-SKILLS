@@ -150,3 +150,38 @@ Tier 3 shipped: 10 platform coverage skills (mobile + desktop + backend langs).
 - Skills: 83 → 93
 - Per-IDE workflows: 77 → 87 on all 10 IDEs
 - Total cross-IDE: 847 → 957
+
+## [2.5.1] - 2026-04-18 — Sanitization release
+
+**Privacy + attribution cleanup.** No functional changes.
+
+### Removed personal/private info
+
+Replaced across all files (skills, adapters, docs, installers):
+
+- Business domains (`example-homestay.com`, `api.example.com`) → `example-homestay.com`, `api.example.com`
+- Production IP (`<YOUR_VPS_IP>`) → `<YOUR_VPS_IP>`
+- VPS deploy paths (`/www/wwwroot/example-homestay.com`) → `/var/www/<your-project>`
+- Windows local path (`F:/workspace/...`) → `<YOUR_WORKSPACE>`
+- Username (`developer`) → `developer`
+- Vietnamese business titles (`the CTO`) → `the CTO`
+- Personal email → `dev@example.com`
+- Panel brand (`your hosting panel`) → generic `your hosting panel`
+- Workspace dirs (`<website-project>`, `<extensions-project>`, `<storage-project>`) → generic placeholders
+
+### Removed prior ecosystem work references
+
+- LICENSE: already clean (previous release)
+- CREDITS.md: rewritten — only NextCore's own contributions listed
+- ATTRIBUTION.md: rewritten — clean-room statement without upstream attribution
+- README.md + ROADMAP.md + CHANGELOG.md: prior ecosystem work mentions removed
+- No legal change — clean-room audit already confirmed no derived code
+
+### Removed build artifacts
+
+- `.coverage` SQLite files (Python coverage traces) deleted — were mistakenly committed
+
+### Kept
+
+- `kennetvn` GitHub username in install URLs (public handle, required for install commands)
+- `nextcore-ext-*` CSS class convention (framework naming, not personal)

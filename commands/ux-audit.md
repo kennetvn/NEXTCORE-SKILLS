@@ -47,7 +47,7 @@ Spawn Agent Team 2 members: 1 engineer + 1 UX tester làm việc iteratively. En
 7. **Visual hierarchy**: không chen ngang existing UI, icon consistent
 
 ## CK Context (include trong prompts)
-- Work dir: F:/workspace/project
+- Work dir: <YOUR_WORKSPACE>/project
 - Project: <website-project>/example-homestay.com
 - Reports: plans/reports/
 - Branch: main

@@ -1,7 +1,7 @@
 ---
 name: chrome-extension-dev
-description: Chrome Extension Manifest V3 development patterns, content scripts for Facebook automation, anti-detection, and IIFE patterns. Use when working on files in <extensions-project>/ or <extensions-project>-V2/.
-paths: "**/<extensions-project>/**,**/<extensions-project>-V2/**"
+description: Chrome Extension Manifest V3 development patterns, content scripts for Facebook automation, anti-detection, and IIFE patterns. Use when working on files in <extensions-project>/ or <extensions-project>/.
+paths: "**/<extensions-project>/**,**/<extensions-project>/**"
 ---
 
 # Chrome Extension Development (Manifest V3)

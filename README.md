@@ -197,7 +197,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 ## Credits
 
-Architecture patterns inspired by [prior ecosystem work](https://prior ecosystem work) (MIT). No code derived — see [ATTRIBUTION.md](./ATTRIBUTION.md) for the clean-room audit.
+Architecture patterns inspired by prior art in the Claude Code ecosystem. No code derived — see [ATTRIBUTION.md](./ATTRIBUTION.md) for the clean-room audit.
 
 NEXTCORE-SKILLS licensed under [MIT](./LICENSE) — self-contained, no upstream notice required.
 

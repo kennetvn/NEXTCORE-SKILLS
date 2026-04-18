@@ -1,33 +1,31 @@
 # Credits
 
-## Architecture inspiration
-
-General patterns in the Claude Code ecosystem (YAML-frontmatter skills, file-based hooks, configuration-driven behavior) were popularized by [prior ecosystem work](https://prior ecosystem work). We acknowledge prior ecosystem work contribution to normalizing these conventions.
-
-**No code is derived** from prior ecosystem work. See [ATTRIBUTION.md](./ATTRIBUTION.md) for the clean-room audit.
-
-## NEXTCORE-SKILLS own contributions
+## NEXTCORE-SKILLS contributions
 
 ### Framework
 
-- Install system with IDE-aware branches supporting 5 IDEs
+- Install system with IDE-aware branches for 10 IDEs
 - Cross-IDE adapter layer with single-source + derived pattern
-- Converter script auto-transforming Claude Code skills
-- Directory structure + naming conventions (nc: prefix, .nc.json config)
+- Converter scripts for automated Claude Code → target-IDE transformation
+- Directory structure + naming conventions (`nc:` prefix, `.nc.json` config)
+- Agent performance skill patterns (context budget, parallel dispatch, composition)
 
-### Domain skills (NextCore-authored)
+### Domain skills
 
-- nextcore-design, nextjs-api, prisma-helper
-- facebook-dom, chrome-extension-dev
-- deploy-vps (VPS <YOUR_VPS_IP> + your hosting panel)
-- payment-integration (SePay, Stripe, Paddle, Polar, Creem)
+- `nextcore-design` — CSS class convention (`.nextcore-ext-*`)
+- `nextjs-api` — Next.js API route patterns with Prisma + CORS for Chrome Extension
+- `prisma-helper` — Safe Prisma migrations for production databases
+- `facebook-dom` — Facebook DOM interaction SDK (Manifest V3 content scripts)
+- `chrome-extension-dev` — Manifest V3 patterns + service worker debugging
+- `deploy-vps` — VPS deployment with backup, rollback, health-check
+- `payment-integration` — SePay (VietQR), Stripe, Paddle, Polar, Creem
 
-### Commands (NextCore-authored)
+### Commands
 
-- /pair, /standup, /ux-audit, /tm, /team-stop, /website, /extensions
+`/pair`, `/standup`, `/ux-audit`, `/tm`, `/team-stop`, `/website`, `/extensions`
 
 ### Hooks + infrastructure
 
 - Session init, privacy filter, scout block, skill dedup
-- Self-improvement hub + agent board + retrospective
+- Self-improvement hub + agent board + retrospective system
 - NextCore-branded statusline

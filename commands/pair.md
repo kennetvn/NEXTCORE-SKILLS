@@ -43,7 +43,7 @@ Spawn Agent Team với 2 fullstack-developer teammates (1 BE + 1 FE) để build
 9. **Report**: "Feature shipped. N tests pass. Files changed: M. Commits: K."
 
 ## CK Context (include trong mọi spawn prompt)
-- Work dir: F:/workspace/project
+- Work dir: <YOUR_WORKSPACE>/project
 - Project: <website-project>/example-homestay.com (hoặc infer từ feature)
 - Reports: plans/reports/
 - Branch: main

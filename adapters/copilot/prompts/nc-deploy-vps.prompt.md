@@ -16,7 +16,7 @@ Nếu gate FAIL → KHÔNG được deploy. Fix issues trước.
 Script kiểm tra: Prisma schema sync, build OK, DB ↔ code match, no secrets.
 
 ## Server Info
-- **IP:** <YOUR_VPS_IP> | **Panel:** your hosting panel | **Root:** `/www/wwwroot/`
+- **IP:** <YOUR_VPS_IP> | **Panel:** your hosting panel | **Root:** `/var/www/`
 - **SSH:** `ssh -F /dev/null -i ~/.ssh/id_ed25519 root@<YOUR_VPS_IP>` (bypass BOM config)
 
 ## Services
@@ -35,7 +35,7 @@ Deploy target (optional): homestay | api | all
 ```bash
 SSH_CMD="ssh -F /dev/null -i ~/.ssh/id_ed25519 root@<YOUR_VPS_IP>"
 SCP_CMD="scp -F /dev/null -i ~/.ssh/id_ed25519"
-VPS_PATH="/www/wwwroot/example-homestay.com"
+VPS_PATH="/var/www/example-homestay.com"
 LOCAL_PATH="AKA-WEBSITE/example-homestay.com"
 ```
 

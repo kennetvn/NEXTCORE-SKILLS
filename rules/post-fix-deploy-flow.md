@@ -50,7 +50,7 @@ cd <website-project>/example-homestay.com && npm run build
 SSH_CMD="ssh -F /dev/null -i ~/.ssh/id_ed25519 root@<YOUR_VPS_IP>"
 SCP_CMD="scp -F /dev/null -i ~/.ssh/id_ed25519"
 BACKUP_NAME="pre-deploy-$(date +%y%m%d-%H%M).sql"
-VPS_PATH="/www/wwwroot/example-homestay.com"
+VPS_PATH="/var/www/example-homestay.com"
 LOCAL_BACKUP="<storage-project>/agent-infra/backups"
 
 # Parse DB credentials from DATABASE_URL trong .env
@@ -95,7 +95,7 @@ $SSH_CMD "pm2 ls | grep homestay-lamdong"
 **Nếu FAIL:**
 ```bash
 # Rollback
-$SSH_CMD "cd /www/wwwroot/example-homestay.com && \
+$SSH_CMD "cd /var/www/example-homestay.com && \
   [ -d .next-old ] && rm -rf .next && mv .next-old .next && \
   [ -d src.old ] && rm -rf src && mv src.old src && \
   pm2 reload homestay-lamdong"
@@ -131,7 +131,7 @@ git push origin [branch]
 ### Có DB migration
 Thêm bước giữa 4 và 5:
 ```bash
-$SSH_CMD "cd /www/wwwroot/example-homestay.com && npx prisma migrate deploy"
+$SSH_CMD "cd /var/www/example-homestay.com && npx prisma migrate deploy"
 ```
 KHÔNG dùng `prisma db push` trên production.
 
