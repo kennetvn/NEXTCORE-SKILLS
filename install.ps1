@@ -25,7 +25,7 @@ function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
 function Fail { param($msg) Write-Host "[nc] $msg" -ForegroundColor Red; exit 1 }
 
-$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf")
+$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot")
 if ($SupportedIdes -notcontains $Ide) {
     Fail "Unsupported IDE: $Ide (supported: $($SupportedIdes -join ', '))"
 }
@@ -36,6 +36,7 @@ if ([string]::IsNullOrEmpty($Target)) {
         "antigravity" { $Target = "$(Get-Location)\.agent" }
         "cursor"      { $Target = "$(Get-Location)\.cursor" }
         "windsurf"    { $Target = "$(Get-Location)\.windsurf" }
+        "copilot"     { $Target = "$(Get-Location)\.github" }
     }
 }
 
@@ -151,6 +152,20 @@ if ($Ide -eq "claude-code") {
 
     $SkillCount = (Get-ChildItem -Path $DstWF -Filter "nc-*.md" -ErrorAction SilentlyContinue).Count
     $HookCount = 0
+
+} elseif ($Ide -eq "copilot") {
+    $SrcPR = Join-Path $NcSource "adapters\copilot\prompts"
+    if (-not (Test-Path $SrcPR)) { Fail "Adapter source missing: $SrcPR" }
+    $DstPR = Join-Path $Target "prompts"
+    New-Item -ItemType Directory -Path $DstPR -Force | Out-Null
+    if ($Mode -eq "update") {
+        Copy-Item -Path "$SrcPR\*" -Destination $DstPR -Recurse -Force:$false -ErrorAction SilentlyContinue
+    } else {
+        Copy-Item -Path "$SrcPR\*" -Destination $DstPR -Recurse -Force
+    }
+    if ($Minimal) { Warn "-Minimal ignored for copilot (no skill assets to trim)" }
+    $SkillCount = (Get-ChildItem -Path $DstPR -Filter "nc-*.prompt.md" -ErrorAction SilentlyContinue).Count
+    $HookCount = 0
 }
 
 if ($TmpDir -and (Test-Path $TmpDir)) {
@@ -182,10 +197,17 @@ if ($Ide -eq "claude-code") {
     Write-Host "Next steps:" -ForegroundColor Cyan
     Write-Host "  1. Restart Cursor to discover new slash commands"
     Write-Host "  2. Type /nc- in chat to see available commands"
- elseif ($Ide -eq "windsurf") {
+} elseif ($Ide -eq "windsurf") {
     Write-Host "  Workflows: $SkillCount"
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Cyan
     Write-Host "  1. Restart Windsurf to discover new workflows"
     Write-Host "  2. Type /nc- in chat to see available commands"
+} elseif ($Ide -eq "copilot") {
+    Write-Host "  Prompts:   $SkillCount"
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  1. Enable chat.promptFiles in VS Code settings"
+    Write-Host "  2. Add .github/prompts to chat.promptFilesLocations"
+    Write-Host "  3. Reload VS Code, then type /nc- in Copilot Chat"
 }

@@ -53,13 +53,14 @@ if [ -z "$TARGET" ]; then
     antigravity) TARGET="${PWD}/.agent" ;;
     cursor)      TARGET="${PWD}/.cursor" ;;
     windsurf)    TARGET="${PWD}/.windsurf" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf)" ;;
+    copilot)     TARGET="${PWD}/.github" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity|cursor|windsurf) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf)" ;;
+  claude-code|antigravity|cursor|windsurf|copilot) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -163,6 +164,19 @@ elif [ "$IDE" = "windsurf" ]; then
   [ "$MINIMAL" = true ] && warn "--minimal ignored for windsurf (no skill assets to trim)"
   SKILL_COUNT=$(find "$TARGET/workflows" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
+
+elif [ "$IDE" = "copilot" ]; then
+  SRC_PR="$NC_SOURCE/adapters/copilot/prompts"
+  [ -d "$SRC_PR" ] || err "Adapter source missing: $SRC_PR"
+  mkdir -p "$TARGET/prompts"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_PR/" "$TARGET/prompts/"
+  else
+    cp -r "$SRC_PR"/* "$TARGET/prompts/"
+  fi
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for copilot (no skill assets to trim)"
+  SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.prompt.md" | wc -l)
+  HOOK_COUNT=0
 fi
 
 # Cleanup temp clone
@@ -199,4 +213,11 @@ elif [ "$IDE" = "windsurf" ]; then
   echo -e "${C}Next steps:${NC}"
   echo "  1. Restart Windsurf to discover new workflows"
   echo "  2. Type /nc- in chat to see available commands"
+elif [ "$IDE" = "copilot" ]; then
+  echo "  Prompts:  $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Enable chat.promptFiles in VS Code settings"
+  echo "  2. Add ".github/prompts" to chat.promptFilesLocations"
+  echo "  3. Reload VS Code, then type /nc- in Copilot Chat"
 fi
