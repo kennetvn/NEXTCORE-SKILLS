@@ -1,6 +1,6 @@
 {
-  "version": "2.5.0",
-  "generatedAt": "2026-04-18T12:04:50.026Z",
+  "version": "2.5.2",
+  "generatedAt": "2026-04-18T12:43:34.903Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,13 +14,13 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 100,
+  "totalSkills": 106,
   "skills": [
     {
       "name": "agent-browser",
       "description": "AI-optimized browser automation CLI with context-efficient snapshots. Use for long autonomous sessions, self-verifying workflows, video recording, and cloud browser testing (Browserbase).",
       "loc": 298,
-      "referenceFiles": 3,
+      "referenceFiles": 2,
       "ideSupport": [
         "claude-code",
         "antigravity",
@@ -164,7 +164,7 @@
       "name": "code-review",
       "description": "Review code quality with adversarial rigor. Supports input modes: pending changes, PR number, commit hash, codebase scan. Always-on red-team analysis finds security holes, false assumptions, and failure modes.",
       "loc": 200,
-      "referenceFiles": 12,
+      "referenceFiles": 14,
       "ideSupport": [
         "claude-code",
         "antigravity",
@@ -674,6 +674,24 @@
       ]
     },
     {
+      "name": "nc-clarify",
+      "description": "Detect ambiguity, ask one minimal clarifying question only when needed. Use when request has multiple plausible interpretations or missing critical info — never to fish for context the agent can infer.",
+      "loc": 100,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-code-gen",
       "description": "Code generation from specs: OpenAPI → TS client, Prisma → types, GraphQL → types, protobuf → services. Use when you have a schema and want type-safe generated code.",
       "loc": 153,
@@ -818,6 +836,24 @@
       ]
     },
     {
+      "name": "nc-explain",
+      "description": "Adaptive explanation depth based on user level. Use when user asks how/why/what — match response depth to inferred technical level, don't lecture experts or under-serve juniors.",
+      "loc": 97,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-flutter",
       "description": "Cross-platform mobile + desktop + web with Flutter/Dart. Use when building iOS+Android+Web from single codebase, evaluating Flutter vs React Native, state management (Riverpod/BLoC), or platform channels.",
       "loc": 135,
@@ -872,6 +908,24 @@
       ]
     },
     {
+      "name": "nc-memory",
+      "description": "Long-term context retention across sessions. Use at session start to load user prefs and project history, at session end to save new info, or when user references past conversations or decisions.",
+      "loc": 100,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-microservices",
       "description": "Microservice architecture: service boundaries, communication patterns, saga/outbox, service mesh. Use when designing distributed systems, breaking up a monolith, or integrating multiple services.",
       "loc": 157,
@@ -908,6 +962,24 @@
       ]
     },
     {
+      "name": "nc-mirror",
+      "description": "Reflect user's domain vocabulary back. Don't introduce competing jargon. Use when user has established their own terms for entities, actions, or concepts in the domain.",
+      "loc": 106,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-observability",
       "description": "Logging, metrics, tracing, and alerting for production systems. Use when setting up Sentry, OpenTelemetry, Datadog, structured logging, or when debugging production issues with existing telemetry.",
       "loc": 155,
@@ -929,6 +1001,24 @@
       "name": "nc-parallel-dispatch",
       "description": "Pattern library for spawning multiple subagents in parallel. Use when facing 2+ independent tasks, large scouting across multiple files/dirs, parallel research on different sub-topics, or when serial execution would blow context budget.",
       "loc": 102,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-persona",
+      "description": "Adapt agent tone, language, and expertise level to the user. Use when user signals formality preference (terse/verbose), language (VN/EN), technical level (CTO/intern), or when default response feels off for context.",
+      "loc": 67,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1160,6 +1250,24 @@
       ]
     },
     {
+      "name": "nc-sentiment",
+      "description": "Detect user emotional state (frustration, urgency, satisfaction, exploration) and adjust response speed and depth. Use to override default behavior — faster for frustration, thorough for exploration, concise for busy.",
+      "loc": 129,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-skill-bench",
       "description": "Performance benchmarks for skills: token cost, time-to-complete, memory usage. Use before releasing skill changes, comparing variants, or detecting performance regression.",
       "loc": 162,
@@ -1343,7 +1451,7 @@
       "name": "payment-integration",
       "description": "Integrate payments with SePay (VietQR), Polar, Stripe, Paddle (MoR subscriptions), Creem.io (licensing). Checkout, webhooks, subscriptions, QR codes, multi-provider orders.",
       "loc": 106,
-      "referenceFiles": 7,
+      "referenceFiles": 35,
       "ideSupport": [
         "claude-code",
         "antigravity",

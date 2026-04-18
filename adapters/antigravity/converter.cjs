@@ -15,7 +15,8 @@ var ALLOWLIST = [
   "backend-development","frontend-development","react-best-practices",
   "ui-ux-pro-max","ui-styling","web-design-guidelines",
   "media-processing","tanstack","databases","payment-integration",
-  "llms","web-testing"
+  "llms","web-testing",
+  "nc-persona","nc-memory","nc-clarify","nc-explain","nc-mirror","nc-sentiment"
 ];
 
 function parseFrontmatter(content) {

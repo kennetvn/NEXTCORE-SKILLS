@@ -2,6 +2,26 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [2.5.2] - 2026-04-18
+
+Tier S — Agent UX layer. 6 conversational-quality skills that make the agent feel like a teammate.
+
+### Added
+
+- **nc-persona** — tone/language/expertise-level adaptation (CTO ↔ junior, terse ↔ verbose, VN/EN)
+- **nc-memory** — long-term context retention across sessions (`~/.nc-memory/{project}/`)
+- **nc-clarify** — minimal clarifying questions; default to assume + state
+- **nc-explain** — adaptive explanation depth based on inferred user level
+- **nc-mirror** — reflect user's domain vocabulary, don't introduce competing jargon
+- **nc-sentiment** — detect frustration/urgency/satisfaction/exploration, adjust speed + depth
+
+### Coverage
+
+- 6 new skills × 10 IDEs = 60 new adapter files
+- Total: **106 skills** across 10 IDEs
+- catalog.json bumped to v2.5.2; catalog.html regenerated
+- jetbrains/void AGENTS.md aggregated 100 sections
+
 ## [2.0.0] - 2026-04-18
 
 Massive expansion: 11 IDEs, 590 cross-IDE workflows, full ecosystem foundation.
