@@ -12,6 +12,7 @@
 #   --ide=NAME      Target IDE: claude-code (default) | antigravity
 #   --minimal       Install core hooks + essential skills only (Claude Code only)
 #   --force         Overwrite existing target without prompt
+#   --skills=LIST   Install only specific skills (comma-separated, Claude Code only)
 #
 # Environment:
 #   NC_SOURCE       Source directory (default: this script's parent)
@@ -28,6 +29,7 @@ MODE="fresh"
 IDE="claude-code"
 MINIMAL=false
 FORCE=false
+SKILLS=""
 
 R='\033[0;31m'; G='\033[0;32m'; Y='\033[1;33m'; C='\033[0;36m'; NC='\033[0m'
 log() { echo -e "${G}[nc]${NC} $1"; }
@@ -41,6 +43,7 @@ for arg in "$@"; do
     --ide=*)    IDE="${arg#*=}" ;;
     --minimal)  MINIMAL=true ;;
     --force)    FORCE=true ;;
+    --skills=*) SKILLS="${arg#*=}" ;;
     --help|-h)  grep '^#' "$0" | head -22 ; exit 0 ;;
     *) err "Unknown arg: $arg" ;;
   esac
@@ -89,6 +92,11 @@ mkdir -p "$TARGET"
 
 if [ "$IDE" = "claude-code" ]; then
   # Full Claude Code install: hooks + skills + agents + commands + hooks + settings
+  if [ "$IDE" = "claude-code" ] && [ -n "$SKILLS" ]; then
+    # Per-skill install: filter skills/ after full copy
+    KEPT_SKILLS_FOR_CLEANUP="$SKILLS"
+  fi
+
   for dir in hooks skills agents commands output-styles rules schemas scripts; do
     if [ -d "$NC_SOURCE/$dir" ]; then
       if [ "$MODE" = "update" ] && [ -d "$TARGET/$dir" ]; then
@@ -112,6 +120,20 @@ if [ "$IDE" = "claude-code" ]; then
   chmod +x "$TARGET/hooks"/*.cjs 2>/dev/null || true
   chmod +x "$TARGET/scripts"/*.cjs 2>/dev/null || true
   chmod +x "$TARGET/statusline.cjs" 2>/dev/null || true
+
+  # Per-skill filter: remove non-requested skills
+  if [ -n "${KEPT_SKILLS_FOR_CLEANUP:-}" ]; then
+    KEEP_CSV=",$KEPT_SKILLS_FOR_CLEANUP,"
+    for skill_dir in "$TARGET/skills"/*/; do
+      [ -d "$skill_dir" ] || continue
+      skill_name=$(basename "$skill_dir")
+      case "$KEEP_CSV" in
+        *",$skill_name,"*) ;;
+        *) rm -rf "$skill_dir" ;;
+      esac
+    done
+    log "Per-skill install: kept $KEPT_SKILLS_FOR_CLEANUP"
+  fi
 
   if [ "$MINIMAL" = true ]; then
     log "Minimal mode: removing skill scripts/venvs..."

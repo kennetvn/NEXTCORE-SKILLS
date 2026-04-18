@@ -156,7 +156,7 @@ Goal: skill content (not hooks) portable to non-Claude-Code environments.
 
 ---
 
-## Phase 5 — Skill Marketplace (6-12 months, optional)
+## Phase 5 — Skill Ecosystem (partial: catalog + per-skill install + CONTRIBUTING ✅ 2026-04-18)
 
 Goal: Web UI for browsing + installing individual skills.
 
