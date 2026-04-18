@@ -2,7 +2,7 @@
 # NextCoreSkill — one-command installer for Claude Code projects
 #
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/kennetvn/nextcoreskill/main/install.sh | bash
+#   curl -sSL https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.sh | bash
 #   or locally:
 #   ./install.sh [--target=PATH] [--update] [--ide=claude-code] [--minimal]
 #
@@ -15,13 +15,13 @@
 #
 # Environment:
 #   NC_SOURCE       Source directory (default: this script's parent)
-#   NC_REPO         Git repo for remote install (https://github.com/kennetvn/nextcoreskill)
+#   NC_REPO         Git repo for remote install (https://github.com/kennetvn/NEXTCORE-SKILLS)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NC_SOURCE="${NC_SOURCE:-$SCRIPT_DIR}"
-NC_REPO="${NC_REPO:-https://github.com/kennetvn/nextcoreskill}"
+NC_REPO="${NC_REPO:-https://github.com/kennetvn/NEXTCORE-SKILLS}"
 
 TARGET="${PWD}/.claude"
 MODE="fresh"

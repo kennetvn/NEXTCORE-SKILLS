@@ -1,7 +1,7 @@
 # NextCoreSkill — one-command installer for Windows / PowerShell
 #
 # Usage:
-#   iwr -useb https://raw.githubusercontent.com/kennetvn/nextcoreskill/main/install.ps1 | iex
+#   iwr -useb https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.ps1 | iex
 #   or locally:
 #   .\install.ps1 [-Target <path>] [-Update] [-Minimal] [-Force]
 
@@ -17,7 +17,7 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $NcSource = if ($env:NC_SOURCE) { $env:NC_SOURCE } else { $ScriptDir }
-$NcRepo = if ($env:NC_REPO) { $env:NC_REPO } else { "https://github.com/kennetvn/nextcoreskill" }
+$NcRepo = if ($env:NC_REPO) { $env:NC_REPO } else { "https://github.com/kennetvn/NEXTCORE-SKILLS" }
 
 function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
