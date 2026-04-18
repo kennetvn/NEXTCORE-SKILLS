@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "generatedAt": "2026-04-18T11:12:33.210Z",
+  "version": "2.2.0",
+  "generatedAt": "2026-04-18T11:45:04.794Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 65,
+  "totalSkills": 70,
   "skills": [
     {
       "name": "agent-browser",
@@ -584,10 +584,46 @@
       ]
     },
     {
+      "name": "nc-context-budget",
+      "description": "Manage agent token budget per session. Use when context usage exceeds 60%, before loading large refs, when deciding parallel vs serial dispatch, or when agent notices slow responses from context bloat.",
+      "loc": 75,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-debug",
       "description": "Debug systematically with root cause analysis before fixes. Use for bugs, test failures, unexpected behavior, performance issues, call stack tracing, multi-layer validation, log analysis, CI/CD failures, database diagnostics, system investigation.",
       "loc": 124,
       "referenceFiles": 10,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-parallel-dispatch",
+      "description": "Pattern library for spawning multiple subagents in parallel. Use when facing 2+ independent tasks, large scouting across multiple files/dirs, parallel research on different sub-topics, or when serial execution would blow context budget.",
+      "loc": 102,
+      "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
         "antigravity",
@@ -638,6 +674,42 @@
       ]
     },
     {
+      "name": "nc-response-format",
+      "description": "Response templates per task type (plan, debug, review, research, implement). Use when agent output would benefit from structured form, when consistency matters across multi-phase work, or when subagent summaries need standard format.",
+      "loc": 172,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-router",
+      "description": "Intent classifier that routes user request to the right skill fast. Use at session start to avoid brainstorm overhead for trivial requests, or when user intent is ambiguous between multiple skills.",
+      "loc": 107,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-scenario",
       "description": "Generate comprehensive edge cases and test scenarios by decomposing features across 12 dimensions. Use before implementation or testing to catch issues early.",
       "loc": 114,
@@ -660,6 +732,24 @@
       "description": "STRIDE + OWASP-based security audit with optional auto-fix. Scans code for vulnerabilities, categorizes by severity, and can iteratively fix findings using nc:autoresearch pattern.",
       "loc": 145,
       "referenceFiles": 1,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-skill-composition",
+      "description": "Chain multiple skills without duplicate analysis. Use when a task spans multiple skill domains (plan + debug + fix + test), when composing workflows, or when skills would repeat each other's work.",
+      "loc": 127,
+      "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
         "antigravity",

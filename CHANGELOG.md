@@ -72,3 +72,22 @@ Initial release (prior ecosystem work fork rebase, pre-audit state):
 - 81 skills
 - Claude Code only
 - Install scripts (bash + PowerShell)
+
+## [2.2.0] - 2026-04-18
+
+Tier 1 shipped: 5 agent-performance skills.
+
+### Added skills
+
+- `nc-context-budget` — token budget management per session, when to dispatch vs execute, when to dump stale context
+- `nc-parallel-dispatch` — patterns for spawning multiple subagents (scout/research/implement/verify)
+- `nc-skill-composition` — chain skills without duplicate analysis, canonical pipelines, context handoff protocol
+- `nc-router` — intent classifier for fast routing, short-circuit for trivial tasks
+- `nc-response-format` — structured output templates per task type (plan/debug/review/research/implement)
+
+### Changed
+
+- Total skills: 65 → 70
+- Per-IDE workflow count: 59 → 64 on all 10 IDEs
+- catalog.json v2.2.0 regenerated
+- catalog.html regenerated

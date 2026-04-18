@@ -18,17 +18,6 @@ Junie doesn't have per-workflow slash commands (unlike Cursor/Antigravity). Inst
 - **Trust internal code** — validate at system boundaries only
 - **No emojis unless requested** — default terse engineering mode
 
-## Code standards
-
-- File size under 200 LOC (split when growing)
-- kebab-case for JS/TS/Python/shell; respect language conventions elsewhere
-- Self-documenting names over comments
-
-## Available workflows (reference by name in prompts)
-
-Below are 59 NEXTCORE workflows. Reference them by name in your Junie prompts. E.g., "follow nc-plan workflow to design this feature."
-
----
 
 
 ---
@@ -1782,6 +1771,78 @@ For finer control, you can also use `/output-style` with these styles:
 - `coding-level-3-senior`
 - `coding-level-4-lead`
 - `coding-level-5-god`
+
+---
+
+## nc-context-budget
+
+
+
+Maximize agent effectiveness by treating context as a finite resource — not free memory.
+
+## Core principle
+
+**Every token loaded is a token NOT available for reasoning.** Context discipline = faster, better agent output.
+
+## Budget tiers (approximate)
+
+| Usage | State | Action |
+|---|---|---|
+| 0-40% | Healthy | Full capability, load refs liberally |
+| 40-60% | Watch | Avoid loading large refs unless needed, prefer summaries |
+| 60-80% | Warning | Dispatch subagents for heavy work, don't load new large files |
+| 80-95% | Critical | Close investigation phase, execute only, dump stale context |
+| 95%+ | Overflow | Auto-compact likely imminent — finalize current step, defer rest |
+
+## Quick check pattern
+
+Before any heavy operation (loading ref, reading large file, starting new skill), ask:
+
+1. Is this actively needed for the NEXT decision?
+2. Can I get away with a summary instead of full content?
+3. Can I dispatch this to a subagent instead (isolated context)?
+
+If any answer is "not sure", prefer the lighter option.
+
+## Anti-patterns
+
+- **Preloading "just in case"** — load refs only when actually consulted
+- **Re-reading files multiple times** — cache conclusions in notes, re-read only when code changed
+- **Verbose tool output** — always pipe through `| tail -N` or `| head -N` for bash
+- **Ignoring hook system-reminders** — they signal context state; respond to warnings
+
+## Short-circuit decisions
+
+If user asks trivial question (single function signature, file existence, simple refactor):
+- Don't invoke `nc-brainstorm`, `nc-plan`, or heavy skills
+- Direct answer/action
+- Skip sub-dispatch
+
+## When to dispatch subagent
+
+Dispatch when:
+- Research phase (fresh context window is valuable)
+- Exploration of unknown codebase area (results summarized to lead)
+- Parallel independent tasks (each gets 200K budget)
+- Heavy doc read (subagent summarizes back, ~90% context saving)
+
+Do NOT dispatch when:
+- You already have the answer
+- Task is trivial (<3 steps)
+- Dispatch overhead > direct execution
+
+## When to dump stale context
+
+At phase boundaries (research → implement, plan → cook, debug → fix):
+- Summarize phase output into 1-paragraph note
+- Signal to next phase "research done, see summary"
+- Stop re-reading research phase content
+
+## Integration
+
+- `nc-parallel-dispatch` — concrete dispatch patterns (this skill tells you WHEN)
+- `nc-router` — short-circuit trivial queries before spending budget
+- `nc-skill-composition` — chain skills without duplicating context
 
 ---
 
@@ -4591,6 +4652,105 @@ export async function GET(req: NextRequest) {
 
 ---
 
+## nc-parallel-dispatch
+
+
+
+Maximize throughput + context efficiency by spawning subagents for independent work.
+
+## When to use parallel
+
+**YES parallel when:**
+- Tasks are truly independent (no shared state, no output-input chain)
+- Each task benefits from fresh 200K context window
+- Combined serial cost > overhead of dispatch
+
+**NO parallel when:**
+- Task B needs task A's output
+- Tasks conflict on same files (write conflict)
+- Single task small enough (< 50 lines of work)
+
+## Dispatch patterns
+
+### Pattern 1: Parallel scout
+
+Scenario: find files related to a feature across 5 directories.
+
+Spawn 5 scout subagents — each assigned one directory. Each reports a file list summary (not full content). Lead synthesizes.
+
+### Pattern 2: Parallel research
+
+Scenario: evaluating 3 database options (Postgres, Mongo, DynamoDB).
+
+Spawn 3 research subagents — each researches ONE option deeply. Each returns pros/cons + currency check. Lead compares + recommends.
+
+### Pattern 3: Parallel implementation
+
+Scenario: 3 isolated components need building.
+
+Spawn 3 implementer subagents — each owns distinct files (glob patterns). No cross-component deps. Lead merges at end (or use git worktrees per agent).
+
+### Pattern 4: Parallel verification
+
+Scenario: after implementation, verify typecheck + lint + build.
+
+Parallel Bash calls (not subagents, lighter weight). Lead waits for all, summarizes status.
+
+## Coordination
+
+### File ownership (critical)
+
+If 2 subagents touch same file → corruption. Assign:
+- Owner patterns: `src/api/*` → agent-A, `src/components/*` → agent-B
+- Shared files (package.json, tsconfig.json): lead owns, subagents read-only
+
+### Dependency ordering
+
+Even in parallel dispatch, some tasks have implicit dependencies. Draw DAG first:
+
+```
+Research DB options (parallel) → Pick DB → Implement schema → Tests (parallel: unit + integration + e2e)
+```
+
+### Result aggregation
+
+Subagents return structured summaries:
+
+- **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
+- **Summary:** 1-2 sentences
+- **Artifacts:** file paths produced
+- **Concerns/Blockers:** if applicable
+
+Lead synthesizes without re-doing the work.
+
+## Max concurrency
+
+- **2 subagents:** safe default, linear speedup
+- **3-5 subagents:** requires careful file ownership, good for scout/research
+- **6+ subagents:** overhead exceeds benefit for most cases; reserve for bulk classification
+
+Respect system-reminder warnings about CPU/memory usage.
+
+## Token efficiency math
+
+Serial: 200K × N tasks = 200K used by lead  
+Parallel: 200K × N tasks in subagents + 20K summary in lead = ~10x context savings
+
+## Anti-patterns
+
+- **Spawning subagent for trivial task** — direct execution faster
+- **Spawning without clear ownership** — file conflicts corrupt work
+- **Lead doing the work AND dispatching** — duplicated effort
+- **Ignoring subagent summaries and re-reading their work** — defeats purpose
+
+## Integration
+
+- `nc-context-budget` — decide WHEN to dispatch
+- `nc-skill-composition` — compose multi-step pipelines
+- `nc-response-format` — standardize subagent output
+
+---
+
 ## nc-payment-integration
 
 
@@ -6059,6 +6219,174 @@ Final report must:
 
 ---
 
+## nc-response-format
+
+
+
+Structured output per task type — reduces agent reasoning overhead, enables downstream parsing.
+
+## Plan response
+
+```markdown
+
+## Goal
+[1 sentence — what success looks like]
+
+## Phases
+1. **[Phase name]** — [1-line description]
+2. **[Phase name]** — [1-line description]
+...
+
+## Dependencies
+- [External lib, API, service]
+
+## Risks
+- [Top 2-3 risks, with mitigation]
+
+## Success criteria
+- [Measurable outcome 1]
+- [Measurable outcome 2]
+
+## Estimated scope
+[Hours or relative size: S/M/L/XL]
+```
+
+## Debug response
+
+```markdown
+# Debug report: [bug title]
+
+## Symptom
+[What user/test observes]
+
+## Reproduction
+1. [Step]
+2. [Step]
+
+## Root cause
+[1-2 sentences — be specific, cite file:line]
+
+## Call chain
+[user action] → [function A:L42] → [function B:L87] → [failure point]
+
+## Fix direction
+[High-level — actual fix goes in nc-fix output]
+
+## Related issues
+- [If similar bugs exist elsewhere]
+```
+
+## Review response
+
+```markdown
+# Review: [scope]
+
+## Critical (must fix before merge)
+- [file:line] — [issue]
+
+## Suggestions (improve if time)
+- [file:line] — [issue]
+
+## Nits (optional)
+- [file:line] — [issue]
+
+## Overall
+[1-line: approve / request-changes / block]
+```
+
+## Research response
+
+```markdown
+# Research: [topic]
+
+## TL;DR
+[2-3 sentence summary of recommendation]
+
+## Key findings
+1. [Finding with source link]
+2. [Finding with source link]
+
+## Options evaluated
+| Option | Pros | Cons | Fit |
+|---|---|---|---|
+| A | | | Good/Bad/Neutral |
+
+## Recommendation
+[Specific, actionable]
+
+## Sources
+- [URL 1]
+- [URL 2]
+```
+
+## Implementation report
+
+```markdown
+# Implemented: [feature/fix]
+
+## Changes
+- [file1]: [what changed]
+- [file2]: [what changed]
+
+## Tests
+- [x] Unit
+- [x] Integration
+- [ ] E2E (not applicable / TODO)
+
+## Verification
+[How you verified it works — command run, output observed]
+
+## Open items
+- [Anything incomplete or deferred]
+```
+
+## Subagent return format
+
+When a subagent reports back to lead:
+
+```
+**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
+**Summary:** [1-2 sentences, concrete]
+**Artifacts:** [file paths produced/modified]
+**Concerns/Blockers:** [if applicable]
+**Next step:** [optional recommendation]
+```
+
+## Routing rules for format choice
+
+| Task type | Format |
+|---|---|
+| User asked to plan | Plan template |
+| User reported a bug | Debug template |
+| Reviewing code/PR | Review template |
+| Researching tech | Research template |
+| Delivered implementation | Implementation report |
+| Subagent reporting back | Subagent return format |
+| Free-form question | No template — direct answer |
+
+## When NOT to use a template
+
+- User asks a direct question expecting direct answer
+- Response is under 50 words
+- Conversation is casual/exploratory
+- Template would bloat a simple response
+
+## Principles
+
+- **Concision over completeness** — missing sections are fine if not applicable
+- **File:line citations** — make issues actionable
+- **Action-oriented** — every finding should lead to a concrete next step
+- **No padding** — no "Executive Summary" for < 200 word reports
+
+## Integration
+
+- Every skill output should conform to one of these templates
+- `nc-parallel-dispatch` subagents return in Subagent format
+- `nc-skill-composition` handoffs use Implementation/Debug reports as shared state
+- Lead agent synthesizes subagent outputs using these templates
+
+---
+
 ## nc-retro
 
 
@@ -6189,6 +6517,110 @@ If `--format html` flag is set:
 - All metrics sourced from git history only (plus optional gh CLI for issues)
 - Do not hallucinate metrics; `N/A` is always correct when data is missing
 - Keep report under 200 lines; split into multiple files if needed
+
+---
+
+## nc-router
+
+
+
+Route user request → correct skill in <5 seconds. Bypass heavy deliberation for obvious cases.
+
+## Routing rules
+
+### Direct action (no skill invocation)
+
+| User says | Action |
+|---|---|
+| "fix typo in X" | Direct edit, skip all skills |
+| "what does X do?" | Read file, summarize — no workflow |
+| "show me Y" | Show content — no workflow |
+| "rename X to Y" | Direct refactor via search + replace |
+| "delete unused Z" | Direct delete after confirmation |
+| Question with known answer | Direct answer |
+
+### Single-skill routing
+
+| User intent | Route to |
+|---|---|
+| "help me think about X" / "trade-offs of X" | `nc-brainstorm` |
+| "research X library" | `nc-research` |
+| "plan how to build X" | `nc-plan` |
+| "fix this bug: <description>" | `nc-debug` → `nc-fix` |
+| "implement X feature" | `nc-cook` |
+| "is this approach safe?" | `nc-predict` |
+| "audit security" | `nc-security` |
+| "what could go wrong?" | `nc-scenario` |
+| "write tests for X" | `nc-test` |
+| "deploy this" | `nc-deploy-vps` (if NextCore VPS) or ask host |
+| "add DB schema for X" | `nc-databases` |
+| "design the UI for X" | `nc-ui-ux-pro-max` → `nc-frontend-development` |
+
+### Multi-skill pipelines
+
+| User intent | Pipeline |
+|---|---|
+| "build a new feature X" | `nc-brainstorm` → `nc-plan` → `nc-cook` → `nc-test` |
+| "production bug in X" | `nc-debug` → `nc-fix` → `nc-test` → deploy |
+| "weekly review" | `nc-retro` → `nc-journal` |
+| "session ending, save state" | `nc-journal` → `nc-watzup` |
+
+## Decision signals
+
+### Signals for LIGHT routing (direct action, no skill)
+
+- Request under 10 words
+- Specific file + specific change mentioned
+- User is in flow mode ("quickly fix...")
+- Agent has full context already
+
+### Signals for HEAVY routing (pipeline)
+
+- Request uses words like "design", "architect", "plan"
+- Scope unclear
+- Multiple unknowns
+- User is exploring options
+
+### Signals for AMBIGUOUS (ask 1 question)
+
+- Request spans multiple domains (UI + backend + DB)
+- "Let's build a platform/system/product" (too large)
+- "Fix the performance" (which area?)
+
+**Ask maximum 1 clarifying question**, then route decisively.
+
+## Anti-patterns
+
+- **Invoking nc-brainstorm for "rename this variable"** — massive overhead waste
+- **Pipeline for "show me X"** — single tool call suffices
+- **Routing to multiple skills in parallel when serial pipeline expected** — corrupts handoff
+- **Endless clarification loop** — after 1 question, commit to route
+
+## Short-circuits
+
+If session already has a plan (`plans/{YYMMDD}.../plan.md` exists and is active):
+- Skip `nc-brainstorm` and `nc-plan`
+- Route new requests to `nc-cook` with plan context
+- Only re-plan if user explicitly says "replan"
+
+If debugging session active (`plans/reports/debug-*.md` exists recent):
+- Skip re-debug
+- Route to `nc-fix` with debug context
+
+## Lead-in phrases to listen for
+
+- "help me think" → brainstorm
+- "I want to understand" → research / scout
+- "I don't know how to" → plan or brainstorm
+- "this is broken" → debug
+- "make it work" → fix (after debug)
+- "ship it" → deploy
+
+## Integration
+
+- `nc-context-budget` — router checks budget, short-circuits when tight
+- `nc-skill-composition` — router hands off to pipeline
+- `nc-response-format` — router's own response is concise (no over-explanation of routing choice)
 
 ---
 
@@ -6775,6 +7207,130 @@ User says `/nc-ship official` → ship to main with full docs + journal.
 - **Framework-agnostic.** Works for Node, Python, Rust, Go, Ruby, Java, or any project with a test command.
 - **Subagent delegation.** Use `tester` for tests, `code-reviewer` for review, `journal-writer` for journal, `docs-manager` for docs. Don't inline.
 - **Background tasks.** Journal and docs run in background to not block the pipeline.
+
+---
+
+## nc-skill-composition
+
+
+
+Chain skills so each phase builds on prior output — no redundant re-analysis.
+
+## Canonical pipelines
+
+### Full feature pipeline
+
+`nc-brainstorm` → `nc-plan` → `nc-predict` → `nc-cook` → `nc-test` → `nc-security` → ship
+
+Each phase:
+1. Reads prior phase output (plan.md, research-report.md)
+2. Adds its own layer (plan adds phases, cook adds code, test adds tests)
+3. Writes structured output for next phase
+
+### Bug fix pipeline
+
+`nc-debug` → `nc-fix` → `nc-test` → commit
+
+Short-circuit for trivial bugs: skip brainstorm, skip plan.
+
+### Research-heavy pipeline
+
+`nc-research` (subagent) → `nc-brainstorm` → `nc-plan` → implementation
+
+Research produces summary; brainstorm consumes summary (not raw research output).
+
+## Context handoff protocol
+
+### Shared state files
+
+Skills communicate via project files, NOT re-analysis:
+
+- `plans/{YYMMDD-HHMM}-{slug}/plan.md` — plan-level context
+- `plans/reports/research-*.md` — research conclusions
+- `plans/reports/debug-*.md` — debug findings
+- `plans/reports/predict-*.md` — pre-implementation debate
+
+Each skill:
+1. Reads prior artifacts
+2. Trusts them (don't re-verify unless evidence of staleness)
+3. Writes its own artifact for next skill
+
+### What NOT to pass via prompt
+
+Don't re-summarize research into the next skill's invocation prompt. Instead:
+
+- Pass: file path reference ("see plans/reports/research-260418-foo.md")
+- Skill reads file directly — one source of truth
+
+## Anti-duplication patterns
+
+### Don't re-scout
+
+If `nc-scout` ran 5 minutes ago, trust its findings. Re-scout only if code changed or findings seem stale.
+
+### Don't re-brainstorm after plan
+
+Plan is the commitment. Don't revisit options mid-implementation unless hard blocker emerges.
+
+### Don't re-debug after fix
+
+Fix verifies via test. Don't re-run debug workflow unless test reveals misdiagnosis.
+
+## Composition decision tree
+
+```
+Is task trivial (<3 steps)? → Direct execute, skip composition
+Is task bounded (1 domain)? → Single skill
+Is task multi-phase? → Compose pipeline
+  Is research needed? → nc-research first
+  Is design decision needed? → nc-brainstorm
+  Is implementation planned? → nc-plan
+  Is risk high? → nc-predict before cook
+  Is implementation? → nc-cook
+  Is testing? → nc-test
+  Is security sensitive? → nc-security
+```
+
+## Short-circuit patterns
+
+### Quick fix (<30 lines)
+
+User says "fix X typo" → direct edit, no composition needed.
+
+### Pure research
+
+User says "research X" → `nc-research` alone, no plan/cook.
+
+### Pure design
+
+User says "design X" → `nc-brainstorm` alone, terminate when design approved.
+
+## Composition size limits
+
+Long pipelines burn context. Budget per phase:
+
+- Research phase: 20-30K tokens
+- Plan phase: 10-20K
+- Implementation phase: 40-60K (largest)
+- Test phase: 10-20K
+- Total per feature: 80-130K
+
+If budget exceeds 60%, split into 2 sessions:
+- Session 1: brainstorm + plan + research → save plan
+- Session 2: fresh session → cook + test from saved plan
+
+## Anti-patterns
+
+- **Re-running skill that already ran with same input** — cache output via file
+- **Full pipeline for trivial task** — skip to direct action
+- **Ignoring prior artifacts** — defeats composition purpose
+- **Verbose handoff prompts** — use file references instead
+
+## Integration
+
+- `nc-context-budget` — when to split pipeline across sessions
+- `nc-parallel-dispatch` — parallelize independent phases (e.g., research + predict)
+- `nc-router` — route user intent to correct starting skill
 
 ---
 
