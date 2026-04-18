@@ -57,7 +57,7 @@ Each audited skill gets one of:
 
 ---
 
-## Phase 2.5 — Cross-IDE Adapters, IDE-by-IDE (1-3 months)
+## Phase 2.5 — Cross-IDE Adapters ✅ (Complete: 2026-04-18)
 
 Goal: port skill *content* to other AI coding IDEs one at a time, optimized for each IDE's native format. Pulled earlier from Phase 4 so Phase 2 audit doesn't create CC-only debt that needs redoing.
 
@@ -68,13 +68,13 @@ Goal: port skill *content* to other AI coding IDEs one at a time, optimized for 
 3. `adapters/{ide}/` holds derived, pre-converted files
 4. Ship IDE adapters incrementally — one IDE fully before the next
 
-### IDE priority
+### IDE priority — all shipped except niche IDEs
 
-1. **Antigravity** ✅ v1 shipped (2 skills: brainstorm, research) — `adapters/antigravity/`
-2. **Cursor** (planned) — `.cursor/rules/*.mdc` format
-3. **Windsurf** (planned) — `.windsurfrules` fragments
-4. **GitHub Copilot** (planned) — `.github/copilot-instructions.md` merge
-5. **Continue.dev / Aider** (later)
+1. **Antigravity** ✅ shipped — 33 workflows + install automation
+2. **Cursor** ✅ shipped — 33 slash commands + install automation
+3. **Windsurf** ✅ shipped — 33 workflows + install automation
+4. **GitHub Copilot** ✅ shipped — 33 prompt files + install automation
+5. **Continue.dev / Aider** (deferred to Phase 4 — niche, lower user count)
 
 ### Per-skill portability matrix (evolving)
 
