@@ -122,3 +122,31 @@ Tier 2 shipped: 13 core missing skills (backend + infrastructure + patterns).
 - Skills: 70 → 83
 - Per-IDE workflows: 64 → 77 on all 10 IDEs
 - Total cross-IDE: 704 → 847
+
+## [2.4.0] - 2026-04-18
+
+Tier 3 shipped: 10 platform coverage skills (mobile + desktop + backend langs).
+
+### Added skills
+
+**Mobile:**
+- `nc-react-native` — cross-platform mobile with Expo/bare workflow, navigation, native modules
+- `nc-flutter` — Dart + Flutter, Riverpod/BLoC, platform channels
+- `nc-ios-swift` — native iOS with SwiftUI, UIKit interop, App Store
+- `nc-android-kotlin` — native Android with Compose, Jetpack, Play Store
+
+**Desktop:**
+- `nc-electron` — Node+web desktop, security model, auto-update, packaging
+- `nc-tauri` — Rust+web desktop, small bundle, Tauri 2 mobile support
+
+**Backend languages:**
+- `nc-go-backend` — Chi/Gin/Fiber, sqlx/sqlc, goroutines, context
+- `nc-rust-backend` — Axum/Tokio/sqlx, ownership, async Rust
+- `nc-python-fastapi` — FastAPI+Pydantic+SQLAlchemy, async Python
+- `nc-dotnet-core` — ASP.NET Core minimal APIs, EF Core, JWT
+
+### Stats
+
+- Skills: 83 → 93
+- Per-IDE workflows: 77 → 87 on all 10 IDEs
+- Total cross-IDE: 847 → 957

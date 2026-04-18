@@ -533,6 +533,163 @@ Load for detailed guidance:
 
 ---
 
+## nc-android-kotlin
+
+
+
+## Jetpack Compose vs XML views
+
+Compose (2026 default): declarative, less boilerplate, hot reload.  
+XML views: legacy apps, specific fragments.
+
+## Compose basics
+
+```kotlin
+@Composable
+fun CounterScreen() {
+    var count by remember { mutableStateOf(0) }
+    Column {
+        Text(text = "$count", style = MaterialTheme.typography.headlineLarge)
+        Button(onClick = { count++ }) {
+            Text("Increment")
+        }
+    }
+}
+```
+
+## State management
+
+- `remember { mutableStateOf(...) }` — local state
+- `rememberSaveable` — survives config change (rotation)
+- ViewModel + StateFlow — shared across navigation
+
+```kotlin
+class CounterViewModel : ViewModel() {
+    private val _count = MutableStateFlow(0)
+    val count: StateFlow<Int> = _count.asStateFlow()
+
+    fun increment() { _count.value++ }
+}
+
+@Composable
+fun Screen(vm: CounterViewModel = viewModel()) {
+    val count by vm.count.collectAsState()
+    // ...
+}
+```
+
+## Navigation
+
+```kotlin
+NavHost(navController, startDestination = "home") {
+    composable("home") { HomeScreen() }
+    composable("details/{id}") { backStack ->
+        DetailsScreen(id = backStack.arguments?.getString("id"))
+    }
+}
+```
+
+Or **Navigation 3** (type-safe, 2026):
+
+```kotlin
+@Serializable data class HomeRoute
+@Serializable data class DetailsRoute(val id: String)
+
+NavHost(navController, startDestination = HomeRoute) {
+    composable<HomeRoute> { HomeScreen() }
+    composable<DetailsRoute> { backStack ->
+        val route: DetailsRoute = backStack.toRoute()
+        DetailsScreen(id = route.id)
+    }
+}
+```
+
+## Networking
+
+- **Retrofit** + **OkHttp** — REST standard
+- **Ktor Client** — Kotlin-native alternative
+- **kotlinx.serialization** — JSON (Moshi/Gson older)
+
+```kotlin
+interface ApiService {
+    @GET("users/{id}")
+    suspend fun getUser(@Path("id") id: Int): User
+}
+
+val api = Retrofit.Builder()
+    .baseUrl("https://api.example.com/")
+    .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+    .build()
+    .create(ApiService::class.java)
+```
+
+## Persistence
+
+| Option | When |
+|---|---|
+| DataStore (Preferences) | Settings, flags |
+| DataStore (Proto) | Typed structured data |
+| Room | Relational, complex queries (SQLite wrapper) |
+| EncryptedSharedPreferences | Secrets, tokens |
+
+Room example:
+
+```kotlin
+@Entity
+data class User(@PrimaryKey val id: Int, val email: String)
+
+@Dao
+interface UserDao {
+    @Query("SELECT * FROM user WHERE id = :id")
+    suspend fun getById(id: Int): User?
+
+    @Insert
+    suspend fun insert(user: User)
+}
+```
+
+## Coroutines
+
+- `suspend fun` — async without callbacks
+- `viewModelScope` — auto-cancels on ViewModel clear
+- `lifecycleScope` — ties to activity/fragment lifecycle
+- `Dispatchers.IO` for network/disk; `Dispatchers.Main` for UI
+
+## Hilt (DI)
+
+```kotlin
+@HiltAndroidApp
+class App : Application()
+
+@AndroidEntryPoint
+class MyActivity : ComponentActivity() {
+    @Inject lateinit var api: ApiService
+}
+```
+
+## Play Store submission
+
+1. Android Studio → Build → Generate Signed Bundle/APK
+2. Google Play Console → create app → upload bundle
+3. Internal testing → closed testing → production
+4. Review 1-3 days
+
+## Anti-patterns
+
+- Blocking main thread with network (use coroutines)
+- Using `findViewById` in Compose (use `remember` instead)
+- No ProGuard/R8 rules (release build crashes)
+- Memory leaks from Activity references in singletons
+- Ignoring `onConfigurationChanged` (rotation wipes state)
+
+## Integration
+
+- `nc-auth-patterns` — EncryptedSharedPreferences for tokens
+- `nc-api-contracts` — OpenAPI → Kotlin client
+- `nc-observability` — Firebase Crashlytics, Sentry Android
+
+---
+
 ## nc-api-contracts
 
 
@@ -3464,6 +3621,333 @@ See `.env.example` for configuration options.
 
 ---
 
+## nc-dotnet-core
+
+
+
+## When .NET
+
+- Enterprise Microsoft ecosystem (Azure, SQL Server, Active Directory)
+- Team has C# expertise
+- Large-scale, long-lived (Microsoft's LTS support)
+- Need performance + strong typing
+
+## Minimal API (lightweight, 2026 default)
+
+```csharp
+// Program.cs
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AppDb>(o => o.UseNpgsql("..."));
+var app = builder.Build();
+
+app.MapGet("/users/{id}", async (int id, AppDb db) =>
+{
+    var user = await db.Users.FindAsync(id);
+    return user is null ? Results.NotFound() : Results.Ok(user);
+});
+
+app.MapPost("/users", async (CreateUserDto dto, AppDb db) =>
+{
+    var user = new User { Email = dto.Email };
+    db.Users.Add(user);
+    await db.SaveChangesAsync();
+    return Results.Created($"/users/{user.Id}", user);
+});
+
+app.Run();
+```
+
+## Controllers (when complexity warrants)
+
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController(AppDb db) : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task<ActionResult<User>> Get(int id)
+    {
+        var user = await db.Users.FindAsync(id);
+        return user is null ? NotFound() : Ok(user);
+    }
+}
+```
+
+## EF Core (ORM)
+
+```csharp
+public class User
+{
+    public int Id { get; set; }
+    public required string Email { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
+{
+    public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder b)
+    {
+        b.Entity<User>(e =>
+        {
+            e.Property(u => u.Email).HasMaxLength(255);
+            e.HasIndex(u => u.Email).IsUnique();
+        });
+    }
+}
+```
+
+### Migrations
+
+```bash
+dotnet ef migrations add AddUsers
+dotnet ef database update
+```
+
+## Authentication (JWT)
+
+```csharp
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+app.MapGet("/protected", () => "Secret").RequireAuthorization();
+```
+
+## Dependency injection (built-in)
+
+```csharp
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IEmailService, SendGridEmailService>();
+builder.Services.AddHttpClient<IApiClient, ApiClient>();
+
+// Inject in minimal API
+app.MapGet("/users", (IUserService svc) => svc.ListAsync());
+```
+
+## Validation (FluentValidation or DataAnnotations)
+
+```csharp
+public class CreateUserValidator : AbstractValidator<CreateUserDto>
+{
+    public CreateUserValidator()
+    {
+        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.Password).MinimumLength(8);
+    }
+}
+```
+
+## Background services
+
+```csharp
+public class CleanupService : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            await cleanupExpired();
+            await Task.Delay(TimeSpan.FromHours(1), ct);
+        }
+    }
+}
+
+builder.Services.AddHostedService<CleanupService>();
+```
+
+## Testing
+
+```csharp
+public class UsersApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+{
+    private readonly HttpClient _client = factory.CreateClient();
+
+    [Fact]
+    public async Task GetUser_ReturnsOk()
+    {
+        var response = await _client.GetAsync("/users/1");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+}
+```
+
+Run: `dotnet test`
+
+## Deploy
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish -c Release -o /out
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /out .
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "MyApp.dll"]
+```
+
+Deploy options: Azure App Service, AWS ECS, Kubernetes, Railway.
+
+## Anti-patterns
+
+- Blocking `.Result` / `.Wait()` instead of `await` (deadlock)
+- Over-using `async void` (exceptions crash process)
+- Not using `IDisposable` / `using` for DbContext
+- `DbContext` as singleton (it's scoped for thread safety)
+- Tight coupling controllers to EF (use services layer)
+
+## Integration
+
+- `nc-api-contracts` — NSwag/Swashbuckle for OpenAPI
+- `nc-observability` — OpenTelemetry .NET SDK + Application Insights
+- `nc-auth-patterns` — Identity, JWT, OAuth via `Microsoft.AspNetCore.Authentication`
+
+---
+
+## nc-electron
+
+
+
+## When Electron
+
+- Need: cross-platform desktop + web tech + Node.js APIs
+- Team: React/Vue/Svelte dev
+- Size OK: 80-150MB bundle per platform
+
+When NOT: bundle size critical (use Tauri), Node.js not needed, pure native performance.
+
+## Setup (electron-vite)
+
+```bash
+npm create @quick-start/electron my-app
+```
+
+Structure:
+```
+src/
+  main/index.ts         # main process (Node.js)
+  preload/index.ts      # bridge (secure IPC)
+  renderer/             # React/Vue/Svelte app
+electron-builder.yml    # packaging config
+```
+
+## Main + renderer + preload
+
+```ts
+// main/index.ts
+import { app, BrowserWindow } from "electron";
+
+app.whenReady().then(() => {
+  const win = new BrowserWindow({
+    width: 1200, height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/index.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  win.loadURL("http://localhost:5173");  // dev
+});
+```
+
+```ts
+// preload/index.ts — secure bridge
+import { contextBridge, ipcRenderer } from "electron";
+
+contextBridge.exposeInMainWorld("api", {
+  readFile: (path: string) => ipcRenderer.invoke("read-file", path),
+});
+```
+
+```ts
+// main/index.ts — handle IPC
+import { ipcMain } from "electron";
+ipcMain.handle("read-file", (_, path) => fs.readFile(path, "utf-8"));
+```
+
+```tsx
+// renderer (React)
+const content = await window.api.readFile("/path");
+```
+
+## Security rules
+
+1. `contextIsolation: true` — always
+2. `nodeIntegration: false` — never expose Node to renderer
+3. Validate all IPC inputs in main process
+4. Content Security Policy: `default-src 'self'`
+5. Load only `file://` or HTTPS, never HTTP in production
+6. Keep Electron updated (security patches)
+
+## Auto-update
+
+```ts
+import { autoUpdater } from "electron-updater";
+
+app.whenReady().then(() => {
+  autoUpdater.checkForUpdatesAndNotify();
+});
+```
+
+Host updates: GitHub Releases, S3, or electron-builder's generic provider.
+
+## Packaging (electron-builder)
+
+```yaml
+# electron-builder.yml
+appId: com.example.myapp
+productName: MyApp
+mac:
+  category: public.app-category.productivity
+  target: [dmg, zip]
+win:
+  target: [nsis, portable]
+linux:
+  target: [AppImage, deb, rpm]
+publish:
+  provider: github
+```
+
+```bash
+electron-builder --mac --win --linux
+```
+
+## Native integration
+
+- System tray: `new Tray(iconPath)`
+- Notifications: `new Notification({ title, body }).show()`
+- File system: Node `fs` (main process only)
+- Menu bar: `Menu.setApplicationMenu`
+- Shortcuts: `globalShortcut.register`
+
+## Anti-patterns
+
+- Exposing `nodeIntegration: true` (huge security hole)
+- Large DOM + heavy JS → laggy compared to native
+- No auto-update (users stuck on old versions)
+- Bundling unused Node modules (bundle bloat)
+- Running production with dev tools open (memory leak)
+
+## Integration
+
+- `nc-auth-patterns` — OS keychain via `keytar` library
+- `nc-observability` — Sentry Electron SDK
+- `nc-ci-cd` — sign + notarize macOS builds in CI (requires paid Apple Developer)
+
+---
+
 ## nc-env-secrets
 
 
@@ -4090,6 +4574,138 @@ Load as needed:
 - `nc-fix/references/workflow-test.md` - Test suite failures
 - `nc-fix/references/workflow-types.md` - TypeScript type errors
 - `nc-fix/references/workflow-ui.md` - Visual/UI issues (requires design skills)
+
+---
+
+## nc-flutter
+
+
+
+## When Flutter
+
+- Need pixel-perfect UI consistency across iOS/Android/Web/Desktop
+- Heavy custom UI (Flutter renders its own widgets, not platform-native)
+- Team comfortable with Dart
+
+When NOT: Dev team TypeScript-only, iOS-native feel required, web is primary.
+
+## Project setup
+
+```bash
+flutter create my_app
+cd my_app
+flutter run                    # dev (connected device/emulator)
+flutter build apk              # Android
+flutter build ios              # iOS (macOS only)
+flutter build web              # web
+```
+
+## State management (2026 recommendation)
+
+### Riverpod (most popular)
+
+```dart
+final counterProvider = StateProvider<int>((ref) => 0);
+
+class Counter extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(counterProvider);
+    return TextButton(
+      onPressed: () => ref.read(counterProvider.notifier).state++,
+      child: Text('$count'),
+    );
+  }
+}
+```
+
+### BLoC (enterprise, complex apps)
+
+Reactive streams + events + states. Heavier boilerplate, better for large teams.
+
+### Provider (built-in, simple)
+
+```dart
+ChangeNotifierProvider(
+  create: (_) => CartModel(),
+  child: MaterialApp(...),
+)
+```
+
+## Navigation
+
+### go_router (declarative)
+
+```dart
+final router = GoRouter(
+  routes: [
+    GoRoute(path: '/', builder: (_, __) => HomeScreen()),
+    GoRoute(path: '/details/:id', builder: (_, state) => DetailsScreen(id: state.pathParameters['id']!)),
+  ],
+);
+
+MaterialApp.router(routerConfig: router);
+```
+
+## Platform channels (call native code)
+
+```dart
+// Dart side
+static const platform = MethodChannel('com.example.app/battery');
+final level = await platform.invokeMethod<int>('getBatteryLevel');
+
+// Android (Kotlin)
+MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.app/battery")
+  .setMethodCallHandler { call, result ->
+    if (call.method == "getBatteryLevel") result.success(85)
+  }
+```
+
+## Forms
+
+```dart
+final _formKey = GlobalKey<FormState>();
+Form(
+  key: _formKey,
+  child: TextFormField(
+    validator: (v) => v?.isEmpty == true ? 'Required' : null,
+  ),
+)
+
+if (_formKey.currentState!.validate()) { /* submit */ }
+```
+
+## Networking
+
+- **http** package (simple)
+- **dio** (interceptors, retry, cancel)
+- **retrofit** (code-gen from OpenAPI)
+
+## Testing
+
+- Unit: `test` package
+- Widget: `flutter_test`
+- Integration: `integration_test` + `patrol` (more expressive)
+
+## Performance
+
+- `const` constructors everywhere possible (skip rebuild)
+- `ListView.builder` for long lists (lazy)
+- `RepaintBoundary` for expensive static widgets
+- `flutter run --profile` to profile realistically
+
+## Anti-patterns
+
+- `setState` in `build()` (infinite loop)
+- Non-const widgets inside constant contexts (missed optimization)
+- Global mutable state (use Riverpod)
+- Ignoring `dispose()` on controllers/streams (memory leak)
+
+## Integration
+
+- `nc-state-management` — Riverpod/BLoC equivalent to Zustand/Redux
+- `nc-api-contracts` — OpenAPI → dart client via `openapi-generator`
+- `nc-auth-patterns` — flutter_secure_storage for tokens
 
 ---
 
@@ -4800,6 +5416,365 @@ gkg server start
 - Requires initialized Git repository
 - Languages not connected across repos (yet)
 - TS/JS/Python cross-file refs incomplete
+
+---
+
+## nc-go-backend
+
+
+
+## When Go
+
+- High concurrency (goroutines scale easily)
+- Low latency / high throughput
+- Single binary deploy (no runtime needed)
+- Team comfortable with static typing, pointer semantics
+
+## HTTP server (stdlib)
+
+```go
+package main
+
+import (
+    "encoding/json"
+    "net/http"
+)
+
+type User struct {
+    ID    int    `json:"id"`
+    Email string `json:"email"`
+}
+
+func main() {
+    http.HandleFunc("/users/", handleUser)
+    http.ListenAndServe(":8080", nil)
+}
+
+func handleUser(w http.ResponseWriter, r *http.Request) {
+    u := User{ID: 1, Email: "test@example.com"}
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(u)
+}
+```
+
+## Frameworks
+
+### Chi (lightweight router)
+
+```go
+import "github.com/go-chi/chi/v5"
+
+r := chi.NewRouter()
+r.Use(middleware.Logger)
+r.Get("/users/{id}", getUserHandler)
+http.ListenAndServe(":8080", r)
+```
+
+### Gin (high-perf, feature-rich)
+
+```go
+r := gin.Default()
+r.GET("/users/:id", func(c *gin.Context) {
+    c.JSON(200, User{ID: 1, Email: "..."})
+})
+r.Run(":8080")
+```
+
+### Fiber (Express-like)
+
+```go
+app := fiber.New()
+app.Get("/users/:id", func(c *fiber.Ctx) error {
+    return c.JSON(User{})
+})
+app.Listen(":8080")
+```
+
+## Database
+
+### sqlx (recommended, simple)
+
+```go
+import "github.com/jmoiron/sqlx"
+
+db, err := sqlx.Connect("postgres", connStr)
+
+var user User
+err = db.Get(&user, "SELECT * FROM users WHERE id=$1", 42)
+
+users := []User{}
+err = db.Select(&users, "SELECT * FROM users WHERE active=true")
+```
+
+### sqlc (codegen from SQL)
+
+Write SQL → generate type-safe Go:
+
+```sql
+-- query.sql
+-- name: GetUser :one
+SELECT * FROM users WHERE id = $1;
+```
+
+```bash
+sqlc generate  # produces typed Go functions
+```
+
+## Concurrency
+
+```go
+// Goroutines
+go processOrder(order)  // fire-and-forget
+
+// WaitGroup (wait for all)
+var wg sync.WaitGroup
+for _, u := range users {
+    wg.Add(1)
+    go func(u User) {
+        defer wg.Done()
+        processUser(u)
+    }(u)
+}
+wg.Wait()
+
+// Channels (communicate)
+results := make(chan Result, 10)
+go func() {
+    results <- compute()
+}()
+r := <-results
+
+// Context (cancellation)
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+result, err := longRunningOp(ctx)
+```
+
+## Error handling
+
+Explicit `if err != nil` — no exceptions. Wrap errors with context:
+
+```go
+result, err := doWork()
+if err != nil {
+    return fmt.Errorf("doing work: %w", err)
+}
+```
+
+## Project layout (standard)
+
+```
+cmd/server/main.go      # entry point
+internal/               # not importable outside
+  api/                  # HTTP handlers
+  db/                   # database
+  service/              # business logic
+pkg/                    # importable by others
+go.mod
+```
+
+## Testing
+
+```go
+func TestGetUser(t *testing.T) {
+    u := User{ID: 1, Email: "test@example.com"}
+    if u.ID != 1 {
+        t.Errorf("expected ID=1, got %d", u.ID)
+    }
+}
+```
+
+Run: `go test ./...`
+
+Table-driven tests:
+
+```go
+tests := []struct {
+    name string
+    in   int
+    want string
+}{
+    {"zero", 0, "zero"},
+    {"one", 1, "one"},
+}
+for _, tt := range tests {
+    t.Run(tt.name, func(t *testing.T) {
+        if got := toName(tt.in); got != tt.want {
+            t.Errorf("got %s, want %s", got, tt.want)
+        }
+    })
+}
+```
+
+## Deploy
+
+```dockerfile
+FROM golang:1.23-alpine AS builder
+WORKDIR /app
+COPY go.* ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server ./cmd/server
+
+FROM scratch
+COPY --from=builder /app/server /
+EXPOSE 8080
+ENTRYPOINT ["/server"]
+```
+
+Final image: <20MB. Single binary = easy rollback.
+
+## Anti-patterns
+
+- `panic()` for expected errors (use `error` return)
+- Unbounded goroutines (OOM at scale)
+- Sharing memory between goroutines without sync (data race)
+- Ignoring `context.Context` in long operations (no cancellation)
+- Over-engineering interfaces before they're needed
+
+## Integration
+
+- `nc-api-contracts` — protobuf + grpc-go for typed RPC
+- `nc-databases` — sqlc for type-safe Postgres
+- `nc-observability` — OpenTelemetry Go SDK
+
+---
+
+## nc-ios-swift
+
+
+
+## SwiftUI vs UIKit
+
+SwiftUI (2026 default): declarative, less boilerplate, hot reload via Xcode Previews.  
+UIKit: mature, all custom controls work, needed for legacy apps.
+
+**Start SwiftUI**, drop to UIKit via `UIViewRepresentable` for specific controls (maps, AVKit).
+
+## SwiftUI basics
+
+```swift
+import SwiftUI
+
+struct CounterView: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack {
+            Text("\(count)")
+                .font(.largeTitle)
+            Button("Increment") {
+                count += 1
+            }
+        }
+    }
+}
+```
+
+## State management
+
+- `@State` — local view state
+- `@StateObject` — owns `ObservableObject` lifecycle
+- `@ObservedObject` — subscribes to external `ObservableObject`
+- `@EnvironmentObject` — inherit from ancestor
+- `@Bindable` (iOS 17+) — two-way binding
+
+### Observation (iOS 17+ macro)
+
+```swift
+@Observable
+class UserStore {
+    var currentUser: User?
+
+    func login(_ user: User) {
+        currentUser = user
+    }
+}
+```
+
+Simpler than ObservableObject — any property auto-publishes.
+
+## Navigation (iOS 16+)
+
+```swift
+NavigationStack(path: $path) {
+    HomeView()
+        .navigationDestination(for: User.self) { user in
+            UserDetailView(user: user)
+        }
+}
+```
+
+## Networking
+
+```swift
+struct User: Codable { let id: Int; let email: String }
+
+func fetchUser(_ id: Int) async throws -> User {
+    let url = URL(string: "https://api.example.com/users/\(id)")!
+    let (data, _) = try await URLSession.shared.data(from: url)
+    return try JSONDecoder().decode(User.self, from: data)
+}
+
+// In view
+.task {
+    user = try? await fetchUser(42)
+}
+```
+
+## Concurrency (Swift 6 strict)
+
+- `async/await` for all async work
+- `Task {}` for fire-and-forget from sync context
+- `@MainActor` for UI-updating code
+- `Sendable` for cross-actor types
+- Avoid `DispatchQueue.main.async` in new code
+
+## Persistence
+
+| Option | When |
+|---|---|
+| UserDefaults | Small settings (theme, flags) |
+| Core Data | Relational, complex queries |
+| SwiftData (iOS 17+) | Modern Core Data wrapper, @Model macro |
+| Realm / GRDB | Large data, cross-platform sync |
+| Keychain | Tokens, passwords |
+
+## App Store submission
+
+1. Xcode → Archive → Distribute App
+2. App Store Connect → metadata, screenshots, pricing
+3. Submit for review (1-3 day wait)
+4. TestFlight for beta (no review for internal testers)
+
+## Testing
+
+- `XCTest` — unit + UI
+- `Swift Testing` framework (Xcode 16+) — modern syntax
+
+```swift
+import Testing
+
+@Test func counter() {
+    let c = Counter()
+    c.increment()
+    #expect(c.value == 1)
+}
+```
+
+## Anti-patterns
+
+- Blocking main thread with sync I/O
+- Force unwrapping (`!`) in production (crash risk)
+- Massive view files (split into small views)
+- Ignoring memory (reference cycles in closures — use `[weak self]`)
+- Starting in UIKit for new projects (SwiftUI is the future)
+
+## Integration
+
+- `nc-auth-patterns` — Keychain for token storage
+- `nc-api-contracts` — OpenAPI → Swift client via openapi-generator
+- `nc-observability` — Sentry iOS SDK
 
 ---
 
@@ -7283,6 +8258,182 @@ Before writing any file:
 
 ---
 
+## nc-python-fastapi
+
+
+
+## When FastAPI
+
+- Python ecosystem required (ML/data science adjacent)
+- Need async + high performance
+- Want auto-generated OpenAPI docs
+- Type-safe request/response via Pydantic
+
+When NOT: CPU-bound heavy (Python GIL limits) — consider Go/Rust.
+
+## Minimal app
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class User(BaseModel):
+    id: int
+    email: str
+
+@app.get("/users/{user_id}", response_model=User)
+async def get_user(user_id: int) -> User:
+    return User(id=user_id, email="test@example.com")
+```
+
+Run: `uvicorn main:app --reload`
+
+Auto docs: `/docs` (Swagger) and `/redoc`.
+
+## Pydantic models (v2)
+
+```python
+from pydantic import BaseModel, EmailStr, Field
+
+class CreateUserRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    name: str | None = None
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    model_config = {"from_attributes": True}  # ORM mode
+```
+
+Validation is automatic. Errors return 422 with field-specific details.
+
+## Dependency injection
+
+```python
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+async def get_db() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+
+@app.get("/users/{id}")
+async def get_user(id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.get(User, id)
+    if not result:
+        raise HTTPException(404, "Not found")
+    return result
+```
+
+## SQLAlchemy 2.0 (async)
+
+```python
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+class Base(DeclarativeBase): pass
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str]
+
+engine = create_async_engine("postgresql+asyncpg://user:pass@host/db")
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+# Query
+async with SessionLocal() as session:
+    user = await session.get(User, 42)
+```
+
+## Alembic migrations
+
+```bash
+alembic init alembic
+alembic revision --autogenerate -m "add users"
+alembic upgrade head
+```
+
+## Background tasks
+
+```python
+from fastapi import BackgroundTasks
+
+def send_email(email: str):
+    # sync code, runs after response sent
+    pass
+
+@app.post("/signup")
+async def signup(req: CreateUserRequest, tasks: BackgroundTasks):
+    user = await create_user(req)
+    tasks.add_task(send_email, req.email)
+    return user
+```
+
+For heavy jobs: use **Celery** or **Dramatiq** with Redis.
+
+## Middleware + CORS
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://example.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+## Testing
+
+```python
+from fastapi.testclient import TestClient
+
+client = TestClient(app)
+
+def test_get_user():
+    r = client.get("/users/1")
+    assert r.status_code == 200
+    assert r.json()["id"] == 1
+```
+
+## Deploy
+
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+```
+
+Production: `uvicorn` with `gunicorn` workers for multi-process:
+```bash
+gunicorn main:app -k uvicorn.workers.UvicornWorker -w 4
+```
+
+## Anti-patterns
+
+- Sync code in async endpoint (blocks event loop)
+- Using `SQLAlchemy` sync API with `async` FastAPI (use async API)
+- No Pydantic validation (Python type hints alone don't validate at runtime)
+- Monolithic `main.py` (split into routers per domain)
+- Missing `response_model` (loses auto docs + validation)
+
+## Integration
+
+- `nc-api-contracts` — FastAPI auto-generates OpenAPI at `/openapi.json`
+- `nc-observability` — OpenTelemetry instrumentation + Sentry
+- `nc-databases` — SQLAlchemy 2.0 async + Alembic
+
+---
+
 ## nc-queues
 
 
@@ -7549,6 +8700,120 @@ Each rule file contains:
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
+
+---
+
+## nc-react-native
+
+
+
+## Expo vs bare workflow
+
+| Expo (managed) | Bare workflow |
+|---|---|
+| Fast start, OTA updates | Full native control |
+| Limited native modules | Any native module |
+| EAS Build handles signing | Manual Xcode / Android Studio |
+| Good for MVPs, most apps | Needed for complex native needs |
+
+**2026 recommendation:** Expo for new projects. Eject only if you need a native module Expo doesn't support.
+
+## Navigation
+
+```tsx
+// React Navigation v7+
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+const Stack = createNativeStackNavigator();
+
+<Stack.Navigator>
+  <Stack.Screen name="Home" component={HomeScreen} />
+  <Stack.Screen name="Details" component={DetailsScreen} />
+</Stack.Navigator>
+```
+
+Or **Expo Router** (file-based, like Next.js):
+
+```
+app/
+  _layout.tsx
+  index.tsx        → /
+  settings.tsx     → /settings
+  [id].tsx         → /:id
+```
+
+## State + data
+
+Same as web — TanStack Query for server state, Zustand for client state. Avoid AsyncStorage-only solutions (slow, no query invalidation).
+
+## Native modules
+
+```ts
+// Call native code from JS
+import { NativeModules } from "react-native";
+const { MyNativeModule } = NativeModules;
+MyNativeModule.doSomething("arg").then(result => ...);
+```
+
+For iOS: Objective-C/Swift. For Android: Java/Kotlin. Or use **Turbo Modules** (new arch) for type-safe bridging.
+
+## Performance
+
+- **FlatList** over ScrollView for long lists (virtualized)
+- **useMemo**/`React.memo` aggressively — RN re-renders expensive
+- **Hermes** engine (default in RN 0.76+)
+- **Image**: use `expo-image` or `react-native-fast-image` (caching)
+- **Startup**: lazy-load non-critical screens
+- **Profiling**: Flipper (deprecated, use native tools) or React DevTools Profiler
+
+## Forms + input
+
+- `react-hook-form` + `zod`
+- `KeyboardAvoidingView` (or `react-native-keyboard-controller` for advanced)
+- Focus management with `TextInput refs`
+
+## Styling
+
+- StyleSheet.create (built-in)
+- **NativeWind** — Tailwind-like for RN
+- **Tamagui** — design system + themes, universal web+native
+- Avoid inline styles in render-heavy components
+
+## Deployment
+
+### Expo (EAS)
+
+```bash
+eas build --platform ios
+eas build --platform android
+eas submit --platform ios     # App Store Connect
+eas submit --platform android # Play Console
+eas update                    # OTA hot fix
+```
+
+### Bare
+
+- iOS: Fastlane + Xcode Cloud or CI
+- Android: Gradle + Play Console API
+
+## Testing
+
+- **Unit**: Jest + React Native Testing Library
+- **E2E**: Detox (iOS/Android) or Maestro (declarative, easier)
+
+## Anti-patterns
+
+- Using ScrollView for 100+ items (use FlatList)
+- Inline object styles (new object every render)
+- No memoization in Context provider (re-render storm)
+- OTA updating native code changes (must rebuild)
+- Ignoring iOS/Android platform differences (test both)
+
+## Integration
+
+- `nc-state-management` — same patterns apply
+- `nc-auth-patterns` — secure token storage (Keychain/Keystore via expo-secure-store)
+- `nc-api-contracts` — generate TS client from OpenAPI for strong types
 
 ---
 
@@ -8358,6 +9623,173 @@ If debugging session active (`plans/reports/debug-*.md` exists recent):
 - `nc-context-budget` — router checks budget, short-circuits when tight
 - `nc-skill-composition` — router hands off to pipeline
 - `nc-response-format` — router's own response is concise (no over-explanation of routing choice)
+
+---
+
+## nc-rust-backend
+
+
+
+## When Rust
+
+- Performance-critical (highest throughput + lowest latency)
+- Memory-safe without GC overhead
+- Long-running daemons where reliability matters
+- Team has Rust chops (steep learning curve)
+
+When NOT: rapid iteration needed, small team new to Rust (productivity cost).
+
+## Axum (2026 recommended)
+
+Ergonomic, async, Tokio-native:
+
+```rust
+use axum::{routing::get, Router, Json};
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
+struct User { id: i32, email: String }
+
+async fn get_user() -> Json<User> {
+    Json(User { id: 1, email: "test@example.com".into() })
+}
+
+#[tokio::main]
+async fn main() {
+    let app = Router::new().route("/users", get(get_user));
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+}
+```
+
+## Extractors (typed params)
+
+```rust
+use axum::extract::{Path, Query, State};
+
+async fn get_user(
+    Path(id): Path<i32>,
+    State(db): State<DbPool>,
+) -> Result<Json<User>, AppError> {
+    let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id=$1", id)
+        .fetch_one(&db).await?;
+    Ok(Json(user))
+}
+```
+
+## Error handling
+
+```rust
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum AppError {
+    #[error("not found")]
+    NotFound,
+    #[error("db error: {0}")]
+    Db(#[from] sqlx::Error),
+}
+
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        let code = match self {
+            AppError::NotFound => StatusCode::NOT_FOUND,
+            AppError::Db(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+        (code, self.to_string()).into_response()
+    }
+}
+```
+
+## Database (sqlx)
+
+```rust
+// Compile-time checked queries
+let user = sqlx::query_as!(
+    User,
+    "SELECT id, email FROM users WHERE id = $1",
+    42
+).fetch_one(&pool).await?;
+```
+
+Requires `DATABASE_URL` at compile time. Use `sqlx prepare` for offline mode in CI.
+
+## Concurrency (Tokio)
+
+```rust
+// Spawn async task
+tokio::spawn(async move {
+    process_order(order).await;
+});
+
+// Parallel futures
+let (a, b) = tokio::join!(
+    fetch_user(1),
+    fetch_user(2)
+);
+
+// Channel
+let (tx, mut rx) = tokio::sync::mpsc::channel::<Event>(100);
+tokio::spawn(async move {
+    tx.send(Event::Created).await.unwrap();
+});
+while let Some(event) = rx.recv().await { /* ... */ }
+```
+
+## Ownership rules (critical)
+
+- **Owned** (`String`, `Vec<T>`): one owner at a time; moves on assignment
+- **Borrowed** (`&T`, `&mut T`): no owner change; lifetime-bounded
+- **Rc/Arc** for shared ownership; `Mutex`/`RwLock` for shared mutation
+
+In async: use `Arc<Mutex<T>>` for state shared between tasks.
+
+## Testing
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_user() {
+        let result = get_user(Path(1)).await;
+        assert!(result.is_ok());
+    }
+}
+```
+
+Run: `cargo test`
+
+## Deploy (Docker)
+
+```dockerfile
+FROM rust:1.83 AS builder
+WORKDIR /app
+COPY . .
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+COPY --from=builder /app/target/release/myapp /usr/local/bin/
+EXPOSE 8080
+CMD ["myapp"]
+```
+
+Use `cargo-chef` for faster Docker builds (layer cache deps).
+
+## Anti-patterns
+
+- Cloning everywhere to avoid borrow checker (performance loss)
+- `unwrap()` in production (crashes)
+- Blocking operations in async (`std::thread::sleep` in Tokio)
+- Over-using generics early (compile time explodes)
+- Not using `cargo clippy` (lints catch issues)
+
+## Integration
+
+- `nc-api-contracts` — tonic for gRPC, OpenAPI via `utoipa` macro
+- `nc-observability` — `tracing` + OpenTelemetry
+- `nc-databases` — sqlx for Postgres, seaorm for ORM alternative
 
 ---
 
@@ -9368,6 +10800,157 @@ This skill handles TanStack Start/Form/AI development. Does NOT handle: TanStack
 - [TanStack Start Docs](https://tanstack.com/start/latest/docs)
 - [TanStack Form Docs](https://tanstack.com/form/latest/docs)
 - [TanStack AI Docs](https://tanstack.com/ai/latest/docs)
+
+---
+
+## nc-tauri
+
+
+
+## Tauri vs Electron
+
+| Tauri | Electron |
+|---|---|
+| Bundle 2-20MB | 80-150MB |
+| Rust backend | Node.js backend |
+| OS-native webview (no Chromium bundled) | Chromium bundled (consistent) |
+| Fast startup | Slower |
+| Steeper learning curve (Rust) | Familiar (JS) |
+
+**2026:** Choose Tauri for size-sensitive / performance-critical apps. Electron for Node-heavy backends.
+
+## Tauri 2 also supports mobile
+
+iOS + Android from same project. Still maturing but promising for light cross-platform.
+
+## Setup
+
+```bash
+npm create tauri-app@latest
+# Choose: React/Vue/Svelte/vanilla + TypeScript
+cd my-app
+npm run tauri dev
+```
+
+Structure:
+```
+src/              # frontend (React/Vue/Svelte)
+src-tauri/        # Rust backend
+  src/main.rs
+  tauri.conf.json
+  Cargo.toml
+```
+
+## Rust commands (callable from frontend)
+
+```rust
+// src-tauri/src/main.rs
+#[tauri::command]
+fn greet(name: &str) -> String {
+    format!("Hello, {}!", name)
+}
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![greet])
+        .run(tauri::generate_context!())
+        .expect("error");
+}
+```
+
+```ts
+// frontend
+import { invoke } from "@tauri-apps/api/core";
+const msg = await invoke<string>("greet", { name: "Hao" });
+```
+
+## Async Rust commands
+
+```rust
+#[tauri::command]
+async fn fetch_data(url: String) -> Result<serde_json::Value, String> {
+    let response = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    response.json().await.map_err(|e| e.to_string())
+}
+```
+
+## Permissions (Tauri 2 capability model)
+
+```json
+// src-tauri/capabilities/main.json
+{
+  "identifier": "main-capability",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file"
+  ]
+}
+```
+
+Explicit permissions per window — secure by default.
+
+## File system access
+
+```ts
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+
+const content = await readTextFile("/path/to/file.txt");
+await writeTextFile("/path/output.txt", "content");
+```
+
+## Events
+
+```rust
+// Rust emits
+app_handle.emit("progress", 50).unwrap();
+```
+
+```ts
+// JS listens
+import { listen } from "@tauri-apps/api/event";
+await listen<number>("progress", (e) => console.log(e.payload));
+```
+
+## Packaging
+
+```bash
+npm run tauri build
+```
+
+Outputs:
+- Windows: MSI installer, NSIS
+- macOS: DMG, .app
+- Linux: AppImage, deb, rpm
+
+Sign macOS: `TAURI_SIGNING_PRIVATE_KEY` env + Apple Developer cert.
+
+## Auto-update
+
+```json
+// tauri.conf.json
+"plugins": {
+  "updater": {
+    "endpoints": ["https://cdn.example.com/updates/{{target}}/{{current_version}}"],
+    "pubkey": "..."
+  }
+}
+```
+
+## Anti-patterns
+
+- Heavy business logic in frontend (defeats Rust performance advantage)
+- Ignoring permissions (allow-everything = insecure)
+- Shipping debug builds (large + slow)
+- Using `tauri::Builder::default()` without error handling
+- No code signing for distribution (macOS Gatekeeper blocks)
+
+## Integration
+
+- `nc-auth-patterns` — keyring/keytar equivalent via `tauri-plugin-stronghold`
+- `nc-observability` — Sentry Rust SDK in backend, browser SDK in frontend
+- `nc-ci-cd` — Tauri Action for cross-platform builds in GitHub Actions
 
 ---
 

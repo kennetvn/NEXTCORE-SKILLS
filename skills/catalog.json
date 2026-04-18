@@ -1,6 +1,6 @@
 {
-  "version": "2.3.0",
-  "generatedAt": "2026-04-18T11:53:25.875Z",
+  "version": "2.4.0",
+  "generatedAt": "2026-04-18T11:59:05.201Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 83,
+  "totalSkills": 93,
   "skills": [
     {
       "name": "agent-browser",
@@ -575,6 +575,24 @@
       ]
     },
     {
+      "name": "nc-android-kotlin",
+      "description": "Native Android development with Kotlin + Jetpack Compose. Use when building Android-only apps, deep platform integration, Play Store submission, or Compose/XML architecture.",
+      "loc": 160,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-api-contracts",
       "description": "API contract design: OpenAPI, tRPC, GraphQL, gRPC schemas. Use when designing REST API, generating clients from specs, enforcing contracts between frontend/backend, or versioning APIs.",
       "loc": 183,
@@ -710,6 +728,42 @@
       ]
     },
     {
+      "name": "nc-dotnet-core",
+      "description": ".NET backend with ASP.NET Core, EF Core, C#. Use when building Microsoft-stack APIs, evaluating .NET vs Java/Node, migrating legacy .NET Framework, or enterprise Microsoft environments.",
+      "loc": 198,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-electron",
+      "description": "Cross-platform desktop apps with Electron. Use when building Windows/macOS/Linux desktop, need Node.js + web tech, or evaluating Electron vs Tauri.",
+      "loc": 135,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-env-secrets",
       "description": "Environment variables + secrets management. Use when setting up .env files, rotating API keys, managing secrets across dev/staging/prod, or integrating with HashiCorp Vault / AWS Secrets Manager / Doppler.",
       "loc": 131,
@@ -731,6 +785,60 @@
       "name": "nc-event-sourcing",
       "description": "Event sourcing + CQRS patterns. Use for audit-heavy domains (finance, healthcare), when you need full history replay, time-travel debugging, or complex domain models.",
       "loc": 190,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-flutter",
+      "description": "Cross-platform mobile + desktop + web with Flutter/Dart. Use when building iOS+Android+Web from single codebase, evaluating Flutter vs React Native, state management (Riverpod/BLoC), or platform channels.",
+      "loc": 135,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-go-backend",
+      "description": "Go backend development: HTTP servers, routing, database, goroutines. Use when building Go APIs/microservices, evaluating Go vs Node, or writing performance-critical backend services.",
+      "loc": 224,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-ios-swift",
+      "description": "Native iOS development with Swift + SwiftUI. Use when building iOS-only apps, need deep platform integration, App Store submission, or SwiftUI/UIKit architecture decisions.",
+      "loc": 141,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -854,9 +962,45 @@
       ]
     },
     {
+      "name": "nc-python-fastapi",
+      "description": "Python backend with FastAPI, SQLAlchemy, Pydantic. Use when building Python APIs, ML-adjacent services, async Python, or evaluating FastAPI vs Django/Flask.",
+      "loc": 179,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-queues",
       "description": "Background job queues: BullMQ, Redis, RabbitMQ, AWS SQS. Use for async work (emails, image processing, webhooks, scheduled jobs) or decoupling services via message passing.",
       "loc": 151,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-react-native",
+      "description": "Cross-platform mobile development with React Native. Use when building iOS+Android from single codebase, evaluating Expo vs bare workflow, native module integration, or performance optimization.",
+      "loc": 117,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -893,6 +1037,24 @@
       "name": "nc-router",
       "description": "Intent classifier that routes user request to the right skill fast. Use at session start to avoid brainstorm overhead for trivial requests, or when user intent is ambiguous between multiple skills.",
       "loc": 107,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-rust-backend",
+      "description": "Rust backend development: Actix, Axum, Tokio, SQLx. Use when building performance-critical services, safety-critical systems, or evaluating Rust vs Go for backend.",
+      "loc": 170,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -965,6 +1127,24 @@
       "name": "nc-state-management",
       "description": "Frontend state management patterns: Zustand, Jotai, TanStack Store, Redux, React Context. Use when choosing a state library, refactoring prop-drilling, or architecting a React app.",
       "loc": 163,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-tauri",
+      "description": "Cross-platform desktop with Tauri (Rust + web UI). Use when you need small bundle (<20MB), native performance, or Electron alternatives. Tauri 2 supports mobile too.",
+      "loc": 154,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
