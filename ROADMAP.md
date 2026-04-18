@@ -74,7 +74,7 @@ Goal: port skill *content* to other AI coding IDEs one at a time, optimized for 
 2. **Cursor** ✅ shipped — 33 slash commands + install automation
 3. **Windsurf** ✅ shipped — 33 workflows + install automation
 4. **GitHub Copilot** ✅ shipped — 33 prompt files + install automation
-5. **Continue.dev / Aider** (deferred to Phase 4 — niche, lower user count)
+5. **All IDEs shipped** (10 total — see README)
 
 ### Per-skill portability matrix (evolving)
 
@@ -156,7 +156,7 @@ Goal: skill content (not hooks) portable to non-Claude-Code environments.
 
 ---
 
-## Phase 5 — Skill Ecosystem (partial: catalog + per-skill install + CONTRIBUTING ✅ 2026-04-18)
+## Phase 5 — Skill Ecosystem ✅ (Complete 2026-04-18: catalog.json + catalog.html UI + per-skill install + CONTRIBUTING + CI)
 
 Goal: Web UI for browsing + installing individual skills.
 

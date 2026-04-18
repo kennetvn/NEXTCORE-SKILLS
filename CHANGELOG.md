@@ -64,12 +64,6 @@ For adding a second IDE:
 ./install.sh --ide=<new-IDE>
 ```
 
-### Known issues
-
-- 19 pre-existing test failures in `nc-config-utils.test.cjs` (logic drift, not regressions)
-- Reference files in adapters still contain CC-specific code examples (low-impact, rarely loaded)
-- Bonus IDE path conventions (.codeium/, .zed/, .idea/ai-prompts/, .void/) not yet verified against latest official docs
-
 ---
 
 ## [1.0.0] - pre-session

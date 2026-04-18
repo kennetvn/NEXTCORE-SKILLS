@@ -152,7 +152,9 @@ Environment variables:
 
 ---
 
-## Roadmap — all phases complete
+## Roadmap
+
+All phases complete. Future additions happen via community contributions (see CONTRIBUTING.md).
 
 - **Phase 1** ✅ Foundation (rebrand, config, installers)
 - **Phase 2** ✅ Skill audit (81 → 65 active, 2865 LOC dead weight removed)
@@ -160,7 +162,6 @@ Environment variables:
 - **Phase 3** ✅ Clean-room audit + LICENSE/CREDITS cleanup
 - **Phase 4** ✅ Niche IDE adapters (Continue.dev, Aider)
 - **Phase 5** ✅ Skill ecosystem foundation (catalog.json + per-skill install + CONTRIBUTING)
-- **Phase 5.1** (deferred) Full marketplace web UI at `skills.nextcore.com`
 
 See [ROADMAP.md](./ROADMAP.md) for detail.
 
