@@ -1,42 +1,58 @@
 # NEXTCORE-SKILLS
 
-> Cross-IDE AI workflow framework — 66 skills as slash commands across **5 AI IDEs**. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
+> Cross-IDE AI workflow framework — 65 curated skills as slash commands across **7 AI IDEs**. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**Supported IDEs:** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot
+**Supported IDEs:** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider
 
 ---
 
 ## Quick install
 
-Pick your IDE:
+Pick your IDE — each with one-command install:
 
-| IDE | Linux / macOS / Git Bash | Windows PowerShell |
-|---|---|---|
-| **Claude Code** (full framework) | `curl -sSL https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.sh \| bash` | `iwr -useb .../install.ps1 \| iex` |
-| **Antigravity** | `curl -sSL .../install.sh \| bash -s -- --ide=antigravity` | `iwr -useb .../install.ps1 \| iex -Args '-Ide antigravity'` |
-| **Cursor** | `curl -sSL .../install.sh \| bash -s -- --ide=cursor` | `iwr -useb .../install.ps1 \| iex -Args '-Ide cursor'` |
-| **Windsurf** | `curl -sSL .../install.sh \| bash -s -- --ide=windsurf` | `iwr -useb .../install.ps1 \| iex -Args '-Ide windsurf'` |
-| **GitHub Copilot** | `curl -sSL .../install.sh \| bash -s -- --ide=copilot` | `iwr -useb .../install.ps1 \| iex -Args '-Ide copilot'` |
+```bash
+# Linux / macOS / Git Bash
+curl -sSL https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.sh | bash -s -- --ide=<IDE>
 
-Replace `.../` with the full URL: `https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/`
+# Windows PowerShell
+iwr -useb https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.ps1 | iex -Args '-Ide <IDE>'
+```
 
-After install, restart your IDE to load the new skills/workflows.
+Replace `<IDE>` with one of: `claude-code` · `antigravity` · `cursor` · `windsurf` · `copilot` · `continue` · `aider`
+
+Default: `--ide=claude-code` (full framework: skills + hooks + subagents + commands)
+
+After install, restart your IDE. Type `/nc-` (or `/nc:` in Claude Code) to see available slash commands.
 
 ---
 
 ## What you get per IDE
 
-| Feature | Claude Code | Antigravity | Cursor | Windsurf | Copilot |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Slash commands | ✅ 66 | ✅ 33 | ✅ 33 | ✅ 33 | ✅ 33 |
-| Reference docs per skill | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Hooks (session, privacy, scout-block) | ✅ | — | — | — | — |
-| Subagents | ✅ | via `ai-team/*` | general agent | Cascade | Copilot agent |
-| Install target | `.claude/` | `.agent/workflows/` | `.cursor/commands/` | `.windsurf/workflows/` | `.github/prompts/` |
+| IDE | Install target | Workflows | Hooks | Subagents |
+|---|---|:---:|:---:|:---:|
+| Claude Code | `.claude/` | ✅ 65 | ✅ 15 | ✅ |
+| Antigravity | `.agent/workflows/` | ✅ 33 | — | via `ai-team/*` |
+| Cursor | `.cursor/commands/` | ✅ 33 | — | general agent |
+| Windsurf | `.windsurf/workflows/` | ✅ 33 | — | Cascade |
+| GitHub Copilot | `.github/prompts/` | ✅ 33 | — | Copilot agent |
+| Continue.dev | `.continue/prompts/` | ✅ 33 | — | general agent |
+| Aider | `.aider/nextcore/` | ✅ 33 | — | CLI conversation |
 
-Claude Code is the source of truth — other IDEs get skill **content** (portable markdown); hooks/subagents are Claude Code exclusive.
+Claude Code is source of truth — other IDEs get skill **content** (portable markdown). Hooks and subagent orchestration are Claude Code exclusive.
+
+---
+
+## Per-skill install (Claude Code)
+
+Cherry-pick specific skills instead of the full 65:
+
+```bash
+./install.sh --ide=claude-code --skills=cook,fix,nc-plan,nc-debug,nc-brainstorm
+```
+
+Useful for: CI/CD lean installs, team-specific profiles, testing subsets.
 
 ---
 
@@ -60,7 +76,7 @@ Claude Code is the source of truth — other IDEs get skill **content** (portabl
 **Backend & infra:**
 - `nc-backend-development` · `nc-databases` (PostgreSQL, MongoDB)
 - `nc-tanstack` · `nc-payment-integration` (SePay, Stripe, Paddle, Polar, Creem)
-- `nc-deploy-vps` (VPS <YOUR_VPS_IP> + your hosting panel, NextCore-specific)
+- `nc-deploy-vps` (VPS + your hosting panel, NextCore-specific)
 
 **Testing & security:**
 - `nc-security` (STRIDE + OWASP, iterative auto-fix)
@@ -79,42 +95,51 @@ Claude Code is the source of truth — other IDEs get skill **content** (portabl
 **Domain (NextCore-specific):**
 - `nc-facebook-dom` · `nc-chrome-extension-dev` · `nc-prisma-helper` · `nc-nextcore-design`
 
+Full machine-readable index: [`skills/catalog.json`](./skills/catalog.json)
+
 ---
 
 ## Architecture
 
 ```
-skills/                          ← Claude Code source of truth (66 skills)
+skills/                          ← Claude Code source of truth (65 skills)
   {name}/
     SKILL.md                     ← prose + frontmatter
     references/*.md              ← supporting detail
+  catalog.json                   ← machine-readable skill index
 adapters/                        ← derived, per-IDE
-  antigravity/
-    workflows/                   ← 33 .md + references (auto-converted)
-    converter.cjs                ← SKILL.md → Antigravity workflow
-    README.md
+  antigravity/workflows/         ← 33 .md + references
+    converter.cjs                ← SKILL.md → Antigravity workflow transformer
   cursor/commands/               ← 33 .md + references
-  windsurf/workflows/            ← 33 .md + references (auto_execution_mode)
-  copilot/prompts/               ← 33 .prompt.md + references (mode: agent)
+  windsurf/workflows/            ← 33 .md + auto_execution_mode
+  copilot/prompts/               ← 33 .prompt.md + mode:agent
+  continue/prompts/              ← 33 .md
+  aider/
+    prompts/                     ← 33 .md
+    conventions/                 ← standing context for aider --read
 hooks/                           ← Claude Code only
-  session-init.cjs · privacy-block.cjs · skill-dedup.cjs · ...
+  session-init.cjs · privacy-block.cjs · skill-dedup.cjs · scout-block.cjs · ...
   lib/                           ← shared utilities (config, scout, privacy)
   __tests__/                     ← Node test runner
-install.sh / install.ps1         ← IDE-aware installers
+install.sh / install.ps1         ← 7-IDE-aware installers
+CONTRIBUTING.md                  ← community contribution guide
+ATTRIBUTION.md                   ← clean-room audit
 ```
 
-`skills/` is always authoritative. Adapter files are **derived** — edit `skills/` then re-run `adapters/antigravity/converter.cjs` + downstream transforms.
+`skills/` is authoritative. Adapter files are **derived** — edit `skills/` then re-run `adapters/antigravity/converter.cjs` + downstream transforms.
 
 ---
 
-## Options
+## Install options
 
 ```
---ide=NAME       Target IDE: claude-code | antigravity | cursor | windsurf | copilot
+--ide=NAME       Target IDE: claude-code (default) | antigravity | cursor |
+                 windsurf | copilot | continue | aider
 --target=PATH    Override install directory
 --update         Merge with existing install (preserve user tweaks)
 --minimal        Strip skill scripts/venvs (Claude Code only)
 --force          Skip backup prompt if target exists
+--skills=LIST    Comma-separated skill names (Claude Code only)
 ```
 
 Environment variables:
@@ -123,49 +148,49 @@ Environment variables:
 
 ---
 
-## Roadmap
+## Roadmap — all phases complete
 
 - **Phase 1** ✅ Foundation (rebrand, config, installers)
-- **Phase 2** ✅ Skill audit (81 → 66 active, 2865 LOC dead weight removed)
-- **Phase 2.5** ✅ Cross-IDE adapters (4 IDEs shipped: Antigravity, Cursor, Windsurf, Copilot)
-- **Phase 3** (in progress) Hook hardening + schema + legal cleanup
-- **Phase 4** (deferred) Niche IDE adapters: Continue.dev, Aider
-- **Phase 5** (long-term) Skill marketplace web UI
+- **Phase 2** ✅ Skill audit (81 → 65 active, 2865 LOC dead weight removed)
+- **Phase 2.5** ✅ Cross-IDE adapters part 1 (Antigravity, Cursor, Windsurf, Copilot)
+- **Phase 3** ✅ Clean-room audit + LICENSE/CREDITS cleanup
+- **Phase 4** ✅ Niche IDE adapters (Continue.dev, Aider)
+- **Phase 5** ✅ Skill ecosystem foundation (catalog.json + per-skill install + CONTRIBUTING)
+- **Phase 5.1** (deferred) Full marketplace web UI at `skills.nextcore.com`
 
-See [ROADMAP.md](./ROADMAP.md) for detailed status.
+See [ROADMAP.md](./ROADMAP.md) for detail.
 
 ---
 
 ## Per-IDE docs
 
-Each adapter has its own README with IDE-specific conventions, install steps, and known limitations:
+Each adapter has IDE-specific conventions, install steps, known limitations:
 
-- [`adapters/antigravity/README.md`](./adapters/antigravity/README.md) — Antigravity (Google)
-- [`adapters/cursor/README.md`](./adapters/cursor/README.md) — Cursor
-- [`adapters/windsurf/README.md`](./adapters/windsurf/README.md) — Windsurf
-- [`adapters/copilot/README.md`](./adapters/copilot/README.md) — GitHub Copilot (VS Code)
+- [`adapters/antigravity/README.md`](./adapters/antigravity/README.md)
+- [`adapters/cursor/README.md`](./adapters/cursor/README.md)
+- [`adapters/windsurf/README.md`](./adapters/windsurf/README.md)
+- [`adapters/copilot/README.md`](./adapters/copilot/README.md)
+- [`adapters/continue/README.md`](./adapters/continue/README.md)
+- [`adapters/aider/README.md`](./adapters/aider/README.md)
 
 ---
 
 ## Contributing
 
-This is an evolving framework. If you:
-
-1. **Find a skill** that doesn't work right → open an issue with the IDE + skill name
-2. **Want a new IDE** adapter → see `adapters/README.md` for the porting pattern
-3. **Improve an existing skill** → edit `skills/{name}/SKILL.md` then re-run converters:
-   ```bash
-   cd adapters/antigravity && node converter.cjs <skill-name>
-   # then propagate to other adapters via their scripts
-   ```
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+- Adding new skills (workflow + review checklist)
+- Improving existing skills
+- Adding new IDE adapters (template via Cursor pattern)
+- Issue templates + PR conventions
+- Versioning rules
 
 ---
 
 ## Credits
 
-Architecture patterns inspired by [prior ecosystem work](https://prior ecosystem work) (MIT). See [CREDITS.md](./CREDITS.md) for detailed attribution.
+Architecture patterns inspired by [prior ecosystem work](https://prior ecosystem work) (MIT). No code derived — see [ATTRIBUTION.md](./ATTRIBUTION.md) for the clean-room audit.
 
-All NEXTCORE-authored code under MIT license — see [LICENSE](./LICENSE).
+NEXTCORE-SKILLS licensed under [MIT](./LICENSE) — self-contained, no upstream notice required.
 
 ---
 
@@ -186,8 +211,9 @@ All NEXTCORE-authored code under MIT license — see [LICENSE](./LICENSE).
 
 ## Stats
 
-- **66 skills** (audited down from 81, keeping only actively-used patterns)
-- **132 cross-IDE workflows** shipped (33 skills × 4 non-CC IDEs)
-- **432 reference files** shipped across all adapters
-- **8 commits** in Phase 2.5 adapter sprint
-- **MIT licensed**, NextCore-authored
+- **65 skills** curated (audited from 81, keeping only actively-used patterns)
+- **198 cross-IDE workflows** shipped (33 skills × 6 non-CC IDEs)
+- **648 reference files** shipped across all adapters
+- **7 IDEs supported** with one-command install
+- **15 commits** across Phases 2-5 in single-day sprint
+- **MIT licensed**, NextCore-authored, clean-room audited
