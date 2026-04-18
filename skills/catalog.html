@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NEXTCORE-SKILLS Catalog — 65 skills × 10 IDEs</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #0e1117; color: #e6edf3; }
+  header { padding: 2rem; background: linear-gradient(135deg, #1a1d24, #0e1117); border-bottom: 1px solid #30363d; }
+  header h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+  header p { margin: 0; color: #8b949e; }
+  .controls { padding: 1rem 2rem; background: #161b22; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; border-bottom: 1px solid #30363d; }
+  .controls input { flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; font-size: 0.95rem; }
+  .controls select { padding: 0.5rem 0.75rem; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; }
+  .stats { display: flex; gap: 2rem; padding: 1.5rem 2rem; background: #161b22; }
+  .stat { flex: 0; }
+  .stat-num { font-size: 2rem; font-weight: bold; color: #7ee787; }
+  .stat-label { color: #8b949e; font-size: 0.85rem; text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: #161b22; position: sticky; top: 0; }
+  th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid #21262d; }
+  th { color: #8b949e; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+  tbody tr:hover { background: #161b22; }
+  .skill-name code { color: #79c0ff; font-size: 0.95rem; }
+  .skill-desc { color: #c9d1d9; font-size: 0.9rem; max-width: 40%; }
+  .ide-badge { display: inline-block; padding: 0.15rem 0.5rem; margin: 0.1rem; background: #21262d; color: #8b949e; border-radius: 4px; font-size: 0.75rem; }
+  .ide-badge[data-ide="claude-code"] { background: #cc785c; color: #fff; }
+  .ide-badge[data-ide="antigravity"] { background: #4285f4; color: #fff; }
+  .ide-badge[data-ide="cursor"] { background: #000; color: #fff; border: 1px solid #444; }
+  .meta { color: #8b949e; font-size: 0.85rem; }
+  footer { padding: 2rem; text-align: center; color: #8b949e; font-size: 0.9rem; border-top: 1px solid #30363d; }
+  footer a { color: #79c0ff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NEXTCORE-SKILLS Catalog</h1>
+  <p>65 skills · 10 IDEs supported · MIT licensed · generated 2026-04-18</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">65</div><div class="stat-label">Skills</div></div>
+  <div class="stat"><div class="stat-num">10</div><div class="stat-label">IDEs</div></div>
+  <div class="stat"><div class="stat-num">596</div><div class="stat-label">Total Coverage</div></div>
+  <div class="stat"><div class="stat-num">299</div><div class="stat-label">Reference Files</div></div>
+</div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search skills by name or description..." />
+  <select id="ide-filter">
+    <option value="">All IDEs</option>
+    <option value="claude-code">Claude Code</option><option value="antigravity">Antigravity</option><option value="cursor">Cursor</option><option value="windsurf">Windsurf</option><option value="copilot">Copilot</option><option value="continue">Continue</option><option value="aider">Aider</option><option value="zed">Zed</option><option value="jetbrains">JetBrains</option><option value="void">Void</option>
+  </select>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Skill</th><th>Description</th><th>IDE Support</th><th>Stats</th></tr>
+  </thead>
+  <tbody id="skill-rows">
+  <tr data-search="agent-browser AI-optimized browser automation CLI with context-efficient snapshots. Use for long autonomous sessions, self-verifying workflows, video recording, and cloud browser testing (Browserbase).">
+    <td class="skill-name"><code>nc-agent-browser</code></td>
+    <td class="skill-desc">AI-optimized browser automation CLI with context-efficient snapshots. Use for long autonomous sessions, self-verifying workflows, video recording, and cloud browser testing (Browserbase).</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">298 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="ai-artist Generate images via Nano Banana with 129 curated prompts. Mandatory validation interview refines style/mood/colors (use --skip to bypass). 3 modes: search, creative, wild. Styles: Ukiyo-e, Bento grid, cyberpunk, cinematic, vintage patent.">
+    <td class="skill-name"><code>nc-ai-artist</code></td>
+    <td class="skill-desc">Generate images via Nano Banana with 129 curated prompts. Mandatory validation interview refines style/mood/colors (use --skip to bypass). 3 modes: search, creative, wild. Styles: Ukiyo-e, Bento grid, cyberpunk, cinematic, vintage patent.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">124 LOC · 12 refs</td>
+  </tr>
+
+  <tr data-search="ai-multimodal Analyze images/audio/video with Gemini API (better vision than Claude). Generate images (Imagen 4, Nano Banana 2, MiniMax), videos (Veo 3, Hailuo), speech (MiniMax TTS), music (MiniMax). Use for vision analysis, transcription, OCR, design extraction, multimodal AI.">
+    <td class="skill-name"><code>nc-ai-multimodal</code></td>
+    <td class="skill-desc">Analyze images/audio/video with Gemini API (better vision than Claude). Generate images (Imagen 4, Nano Banana 2, MiniMax), videos (Veo 3, Hailuo), speech (MiniMax TTS), music (MiniMax). Use for vision analysis, transcription, OCR, design extraction, multimodal AI.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">113 LOC · 7 refs</td>
+  </tr>
+
+  <tr data-search="backend-development Build backends with Node.js, Python, Go (NestJS, FastAPI, Django). Use for REST/GraphQL/gRPC APIs, auth (OAuth, JWT), databases, microservices, security (OWASP), Docker/K8s.">
+    <td class="skill-name"><code>nc-backend-development</code></td>
+    <td class="skill-desc">Build backends with Node.js, Python, Go (NestJS, FastAPI, Django). Use for REST/GraphQL/gRPC APIs, auth (OAuth, JWT), databases, microservices, security (OWASP), Docker/K8s.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">99 LOC · 11 refs</td>
+  </tr>
+
+  <tr data-search="bootstrap Bootstrap new projects with research, tech stack, design, planning, and implementation. Modes: full (interactive), auto (default), fast (skip research), parallel (multi-agent).">
+    <td class="skill-name"><code>nc-bootstrap</code></td>
+    <td class="skill-desc">Bootstrap new projects with research, tech stack, design, planning, and implementation. Modes: full (interactive), auto (default), fast (skip research), parallel (multi-agent).</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">106 LOC · 5 refs</td>
+  </tr>
+
+  <tr data-search="brainstorm Brainstorm solutions with trade-off analysis and brutal honesty. Use for ideation, architecture decisions, technical debates, feature exploration, feasibility assessment, design discussions.">
+    <td class="skill-name"><code>nc-brainstorm</code></td>
+    <td class="skill-desc">Brainstorm solutions with trade-off analysis and brutal honesty. Use for ideation, architecture decisions, technical debates, feature exploration, feasibility assessment, design discussions.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">126 LOC</td>
+  </tr>
+
+  <tr data-search="chrome-devtools Automate browsers with Puppeteer CLI scripts and persistent sessions. Use for screenshots, performance analysis, network monitoring, web scraping, form automation, JavaScript debugging.">
+    <td class="skill-name"><code>nc-chrome-devtools</code></td>
+    <td class="skill-desc">Automate browsers with Puppeteer CLI scripts and persistent sessions. Use for screenshots, performance analysis, network monitoring, web scraping, form automation, JavaScript debugging.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">631 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="chrome-extension-dev Chrome Extension Manifest V3 development patterns, content scripts for Facebook automation, anti-detection, and IIFE patterns. Use when working on files in <extensions-project>/ or <extensions-project>-V2/.">
+    <td class="skill-name"><code>nc-chrome-extension-dev</code></td>
+    <td class="skill-desc">Chrome Extension Manifest V3 development patterns, content scripts for Facebook automation, anti-detection, and IIFE patterns. Use when working on files in <extensions-project>/ or <extensions-project>-V2/.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">53 LOC</td>
+  </tr>
+
+  <tr data-search="code-review Review code quality with adversarial rigor. Supports input modes: pending changes, PR number, commit hash, codebase scan. Always-on red-team analysis finds security holes, false assumptions, and failure modes.">
+    <td class="skill-name"><code>nc-code-review</code></td>
+    <td class="skill-desc">Review code quality with adversarial rigor. Supports input modes: pending changes, PR number, commit hash, codebase scan. Always-on red-team analysis finds security holes, false assumptions, and failure modes.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">200 LOC · 12 refs</td>
+  </tr>
+
+  <tr data-search="coding-level Set coding experience level for tailored explanations and output format.">
+    <td class="skill-name"><code>nc-coding-level</code></td>
+    <td class="skill-desc">Set coding experience level for tailored explanations and output format.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">60 LOC</td>
+  </tr>
+
+  <tr data-search="context-engineering &gt;-">
+    <td class="skill-name"><code>nc-context-engineering</code></td>
+    <td class="skill-desc">&gt;-</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">111 LOC · 10 refs</td>
+  </tr>
+
+  <tr data-search="cook ALWAYS activate this skill before implementing EVERY feature, plan, or fix.">
+    <td class="skill-name"><code>nc-cook</code></td>
+    <td class="skill-desc">ALWAYS activate this skill before implementing EVERY feature, plan, or fix.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">159 LOC · 4 refs</td>
+  </tr>
+
+  <tr data-search="copywriting Conversion copywriting formulas, headline templates, email copy patterns, landing page structures, CTA optimization, and writing style extraction. Activate for writing high-converting copy, crafting headlines, email campaigns, landing pages, or applying custom writing styles from assets/writing-styles/ directory.">
+    <td class="skill-name"><code>nc-copywriting</code></td>
+    <td class="skill-desc">Conversion copywriting formulas, headline templates, email copy patterns, landing page structures, CTA optimization, and writing style extraction. Activate for writing high-converting copy, crafting headlines, email campaigns, landing pages, or applying custom writing styles from assets/writing-styles/ directory.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">101 LOC · 12 refs</td>
+  </tr>
+
+  <tr data-search="databases Design schemas, write queries for MongoDB and PostgreSQL. Use for database design, SQL/NoSQL queries, aggregation pipelines, indexes, migrations, replication, performance optimization, psql CLI.">
+    <td class="skill-name"><code>nc-databases</code></td>
+    <td class="skill-desc">Design schemas, write queries for MongoDB and PostgreSQL. Use for database design, SQL/NoSQL queries, aggregation pipelines, indexes, migrations, replication, performance optimization, psql CLI.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">88 LOC · 8 refs</td>
+  </tr>
+
+  <tr data-search="deploy-vps Deploy Next.js, PHP, or Python apps to VPS <YOUR_VPS_IP> via your hosting panel. Safe deploy with backup, rollback, health check. Use when deploying or troubleshooting production.">
+    <td class="skill-name"><code>nc-deploy-vps</code></td>
+    <td class="skill-desc">Deploy Next.js, PHP, or Python apps to VPS <YOUR_VPS_IP> via your hosting panel. Safe deploy with backup, rollback, health check. Use when deploying or troubleshooting production.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">111 LOC</td>
+  </tr>
+
+  <tr data-search="docs Analyze codebase and manage project documentation — init, update, summarize.">
+    <td class="skill-name"><code>nc-docs</code></td>
+    <td class="skill-desc">Analyze codebase and manage project documentation — init, update, summarize.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">61 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="docs-seeker Search library/framework documentation via llms.txt (context7.com). Use for API docs, GitHub repository analysis, technical documentation lookup, latest library features.">
+    <td class="skill-name"><code>nc-docs-seeker</code></td>
+    <td class="skill-desc">Search library/framework documentation via llms.txt (context7.com). Use for API docs, GitHub repository analysis, technical documentation lookup, latest library features.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">101 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="facebook-dom Facebook DOM selectors, popup handling, scroll orchestration, and user info extraction for Chrome Extension content scripts. Use when writing Facebook automation code.">
+    <td class="skill-name"><code>nc-facebook-dom</code></td>
+    <td class="skill-desc">Facebook DOM selectors, popup handling, scroll orchestration, and user info extraction for Chrome Extension content scripts. Use when writing Facebook automation code.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">30 LOC</td>
+  </tr>
+
+  <tr data-search="find-skills Helps users discover and install agent skills when they ask questions like &quot;how do I do X&quot;, &quot;find a skill for X&quot;, &quot;is there a skill that can...&quot;, or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.">
+    <td class="skill-name"><code>nc-find-skills</code></td>
+    <td class="skill-desc">Helps users discover and install agent skills when they ask questions like &quot;how do I do X&quot;, &quot;find a skill for X&quot;, &quot;is there a skill that can...&quot;, or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">138 LOC</td>
+  </tr>
+
+  <tr data-search="fix ALWAYS activate this skill before fixing ANY bug, error, test failure, CI/CD issue, type error, lint, log error, UI issue, code problem.">
+    <td class="skill-name"><code>nc-fix</code></td>
+    <td class="skill-desc">ALWAYS activate this skill before fixing ANY bug, error, test failure, CI/CD issue, type error, lint, log error, UI issue, code problem.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">158 LOC · 14 refs</td>
+  </tr>
+
+  <tr data-search="frontend-design Create polished frontend interfaces from designs/screenshots/videos. Use for web components, 3D experiences, replicating UI designs, quick prototypes, immersive interfaces, avoiding AI slop.">
+    <td class="skill-name"><code>nc-frontend-design</code></td>
+    <td class="skill-desc">Create polished frontend interfaces from designs/screenshots/videos. Use for web components, 3D experiences, replicating UI designs, quick prototypes, immersive interfaces, avoiding AI slop.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">113 LOC · 28 refs</td>
+  </tr>
+
+  <tr data-search="frontend-development Build React/TypeScript frontends with modern patterns. Use for components, Suspense, lazy loading, useSuspenseQuery, MUI v7 styling, TanStack Router, performance optimization.">
+    <td class="skill-name"><code>nc-frontend-development</code></td>
+    <td class="skill-desc">Build React/TypeScript frontends with modern patterns. Use for components, Suspense, lazy loading, useSuspenseQuery, MUI v7 styling, TanStack Router, performance optimization.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">404 LOC</td>
+  </tr>
+
+  <tr data-search="git Git operations with conventional commits. Use for staging, committing, pushing, PRs, merges. Auto-splits commits by type/scope. Security scans for secrets.">
+    <td class="skill-name"><code>nc-git</code></td>
+    <td class="skill-desc">Git operations with conventional commits. Use for staging, committing, pushing, PRs, merges. Auto-splits commits by type/scope. Security scans for secrets.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">117 LOC · 8 refs</td>
+  </tr>
+
+  <tr data-search="gkg Semantic code analysis with GitLab Knowledge Graph. Use for go-to-definition, find-usages, impact analysis, architecture visualization. Supports Ruby, Java, Kotlin, Python, TypeScript/JavaScript.">
+    <td class="skill-name"><code>nc-gkg</code></td>
+    <td class="skill-desc">Semantic code analysis with GitLab Knowledge Graph. Use for go-to-definition, find-usages, impact analysis, architecture visualization. Supports Ruby, Java, Kotlin, Python, TypeScript/JavaScript.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">95 LOC · 4 refs</td>
+  </tr>
+
+  <tr data-search="journal Write journal entries analyzing recent changes and session reflections.">
+    <td class="skill-name"><code>nc-journal</code></td>
+    <td class="skill-desc">Write journal entries analyzing recent changes and session reflections.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">16 LOC</td>
+  </tr>
+
+  <tr data-search="kanban AI agent orchestration board for task visualization and team coordination.">
+    <td class="skill-name"><code>nc-kanban</code></td>
+    <td class="skill-desc">AI agent orchestration board for task visualization and team coordination.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">103 LOC</td>
+  </tr>
+
+  <tr data-search="llms Generate llms.txt files from docs or codebase scanning. Follows llmstxt.org spec. Use for LLM-friendly site indexes, documentation summaries, AI context optimization.">
+    <td class="skill-name"><code>nc-llms</code></td>
+    <td class="skill-desc">Generate llms.txt files from docs or codebase scanning. Follows llmstxt.org spec. Use for LLM-friendly site indexes, documentation summaries, AI context optimization.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">121 LOC · 1 refs</td>
+  </tr>
+
+  <tr data-search="markdown-novel-viewer Internal helper for nc:preview view mode. Backend HTTP server rendering markdown with book-like UI. Invoked automatically by /nc:preview — users should use /nc:preview instead of calling this directly.">
+    <td class="skill-name"><code>nc-markdown-novel-viewer</code></td>
+    <td class="skill-desc">Internal helper for nc:preview view mode. Backend HTTP server rendering markdown with book-like UI. Invoked automatically by /nc:preview — users should use /nc:preview instead of calling this directly.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">323 LOC</td>
+  </tr>
+
+  <tr data-search="mcp-builder Build MCP servers for LLM-external service integration. Use for FastMCP (Python), MCP SDK (Node/TypeScript), tool design, API integration, resource providers.">
+    <td class="skill-name"><code>nc-mcp-builder</code></td>
+    <td class="skill-desc">Build MCP servers for LLM-external service integration. Use for FastMCP (Python), MCP SDK (Node/TypeScript), tool design, API integration, resource providers.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">333 LOC</td>
+  </tr>
+
+  <tr data-search="mcp-management Manage MCP servers - discover, analyze, execute tools/prompts/resources. Use for MCP integrations, intelligent tool selection, multi-server management, context-efficient capability discovery.">
+    <td class="skill-name"><code>nc-mcp-management</code></td>
+    <td class="skill-desc">Manage MCP servers - discover, analyze, execute tools/prompts/resources. Use for MCP integrations, intelligent tool selection, multi-server management, context-efficient capability discovery.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">214 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="media-processing Process media with FFmpeg (video/audio), ImageMagick (images), RMBG (AI background removal). Use for encoding, format conversion, filters, thumbnails, batch processing, HLS/DASH streaming.">
+    <td class="skill-name"><code>nc-media-processing</code></td>
+    <td class="skill-desc">Process media with FFmpeg (video/audio), ImageMagick (images), RMBG (AI background removal). Use for encoding, format conversion, filters, thumbnails, batch processing, HLS/DASH streaming.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">98 LOC · 9 refs</td>
+  </tr>
+
+  <tr data-search="mermaidjs-v11 Create diagrams with Mermaid.js v11 syntax. Use for flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, state diagrams, architecture diagrams, timelines, user journeys.">
+    <td class="skill-name"><code>nc-mermaidjs-v11</code></td>
+    <td class="skill-desc">Create diagrams with Mermaid.js v11 syntax. Use for flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, state diagrams, architecture diagrams, timelines, user journeys.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">120 LOC · 5 refs</td>
+  </tr>
+
+  <tr data-search="nc-autoresearch Autonomous iterative optimization loop — run N iterations against a mechanical metric, learn from git history, auto-keep/discard changes. Use for improving measurable metrics (coverage, performance, bundle size, etc.) through repeated experimentation.">
+    <td class="skill-name"><code>nc-autoresearch</code></td>
+    <td class="skill-desc">Autonomous iterative optimization loop — run N iterations against a mechanical metric, learn from git history, auto-keep/discard changes. Use for improving measurable metrics (coverage, performance, bundle size, etc.) through repeated experimentation.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">154 LOC · 5 refs</td>
+  </tr>
+
+  <tr data-search="nc-debug Debug systematically with root cause analysis before fixes. Use for bugs, test failures, unexpected behavior, performance issues, call stack tracing, multi-layer validation, log analysis, CI/CD failures, database diagnostics, system investigation.">
+    <td class="skill-name"><code>nc-debug</code></td>
+    <td class="skill-desc">Debug systematically with root cause analysis before fixes. Use for bugs, test failures, unexpected behavior, performance issues, call stack tracing, multi-layer validation, log analysis, CI/CD failures, database diagnostics, system investigation.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">124 LOC · 10 refs</td>
+  </tr>
+
+  <tr data-search="nc-plan Plan implementations, design architectures, create technical roadmaps with detailed phases. Use for feature planning, system design, solution architecture, implementation strategy, phase documentation.">
+    <td class="skill-name"><code>nc-plan</code></td>
+    <td class="skill-desc">Plan implementations, design architectures, create technical roadmaps with detailed phases. Use for feature planning, system design, solution architecture, implementation strategy, phase documentation.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">199 LOC · 13 refs</td>
+  </tr>
+
+  <tr data-search="nc-predict 5 expert personas debate proposed changes before implementation. Catches architectural, security, performance, and UX issues early. Use before major features or risky changes.">
+    <td class="skill-name"><code>nc-predict</code></td>
+    <td class="skill-desc">5 expert personas debate proposed changes before implementation. Catches architectural, security, performance, and UX issues early. Use before major features or risky changes.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">120 LOC</td>
+  </tr>
+
+  <tr data-search="nc-scenario Generate comprehensive edge cases and test scenarios by decomposing features across 12 dimensions. Use before implementation or testing to catch issues early.">
+    <td class="skill-name"><code>nc-scenario</code></td>
+    <td class="skill-desc">Generate comprehensive edge cases and test scenarios by decomposing features across 12 dimensions. Use before implementation or testing to catch issues early.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">114 LOC</td>
+  </tr>
+
+  <tr data-search="nc-security STRIDE + OWASP-based security audit with optional auto-fix. Scans code for vulnerabilities, categorizes by severity, and can iteratively fix findings using nc:autoresearch pattern.">
+    <td class="skill-name"><code>nc-security</code></td>
+    <td class="skill-desc">STRIDE + OWASP-based security audit with optional auto-fix. Scans code for vulnerabilities, categorizes by severity, and can iteratively fix findings using nc:autoresearch pattern.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">145 LOC · 1 refs</td>
+  </tr>
+
+  <tr data-search="nextcore-design NextCore Design System tokens, NextCore CSS class convention, shadcn/ui theming, and responsive design patterns. Auto-loads when editing TSX/CSS files for consistent styling across all projects.">
+    <td class="skill-name"><code>nc-nextcore-design</code></td>
+    <td class="skill-desc">NextCore Design System tokens, NextCore CSS class convention, shadcn/ui theming, and responsive design patterns. Auto-loads when editing TSX/CSS files for consistent styling across all projects.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">44 LOC</td>
+  </tr>
+
+  <tr data-search="nextjs-api Generate and maintain Next.js 16 API routes with consistent patterns, validation, Prisma queries, and CORS headers for Chrome Extension access. Use when creating or editing files in src/app/api/.">
+    <td class="skill-name"><code>nc-nextjs-api</code></td>
+    <td class="skill-desc">Generate and maintain Next.js 16 API routes with consistent patterns, validation, Prisma queries, and CORS headers for Chrome Extension access. Use when creating or editing files in src/app/api/.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">58 LOC</td>
+  </tr>
+
+  <tr data-search="payment-integration Integrate payments with SePay (VietQR), Polar, Stripe, Paddle (MoR subscriptions), Creem.io (licensing). Checkout, webhooks, subscriptions, QR codes, multi-provider orders.">
+    <td class="skill-name"><code>nc-payment-integration</code></td>
+    <td class="skill-desc">Integrate payments with SePay (VietQR), Polar, Stripe, Paddle (MoR subscriptions), Creem.io (licensing). Checkout, webhooks, subscriptions, QR codes, multi-provider orders.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">106 LOC · 7 refs</td>
+  </tr>
+
+  <tr data-search="plans-kanban View plans dashboard with progress tracking and timeline visualization. Use for kanban boards, plan status overview, phase progress, milestone tracking, project visibility.">
+    <td class="skill-name"><code>nc-plans-kanban</code></td>
+    <td class="skill-desc">View plans dashboard with progress tracking and timeline visualization. Use for kanban boards, plan status overview, phase progress, milestone tracking, project visibility.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">172 LOC</td>
+  </tr>
+
+  <tr data-search="preview View files/directories OR generate visual explanations, slides, diagrams (Markdown or self-contained HTML).">
+    <td class="skill-name"><code>nc-preview</code></td>
+    <td class="skill-desc">View files/directories OR generate visual explanations, slides, diagrams (Markdown or self-contained HTML).</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">149 LOC · 7 refs</td>
+  </tr>
+
+  <tr data-search="prisma-helper Safe Prisma schema updates, migrations, and database operations for example-homestay.com. Use when editing schema.prisma, running migrations, or troubleshooting database errors like EPERM or missing models.">
+    <td class="skill-name"><code>nc-prisma-helper</code></td>
+    <td class="skill-desc">Safe Prisma schema updates, migrations, and database operations for example-homestay.com. Use when editing schema.prisma, running migrations, or troubleshooting database errors like EPERM or missing models.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">39 LOC</td>
+  </tr>
+
+  <tr data-search="project-management Track progress, update plan statuses, manage Claude Tasks, generate reports, coordinate docs updates. Use for project oversight, status checks, plan completion, task hydration, cross-session continuity.">
+    <td class="skill-name"><code>nc-project-management</code></td>
+    <td class="skill-desc">Track progress, update plan statuses, manage Claude Tasks, generate reports, coordinate docs updates. Use for project oversight, status checks, plan completion, task hydration, cross-session continuity.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">137 LOC · 5 refs</td>
+  </tr>
+
+  <tr data-search="project-organization Organize files, directories, and content structure in any project. Use when creating files, determining output paths, organizing existing assets, or standardizing project layout.">
+    <td class="skill-name"><code>nc-project-organization</code></td>
+    <td class="skill-desc">Organize files, directories, and content structure in any project. Use when creating files, determining output paths, organizing existing assets, or standardizing project layout.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">229 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="react-best-practices React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.">
+    <td class="skill-name"><code>nc-react-best-practices</code></td>
+    <td class="skill-desc">React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">126 LOC</td>
+  </tr>
+
+  <tr data-search="repomix Pack repositories into AI-friendly files with Repomix (XML, Markdown, plain text). Use for codebase snapshots, LLM context preparation, security audits, third-party library analysis.">
+    <td class="skill-name"><code>nc-repomix</code></td>
+    <td class="skill-desc">Pack repositories into AI-friendly files with Repomix (XML, Markdown, plain text). Use for codebase snapshots, LLM context preparation, security audits, third-party library analysis.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">252 LOC · 2 refs</td>
+  </tr>
+
+  <tr data-search="research Research technical solutions, analyze architectures, gather requirements thoroughly. Use for technology evaluation, best practices research, solution design, scalability/security/maintainability analysis.">
+    <td class="skill-name"><code>nc-research</code></td>
+    <td class="skill-desc">Research technical solutions, analyze architectures, gather requirements thoroughly. Use for technology evaluation, best practices research, solution design, scalability/security/maintainability analysis.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">176 LOC</td>
+  </tr>
+
+  <tr data-search="retro Data-driven sprint retrospective. Gathers git metrics (commits, LOC, hotspots, churn), computes derived health indicators, and generates a structured markdown or HTML report. Use after sprints, weekly check-ins, or any review period.">
+    <td class="skill-name"><code>nc-retro</code></td>
+    <td class="skill-desc">Data-driven sprint retrospective. Gathers git metrics (commits, LOC, hotspots, churn), computes derived health indicators, and generates a structured markdown or HTML report. Use after sprints, weekly check-ins, or any review period.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">139 LOC · 2 refs</td>
+  </tr>
+
+  <tr data-search="scout Fast codebase scouting using parallel agents. Use for file discovery, task context gathering, quick searches across directories. Supports internal (Explore) and external (Gemini/OpenCode) agents.">
+    <td class="skill-name"><code>nc-scout</code></td>
+    <td class="skill-desc">Fast codebase scouting using parallel agents. Use for file discovery, task context gathering, quick searches across directories. Supports internal (Explore) and external (Gemini/OpenCode) agents.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">95 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="security-scan Scan codebase for security vulnerabilities, hardcoded secrets, dependency issues, and OWASP patterns. Use when asked to &#39;security scan&#39;, &#39;check for secrets&#39;, &#39;audit security&#39;, or before major releases.">
+    <td class="skill-name"><code>nc-security-scan</code></td>
+    <td class="skill-desc">Scan codebase for security vulnerabilities, hardcoded secrets, dependency issues, and OWASP patterns. Use when asked to &#39;security scan&#39;, &#39;check for secrets&#39;, &#39;audit security&#39;, or before major releases.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">142 LOC · 2 refs</td>
+  </tr>
+
+  <tr data-search="ship Ship pipeline: merge main, test, review, commit, push, PR. Single command from feature branch to PR URL. Use for shipping official releases to main/master or beta releases to dev/beta branches.">
+    <td class="skill-name"><code>nc-ship</code></td>
+    <td class="skill-desc">Ship pipeline: merge main, test, review, commit, push, PR. Single command from feature branch to PR URL. Use for shipping official releases to main/master or beta releases to dev/beta branches.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">120 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="skill-creator Create or update Claude skills with eval-driven iteration. Use for new skills, skill scripts, references, benchmark optimization, description optimization, eval testing, extending Claude&#39;s capabilities.">
+    <td class="skill-name"><code>nc-skill-creator</code></td>
+    <td class="skill-desc">Create or update Claude skills with eval-driven iteration. Use for new skills, skill scripts, references, benchmark optimization, description optimization, eval testing, extending Claude&#39;s capabilities.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">151 LOC · 23 refs</td>
+  </tr>
+
+  <tr data-search="tanstack Build with TanStack Start (full-stack React framework), TanStack Form (headless form management), and TanStack AI (AI streaming/chat). Use when creating TanStack projects, routes, server functions, forms, validation, or AI chat features.">
+    <td class="skill-name"><code>nc-tanstack</code></td>
+    <td class="skill-desc">Build with TanStack Start (full-stack React framework), TanStack Form (headless form management), and TanStack AI (AI streaming/chat). Use when creating TanStack projects, routes, server functions, forms, validation, or AI chat features.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">145 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="team Orchestrate Agent Teams for parallel multi-session collaboration. Use for research, implementation, review, and debug workflows requiring independent teammates.">
+    <td class="skill-name"><code>nc-team</code></td>
+    <td class="skill-desc">Orchestrate Agent Teams for parallel multi-session collaboration. Use for research, implementation, review, and debug workflows requiring independent teammates.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span></td>
+    <td class="meta">362 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="test Run unit, integration, e2e, and UI tests. Use for test execution, coverage analysis, build verification, visual regression, and QA reports.">
+    <td class="skill-name"><code>nc-test</code></td>
+    <td class="skill-desc">Run unit, integration, e2e, and UI tests. Use for test execution, coverage analysis, build verification, visual regression, and QA reports.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">114 LOC · 3 refs</td>
+  </tr>
+
+  <tr data-search="ui-styling Style UIs with shadcn/ui components (Radix UI + Tailwind CSS). Use for accessible components, themes, dark mode, responsive layouts, design systems, color customization.">
+    <td class="skill-name"><code>nc-ui-styling</code></td>
+    <td class="skill-desc">Style UIs with shadcn/ui components (Radix UI + Tailwind CSS). Use for accessible components, themes, dark mode, responsive layouts, design systems, color customization.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">325 LOC · 7 refs</td>
+  </tr>
+
+  <tr data-search="ui-ux-pro-max UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples.">
+    <td class="skill-name"><code>nc-ui-ux-pro-max</code></td>
+    <td class="skill-desc">UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">662 LOC</td>
+  </tr>
+
+  <tr data-search="use-mcp Utilize MCP server tools with intelligent discovery and execution.">
+    <td class="skill-name"><code>nc-use-mcp</code></td>
+    <td class="skill-desc">Utilize MCP server tools with intelligent discovery and execution.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">46 LOC</td>
+  </tr>
+
+  <tr data-search="watzup Review recent changes and wrap up the current work session.">
+    <td class="skill-name"><code>nc-watzup</code></td>
+    <td class="skill-desc">Review recent changes and wrap up the current work session.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">16 LOC</td>
+  </tr>
+
+  <tr data-search="web-design-guidelines Review UI code for Web Interface Guidelines compliance. Use when asked to &quot;review my UI&quot;, &quot;check accessibility&quot;, &quot;audit design&quot;, &quot;review UX&quot;, or &quot;check my site against best practices&quot;.">
+    <td class="skill-name"><code>nc-web-design-guidelines</code></td>
+    <td class="skill-desc">Review UI code for Web Interface Guidelines compliance. Use when asked to &quot;review my UI&quot;, &quot;check accessibility&quot;, &quot;audit design&quot;, &quot;review UX&quot;, or &quot;check my site against best practices&quot;.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">40 LOC</td>
+  </tr>
+
+  <tr data-search="web-frameworks Build with Next.js (App Router, RSC, SSR, ISR), Turborepo monorepos. Use for React apps, server rendering, build optimization, caching strategies, shared dependencies.">
+    <td class="skill-name"><code>nc-web-frameworks</code></td>
+    <td class="skill-desc">Build with Next.js (App Router, RSC, SSR, ISR), Turborepo monorepos. Use for React apps, server rendering, build optimization, caching strategies, shared dependencies.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">328 LOC · 8 refs</td>
+  </tr>
+
+  <tr data-search="web-testing Web testing with Playwright, Vitest, k6. E2E/unit/integration/load/security/visual/a11y testing. Use for test automation, flakiness, Core Web Vitals, mobile gestures, cross-browser.">
+    <td class="skill-name"><code>nc-web-testing</code></td>
+    <td class="skill-desc">Web testing with Playwright, Vitest, k6. E2E/unit/integration/load/security/visual/a11y testing. Use for test automation, flakiness, Core Web Vitals, mobile gestures, cross-browser.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">100 LOC · 24 refs</td>
+  </tr>
+
+  <tr data-search="worktree Create isolated git worktree for parallel development in monorepos.">
+    <td class="skill-name"><code>nc-worktree</code></td>
+    <td class="skill-desc">Create isolated git worktree for parallel development in monorepos.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">100 LOC</td>
+  </tr>
+</tbody>
+</table>
+
+<footer>
+  <p><a href="https://github.com/kennetvn/NEXTCORE-SKILLS">github.com/kennetvn/NEXTCORE-SKILLS</a> · <a href="../README.md">README</a> · <a href="../CONTRIBUTING.md">Contributing</a></p>
+</footer>
+
+<script>
+  const search = document.getElementById('search');
+  const ideFilter = document.getElementById('ide-filter');
+  const rows = document.querySelectorAll('#skill-rows tr');
+
+  function filter() {
+    const q = search.value.toLowerCase();
+    const ide = ideFilter.value;
+    rows.forEach(row => {
+      const matchText = !q || row.dataset.search.toLowerCase().includes(q);
+      const matchIde = !ide || row.querySelector(`[data-ide="${ide}"]`);
+      row.style.display = (matchText && matchIde) ? '' : 'none';
+    });
+  }
+
+  search.addEventListener('input', filter);
+  ideFilter.addEventListener('change', filter);
+</script>
+</body>
+</html>

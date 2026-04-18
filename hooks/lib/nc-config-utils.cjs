@@ -411,12 +411,13 @@ function sanitizePath(pathValue, projectRoot) {
     return normalized;
   }
 
-  // For relative paths, resolve and validate
+  // For relative paths, resolve and validate (both sides normalized for Windows compat)
   const resolved = path.resolve(projectRoot, normalized);
+  const projectRootResolved = path.resolve(projectRoot);
 
   // Prevent path traversal outside project (../ attacks)
   // But allow if user explicitly set absolute path
-  if (!resolved.startsWith(projectRoot + path.sep) && resolved !== projectRoot) {
+  if (!resolved.startsWith(projectRootResolved + path.sep) && resolved !== projectRootResolved) {
     // This is a relative path trying to escape - block it
     return null;
   }

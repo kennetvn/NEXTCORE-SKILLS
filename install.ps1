@@ -25,7 +25,7 @@ function Log { param($msg) Write-Host "[nc] $msg" -ForegroundColor Green }
 function Warn { param($msg) Write-Host "[nc] $msg" -ForegroundColor Yellow }
 function Fail { param($msg) Write-Host "[nc] $msg" -ForegroundColor Red; exit 1 }
 
-$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot", "continue", "aider", "codeium", "zed", "jetbrains", "void")
+$SupportedIdes = @("claude-code", "antigravity", "cursor", "windsurf", "copilot", "continue", "aider", "zed", "jetbrains", "void")
 if ($SupportedIdes -notcontains $Ide) {
     Fail "Unsupported IDE: $Ide (supported: $($SupportedIdes -join ', '))"
 }
@@ -39,7 +39,6 @@ if ([string]::IsNullOrEmpty($Target)) {
         "copilot"     { $Target = "$(Get-Location)\.github" }
         "continue"    { $Target = "$(Get-Location)\.continue" }
         "aider"       { $Target = "$(Get-Location)\.aider\nextcore" }
-        "codeium"     { $Target = "$(Get-Location)\.codeium" }
         "zed"         { $Target = "$(Get-Location)\.zed" }
         "jetbrains"   { $Target = "$(Get-Location)\.idea\ai-prompts" }
         "void"        { $Target = "$(Get-Location)\.void" }
@@ -204,7 +203,7 @@ if ($Ide -eq "claude-code") {
     $HookCount = 0
 }
 
-} elseif ($Ide -in @("codeium","zed","jetbrains","void")) {
+} elseif ($Ide -in @("zed","jetbrains","void")) {
     $SrcX = Join-Path $NcSource "adapters\$Ide\prompts"
     if (-not (Test-Path $SrcX)) { Fail "Adapter source missing: $SrcX" }
     $DstX = Join-Path $Target "prompts"
@@ -272,7 +271,7 @@ if ($Ide -eq "claude-code") {
     Write-Host "Next steps:" -ForegroundColor Cyan
     Write-Host "  1. aider --read .aider/nextcore/nextcore-conventions.md"
     Write-Host "  2. /read .aider/nextcore/prompts/nc-plan.md (or any workflow)"
-} elseif ($Ide -in @("codeium","zed","jetbrains","void")) {
+} elseif ($Ide -in @("zed","jetbrains","void")) {
     Write-Host "  Prompts:  $SkillCount"
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Cyan

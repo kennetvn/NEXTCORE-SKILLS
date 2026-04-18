@@ -1,7 +1,7 @@
 {
-  "version": "1.1.0",
-  "generatedAt": "2026-04-18T10:27:22.815Z",
-  "repository": "https://github.com/kennetvn/EXTCORE-SKILLS",
+  "version": "2.0.0",
+  "generatedAt": "2026-04-18T11:12:33.210Z",
+  "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
     "antigravity",
@@ -10,7 +10,6 @@
     "copilot",
     "continue",
     "aider",
-    "codeium",
     "zed",
     "jetbrains",
     "void"
@@ -30,7 +29,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -49,7 +47,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -68,7 +65,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -87,7 +83,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -106,7 +101,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -125,7 +119,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -144,7 +137,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -163,7 +155,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -182,7 +173,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -201,7 +191,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -220,7 +209,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -239,7 +227,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -258,7 +245,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -277,7 +263,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -296,7 +281,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -315,7 +299,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -334,7 +317,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -353,7 +335,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -372,7 +353,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -391,7 +371,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -410,7 +389,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -429,7 +407,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -448,7 +425,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -467,7 +443,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -486,7 +461,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -514,7 +488,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -542,7 +515,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -561,7 +533,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -580,7 +551,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -599,7 +569,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -627,7 +596,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -646,7 +614,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -665,7 +632,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -684,7 +650,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -703,7 +668,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -722,7 +686,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -741,7 +704,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -760,7 +722,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -788,7 +749,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -807,7 +767,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -826,7 +785,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -845,7 +803,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -864,7 +821,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -883,7 +839,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -902,7 +857,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -921,7 +875,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -940,7 +893,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -959,7 +911,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -978,7 +929,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1006,7 +956,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1034,7 +983,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1053,7 +1001,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1072,7 +1019,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1091,7 +1037,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1110,7 +1055,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1129,7 +1073,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1148,7 +1091,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1167,7 +1109,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"
@@ -1186,7 +1127,6 @@
         "copilot",
         "continue",
         "aider",
-        "codeium",
         "zed",
         "jetbrains",
         "void"

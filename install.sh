@@ -59,7 +59,6 @@ if [ "$IDE" = "claude-code" ] && [ -z "$TARGET" ] && [ $# -eq 0 ]; then
   elif [ -d "${PWD}/.continue" ];            then IDE="continue";    log "Auto-detected: continue"
   elif [ -d "${PWD}/.zed" ];                 then IDE="zed";         log "Auto-detected: zed"
   elif [ -d "${PWD}/.void" ];                then IDE="void";        log "Auto-detected: void"
-  elif [ -d "${PWD}/.codeium" ];             then IDE="codeium";     log "Auto-detected: codeium"
   elif [ -d "${PWD}/.idea" ];                then IDE="jetbrains";   log "Auto-detected: jetbrains"
   elif [ -d "${PWD}/.aider" ];               then IDE="aider";       log "Auto-detected: aider"
   elif [ -d "${PWD}/.github" ] && [ -f "${PWD}/.github/copilot-instructions.md" ]; then IDE="copilot"; log "Auto-detected: copilot"
@@ -74,17 +73,16 @@ if [ -z "$TARGET" ]; then
     copilot)     TARGET="${PWD}/.github" ;;
     continue)    TARGET="${PWD}/.continue" ;;
     aider)       TARGET="${PWD}/.aider/nextcore" ;;
-    codeium)     TARGET="${PWD}/.codeium" ;;
     zed)         TARGET="${PWD}/.zed" ;;
-    jetbrains)   TARGET="${PWD}/.idea/ai-prompts" ;;
-    void)        TARGET="${PWD}/.void" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, codeium, zed, jetbrains, void)" ;;
+    jetbrains)   TARGET="${PWD}/.junie" ;;
+    void)        TARGET="${PWD}" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, zed, jetbrains, void)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity|cursor|windsurf|copilot|continue|aider|codeium|zed|jetbrains|void) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, codeium, zed, jetbrains, void)" ;;
+  claude-code|antigravity|cursor|windsurf|copilot|continue|aider|zed|jetbrains|void) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor, windsurf, copilot, continue, aider, zed, jetbrains, void)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -250,8 +248,8 @@ elif [ "$IDE" = "aider" ]; then
   SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
 
-elif [ "$IDE" = "codeium" ] || [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
-  SRC_X="$NC_SOURCE/adapters/$IDE/prompts"
+elif [ "$IDE" = "zed" ]; then
+  SRC_X="$NC_SOURCE/adapters/zed/prompts"
   [ -d "$SRC_X" ] || err "Adapter source missing: $SRC_X"
   mkdir -p "$TARGET/prompts"
   if [ "$MODE" = "update" ]; then
@@ -260,6 +258,34 @@ elif [ "$IDE" = "codeium" ] || [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] ||
     cp -r "$SRC_X"/* "$TARGET/prompts/"
   fi
   SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
+
+elif [ "$IDE" = "jetbrains" ]; then
+  SRC_AG="$NC_SOURCE/adapters/jetbrains/.junie/AGENTS.md"
+  SRC_P="$NC_SOURCE/adapters/jetbrains/.junie/prompts"
+  [ -f "$SRC_AG" ] || err "Missing: $SRC_AG"
+  mkdir -p "$TARGET/prompts"
+  cp "$SRC_AG" "$TARGET/"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_P/" "$TARGET/prompts/"
+  else
+    cp -r "$SRC_P"/* "$TARGET/prompts/"
+  fi
+  SKILL_COUNT=$(find "$TARGET/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
+
+elif [ "$IDE" = "void" ]; then
+  SRC_AG="$NC_SOURCE/adapters/void/AGENTS.md"
+  SRC_P="$NC_SOURCE/adapters/void/.vscode/prompts"
+  [ -f "$SRC_AG" ] || err "Missing: $SRC_AG"
+  mkdir -p "$TARGET/.vscode/prompts"
+  cp "$SRC_AG" "$TARGET/"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_P/" "$TARGET/.vscode/prompts/"
+  else
+    cp -r "$SRC_P"/* "$TARGET/.vscode/prompts/"
+  fi
+  SKILL_COUNT=$(find "$TARGET/.vscode/prompts" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
 fi
 
@@ -316,7 +342,7 @@ elif [ "$IDE" = "aider" ]; then
   echo -e "${C}Next steps:${NC}"
   echo "  1. aider --read .aider/nextcore/nextcore-conventions.md"
   echo "  2. /read .aider/nextcore/prompts/nc-plan.md"
-elif [ "$IDE" = "codeium" ] || [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
+elif [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
   echo "  Prompts:  $SKILL_COUNT"
   echo
   echo -e "${C}Next steps:${NC}"
