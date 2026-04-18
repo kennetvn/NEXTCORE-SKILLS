@@ -278,3 +278,8 @@ if ($Ide -eq "claude-code") {
     Write-Host "  1. Restart $Ide IDE"
     Write-Host "  2. Type /nc- in the IDE chat"
 }
+
+# v2.6.0+: onboarding tip
+Write-Host ""
+Write-Host "Tip:" -ForegroundColor Cyan -NoNewline
+Write-Host " Run /nc-onboard in your IDE for a 1-min profile setup (3 questions, calibrates persona/language/depth)."

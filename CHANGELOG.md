@@ -2,6 +2,47 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [2.6.0] - 2026-04-18
+
+Two new tiers — Sysadmin/DevOps (Tier A, 6 skills) + AI-aware (Tier B, 5 skills) — plus converter regex fix that ends years of CRLF noise.
+
+### Added — Tier A: Sysadmin/DevOps (6)
+
+- **nc-kubernetes** — k8s deploy/debug/scale/secure patterns. Manifest skeletons, debug ladder, common failures, HPA/VPA, helm vs raw decision matrix
+- **nc-terraform** — IaC with Terraform/OpenTofu. Project layout, remote state, modules, importing existing infra, multi-env strategies, drift recovery
+- **nc-linux-sysadmin** — diagnostic-first-hour playbook, systemd services + timers, users/perms/SSH, disk/memory/network tuning, hardening checklist
+- **nc-networking** — diagnostic ladder by OSI layer, DNS/TLS/cert ops, nginx + Caddy reverse proxy, VPC topology, CDN considerations
+- **nc-backup-recovery** — RPO/RTO design, 3-2-1 rule, DB-specific dump/restore, restic for files, restore drills (the only test that matters)
+- **nc-incident-response** — 4-phase playbook (detect/mitigate/root-cause/postmortem), severity matrix, IC roles, blameless postmortem template, communication norms
+
+### Added — Tier B: AI-aware (5)
+
+- **nc-prompt-engineering** — production prompt design (system msg structure, few-shot patterns, CoT, tool-calling, injection defense, compression)
+- **nc-llm-integration** — app-side LLM patterns (production wrapper, streaming, retry, structured output, multi-provider abstractions, cost guards)
+- **nc-rag-patterns** — chunking strategies, embedding choice, hybrid retrieval, reranking, citation pattern, scaling problems + fixes
+- **nc-vector-db** — pgvector / Pinecone / Qdrant / Chroma decision matrix, index types (HNSW/IVF), metadata filtering, multi-tenancy, cost watch-points
+- **nc-ai-evaluation** — eval datasets, grader options (exact/partial/semantic/LLM-judge), CI regression detection, production monitoring, anti-patterns
+
+### Fixed
+
+- **Converter regex**: bare `nc:foo` (without backticks) now properly rewrites to `nc-foo` in adapter output. Frontmatter `description:` field also processed. Eliminates ~300-file CRLF noise diff on every build forever. Also handles backticked forms with args (e.g., `` `nc:autoresearch --fix` ``).
+
+### Changed
+
+- `install.sh` and `install.ps1`: added tail message suggesting `/nc-onboard` for first-run profile setup
+
+### Coverage
+
+- 11 new skills × 10 IDEs = 110 new adapter files
+- Total: **122 skills** across 10 IDEs
+- catalog.json bumped to v2.6.0; catalog.html regenerated
+- jetbrains/void AGENTS.md aggregated to 115 sections
+- Validator: 48/122 clean, 0 errors, 175 warnings (all legacy)
+
+### Why minor bump (not patch)
+
+Two new tiers worth of capability + a foundational converter fix that changes adapter output for many files. Patch bumps don't reflect the breadth.
+
 ## [2.5.4] - 2026-04-18
 
 Polish + QA layer. Onboarding skill, scenario tests, validator, and refreshed README.

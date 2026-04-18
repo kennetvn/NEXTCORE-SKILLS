@@ -1,6 +1,6 @@
 {
-  "version": "2.5.4",
-  "generatedAt": "2026-04-18T13:09:34.455Z",
+  "version": "2.6.0",
+  "generatedAt": "2026-04-18T13:40:13.265Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 111,
+  "totalSkills": 122,
   "skills": [
     {
       "name": "agent-browser",
@@ -575,6 +575,24 @@
       ]
     },
     {
+      "name": "nc-ai-evaluation",
+      "description": "Evaluate LLM app quality empirically. Use when comparing models/prompts/RAG strategies, building eval datasets, choosing automated graders, detecting regressions in CI, or reporting accuracy to stakeholders.",
+      "loc": 199,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-android-kotlin",
       "description": "Native Android development with Kotlin + Jetpack Compose. Use when building Android-only apps, deep platform integration, Play Store submission, or Compose/XML architecture.",
       "loc": 160,
@@ -635,6 +653,24 @@
       "referenceFiles": 5,
       "ideSupport": [
         "claude-code"
+      ]
+    },
+    {
+      "name": "nc-backup-recovery",
+      "description": "Backup strategy + disaster recovery drills. Use when designing backup policy, testing restore (the only test that matters), planning RPO/RTO targets, or implementing 3-2-1 backups for databases/files/configs.",
+      "loc": 244,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
       ]
     },
     {
@@ -926,6 +962,24 @@
       ]
     },
     {
+      "name": "nc-incident-response",
+      "description": "Production incident playbook. Use when something is breaking in prod — coordinates the response (assess, mitigate, root-cause, postmortem) and prevents common screw-ups under stress.",
+      "loc": 189,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-install-tweaks",
       "description": "Per-install customization layer. Use when user has install-specific preferences, local overrides, or repeated workflow tweaks that shouldn't be upstreamed but should persist across sessions and updates.",
       "loc": 189,
@@ -947,6 +1001,60 @@
       "name": "nc-ios-swift",
       "description": "Native iOS development with Swift + SwiftUI. Use when building iOS-only apps, need deep platform integration, App Store submission, or SwiftUI/UIKit architecture decisions.",
       "loc": 141,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-kubernetes",
+      "description": "Kubernetes operations — deploy, debug, scale, secure. Use when working with k8s manifests, helm charts, kubectl debugging, ingress/service mesh config, or migrating workloads to/from k8s.",
+      "loc": 153,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-linux-sysadmin",
+      "description": "Linux system administration patterns. Use when investigating server issues, managing services with systemd, configuring users/permissions, tuning kernel params, troubleshooting disk/CPU/memory, or bootstrapping a new VPS.",
+      "loc": 256,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-llm-integration",
+      "description": "Integrate LLMs into application code (Anthropic/OpenAI/Gemini/local). Use when wiring up model calls, handling streaming, retries, rate limits, structured output, or building multi-provider abstractions.",
+      "loc": 267,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1019,6 +1127,24 @@
       "name": "nc-mirror",
       "description": "Reflect user's domain vocabulary back. Don't introduce competing jargon. Use when user has established their own terms for entities, actions, or concepts in the domain.",
       "loc": 106,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-networking",
+      "description": "Network troubleshooting + design. Use when debugging connectivity issues, configuring DNS/TLS/CDN, designing VPC/subnet topology, diagnosing latency, or setting up reverse proxies (nginx/Caddy).",
+      "loc": 234,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1142,6 +1268,24 @@
       ]
     },
     {
+      "name": "nc-prompt-engineering",
+      "description": "Production prompt design for LLM apps. Use when crafting system prompts, designing few-shot examples, structuring tool-use calls, mitigating prompt injection, or shrinking prompts to fit context budgets while preserving accuracy.",
+      "loc": 226,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-python-fastapi",
       "description": "Python backend with FastAPI, SQLAlchemy, Pydantic. Use when building Python APIs, ML-adjacent services, async Python, or evaluating FastAPI vs Django/Flask.",
       "loc": 179,
@@ -1163,6 +1307,24 @@
       "name": "nc-queues",
       "description": "Background job queues: BullMQ, Redis, RabbitMQ, AWS SQS. Use for async work (emails, image processing, webhooks, scheduled jobs) or decoupling services via message passing.",
       "loc": 151,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-rag-patterns",
+      "description": "Retrieval-augmented generation patterns. Use when designing chunking strategy, choosing embedding models, building hybrid search, dealing with hallucination via citations, or scaling RAG beyond a prototype.",
+      "loc": 232,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1466,9 +1628,45 @@
       ]
     },
     {
+      "name": "nc-terraform",
+      "description": "Infrastructure-as-code with Terraform / OpenTofu. Use when provisioning cloud resources (AWS/GCP/Azure), managing remote state, writing reusable modules, or migrating manually-created infra into IaC.",
+      "loc": 210,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-usage-telemetry",
       "description": "Opt-in usage telemetry for skills. Use when enabling anonymized tracking to inform skill optimization, detect broken skills in field, or prioritize maintenance. Privacy-respecting by design.",
       "loc": 167,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-vector-db",
+      "description": "Vector database selection + operations. Use when choosing between pgvector / Pinecone / Qdrant / Chroma, designing index strategy (HNSW/IVF), filtering with metadata, or scaling beyond prototype.",
+      "loc": 220,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",

@@ -349,3 +349,7 @@ elif [ "$IDE" = "zed" ] || [ "$IDE" = "jetbrains" ] || [ "$IDE" = "void" ]; then
   echo "  1. Restart $IDE IDE"
   echo "  2. Type /nc- in the IDE chat"
 fi
+
+# v2.6.0+: onboarding tip
+echo
+echo -e "${C}Tip:${NC} Run /nc-onboard in your IDE for a 1-min profile setup (3 questions, calibrates persona/language/depth)."

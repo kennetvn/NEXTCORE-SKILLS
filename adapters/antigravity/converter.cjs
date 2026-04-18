@@ -18,7 +18,9 @@ var ALLOWLIST = [
   "llms","web-testing",
   "nc-persona","nc-memory","nc-clarify","nc-explain","nc-mirror","nc-sentiment",
   "nc-skill-announce","nc-contribute","nc-install-tweaks","nc-company-os","nc-response-format",
-  "nc-onboard"
+  "nc-onboard",
+  "nc-kubernetes","nc-terraform","nc-linux-sysadmin","nc-networking","nc-backup-recovery","nc-incident-response",
+  "nc-prompt-engineering","nc-llm-integration","nc-rag-patterns","nc-vector-db","nc-ai-evaluation"
 ];
 
 function parseFrontmatter(content) {
@@ -43,7 +45,9 @@ function convertBody(body, skillName) {
   out = out.replace(/\buse\s+`?nc:([\w-]+)`?\s+skill/gi, "follow the `nc-$1` workflow");
   out = out.replace(/`nc:([\w-]+)`\s+skill/g, "`nc-$1` workflow");
   out = out.replace(/\/nc:([\w-]+)/g, "/nc-$1");
-  out = out.replace(/`nc:([\w-]+)`/g, "`nc-$1`");
+  out = out.replace(/`nc:([\w-]+)\b([^`]*)`/g, "`nc-$1$2`");
+  // Bare nc:foo without backticks (in headings, prose, descriptions)
+  out = out.replace(/(^|[\s>(])nc:([\w-]+)\b/g, "$1nc-$2");
 
   out = out.replace(/\binvoke\s+"?\/?([\w\-:]+)"?\s+skill/gi, "follow the `$1` workflow");
   out = out.replace(/\bactivate\s+"?\/?([\w\-:]+)"?\s+skill/gi, "follow the `$1` workflow");
@@ -106,6 +110,7 @@ function convertSkill(skillName, dryRun) {
   var src = fs.readFileSync(srcPath, "utf8");
   var parsed = parseFrontmatter(src);
   var desc = (parsed.frontmatter.description || ("Workflow: " + skillName)).replace(/^"|"$/g, "");
+  desc = convertBody(desc, skillName).trim();
   var body = convertBody(parsed.body, skillName).trim();
   var baseName = "nc-" + skillName.replace(/^nc-/, "");
   var out = "---\ndescription: " + desc + "\n---\n\n" + body + "\n";
