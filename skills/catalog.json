@@ -1,6 +1,6 @@
 {
-  "version": "2.4.0",
-  "generatedAt": "2026-04-18T11:59:05.201Z",
+  "version": "2.5.0",
+  "generatedAt": "2026-04-18T12:04:50.026Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 93,
+  "totalSkills": 100,
   "skills": [
     {
       "name": "agent-browser",
@@ -674,6 +674,24 @@
       ]
     },
     {
+      "name": "nc-code-gen",
+      "description": "Code generation from specs: OpenAPI → TS client, Prisma → types, GraphQL → types, protobuf → services. Use when you have a schema and want type-safe generated code.",
+      "loc": 153,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-context-budget",
       "description": "Manage agent token budget per session. Use when context usage exceeds 60%, before loading large refs, when deciding parallel vs serial dispatch, or when agent notices slow responses from context bloat.",
       "loc": 75,
@@ -1016,6 +1034,42 @@
       ]
     },
     {
+      "name": "nc-refactor",
+      "description": "Systematic refactoring patterns: extract method, rename symbol, impact analysis, dead code removal. Use for cross-file refactors, renaming APIs with many consumers, or restructuring without breaking behavior.",
+      "loc": 170,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-replay",
+      "description": "Replay failed workflows from snapshot with fixes applied. Use when a multi-step workflow failed partway, to recover and retry with corrections, or to debug what went wrong.",
+      "loc": 159,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-response-format",
       "description": "Response templates per task type (plan, debug, review, research, implement). Use when agent output would benefit from structured form, when consistency matters across multi-phase work, or when subagent summaries need standard format.",
       "loc": 172,
@@ -1106,9 +1160,63 @@
       ]
     },
     {
+      "name": "nc-skill-bench",
+      "description": "Performance benchmarks for skills: token cost, time-to-complete, memory usage. Use before releasing skill changes, comparing variants, or detecting performance regression.",
+      "loc": 162,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-skill-composition",
       "description": "Chain multiple skills without duplicate analysis. Use when a task spans multiple skill domains (plan + debug + fix + test), when composing workflows, or when skills would repeat each other's work.",
       "loc": 127,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-skill-eval",
+      "description": "LLM-as-judge evaluation harness for skill quality. Use to score skill effectiveness, validate skill description triggers correctly, detect skill drift over time, or benchmark skill variants (A/B).",
+      "loc": 147,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-snapshot",
+      "description": "Session snapshot patterns: save workspace state, decisions, context for later rollback or recovery. Use before risky operations, at phase boundaries, or when agent may need to restart with context.",
+      "loc": 168,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1145,6 +1253,24 @@
       "name": "nc-tauri",
       "description": "Cross-platform desktop with Tauri (Rust + web UI). Use when you need small bundle (<20MB), native performance, or Electron alternatives. Tauri 2 supports mobile too.",
       "loc": 154,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-usage-telemetry",
+      "description": "Opt-in usage telemetry for skills. Use when enabling anonymized tracking to inform skill optimization, detect broken skills in field, or prioritize maintenance. Privacy-respecting by design.",
+      "loc": 167,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",

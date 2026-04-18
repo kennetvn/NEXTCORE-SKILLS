@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>NEXTCORE-SKILLS Catalog — 93 skills × 10 IDEs</title>
+<title>NEXTCORE-SKILLS Catalog — 100 skills × 10 IDEs</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #0e1117; color: #e6edf3; }
@@ -36,13 +36,13 @@
 
 <header>
   <h1>NEXTCORE-SKILLS Catalog</h1>
-  <p>93 skills · 10 IDEs supported · MIT licensed · generated 2026-04-18</p>
+  <p>100 skills · 10 IDEs supported · MIT licensed · generated 2026-04-18</p>
 </header>
 
 <div class="stats">
-  <div class="stat"><div class="stat-num">93</div><div class="stat-label">Skills</div></div>
+  <div class="stat"><div class="stat-num">100</div><div class="stat-label">Skills</div></div>
   <div class="stat"><div class="stat-num">10</div><div class="stat-label">IDEs</div></div>
-  <div class="stat"><div class="stat-num">876</div><div class="stat-label">Total Coverage</div></div>
+  <div class="stat"><div class="stat-num">946</div><div class="stat-label">Total Coverage</div></div>
   <div class="stat"><div class="stat-num">299</div><div class="stat-label">Reference Files</div></div>
 </div>
 
@@ -325,6 +325,13 @@
     <td class="meta">164 LOC</td>
   </tr>
 
+  <tr data-search="nc-code-gen Code generation from specs: OpenAPI → TS client, Prisma → types, GraphQL → types, protobuf → services. Use when you have a schema and want type-safe generated code.">
+    <td class="skill-name"><code>nc-code-gen</code></td>
+    <td class="skill-desc">Code generation from specs: OpenAPI → TS client, Prisma → types, GraphQL → types, protobuf → services. Use when you have a schema and want type-safe generated code.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">153 LOC</td>
+  </tr>
+
   <tr data-search="nc-context-budget Manage agent token budget per session. Use when context usage exceeds 60%, before loading large refs, when deciding parallel vs serial dispatch, or when agent notices slow responses from context bloat.">
     <td class="skill-name"><code>nc-context-budget</code></td>
     <td class="skill-desc">Manage agent token budget per session. Use when context usage exceeds 60%, before loading large refs, when deciding parallel vs serial dispatch, or when agent notices slow responses from context bloat.</td>
@@ -458,6 +465,20 @@
     <td class="meta">117 LOC</td>
   </tr>
 
+  <tr data-search="nc-refactor Systematic refactoring patterns: extract method, rename symbol, impact analysis, dead code removal. Use for cross-file refactors, renaming APIs with many consumers, or restructuring without breaking behavior.">
+    <td class="skill-name"><code>nc-refactor</code></td>
+    <td class="skill-desc">Systematic refactoring patterns: extract method, rename symbol, impact analysis, dead code removal. Use for cross-file refactors, renaming APIs with many consumers, or restructuring without breaking behavior.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">170 LOC</td>
+  </tr>
+
+  <tr data-search="nc-replay Replay failed workflows from snapshot with fixes applied. Use when a multi-step workflow failed partway, to recover and retry with corrections, or to debug what went wrong.">
+    <td class="skill-name"><code>nc-replay</code></td>
+    <td class="skill-desc">Replay failed workflows from snapshot with fixes applied. Use when a multi-step workflow failed partway, to recover and retry with corrections, or to debug what went wrong.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">159 LOC</td>
+  </tr>
+
   <tr data-search="nc-response-format Response templates per task type (plan, debug, review, research, implement). Use when agent output would benefit from structured form, when consistency matters across multi-phase work, or when subagent summaries need standard format.">
     <td class="skill-name"><code>nc-response-format</code></td>
     <td class="skill-desc">Response templates per task type (plan, debug, review, research, implement). Use when agent output would benefit from structured form, when consistency matters across multi-phase work, or when subagent summaries need standard format.</td>
@@ -493,11 +514,32 @@
     <td class="meta">145 LOC · 1 refs</td>
   </tr>
 
+  <tr data-search="nc-skill-bench Performance benchmarks for skills: token cost, time-to-complete, memory usage. Use before releasing skill changes, comparing variants, or detecting performance regression.">
+    <td class="skill-name"><code>nc-skill-bench</code></td>
+    <td class="skill-desc">Performance benchmarks for skills: token cost, time-to-complete, memory usage. Use before releasing skill changes, comparing variants, or detecting performance regression.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">162 LOC</td>
+  </tr>
+
   <tr data-search="nc-skill-composition Chain multiple skills without duplicate analysis. Use when a task spans multiple skill domains (plan + debug + fix + test), when composing workflows, or when skills would repeat each other&#39;s work.">
     <td class="skill-name"><code>nc-skill-composition</code></td>
     <td class="skill-desc">Chain multiple skills without duplicate analysis. Use when a task spans multiple skill domains (plan + debug + fix + test), when composing workflows, or when skills would repeat each other&#39;s work.</td>
     <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
     <td class="meta">127 LOC</td>
+  </tr>
+
+  <tr data-search="nc-skill-eval LLM-as-judge evaluation harness for skill quality. Use to score skill effectiveness, validate skill description triggers correctly, detect skill drift over time, or benchmark skill variants (A/B).">
+    <td class="skill-name"><code>nc-skill-eval</code></td>
+    <td class="skill-desc">LLM-as-judge evaluation harness for skill quality. Use to score skill effectiveness, validate skill description triggers correctly, detect skill drift over time, or benchmark skill variants (A/B).</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">147 LOC</td>
+  </tr>
+
+  <tr data-search="nc-snapshot Session snapshot patterns: save workspace state, decisions, context for later rollback or recovery. Use before risky operations, at phase boundaries, or when agent may need to restart with context.">
+    <td class="skill-name"><code>nc-snapshot</code></td>
+    <td class="skill-desc">Session snapshot patterns: save workspace state, decisions, context for later rollback or recovery. Use before risky operations, at phase boundaries, or when agent may need to restart with context.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">168 LOC</td>
   </tr>
 
   <tr data-search="nc-state-management Frontend state management patterns: Zustand, Jotai, TanStack Store, Redux, React Context. Use when choosing a state library, refactoring prop-drilling, or architecting a React app.">
@@ -512,6 +554,13 @@
     <td class="skill-desc">Cross-platform desktop with Tauri (Rust + web UI). Use when you need small bundle (&lt;20MB), native performance, or Electron alternatives. Tauri 2 supports mobile too.</td>
     <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
     <td class="meta">154 LOC</td>
+  </tr>
+
+  <tr data-search="nc-usage-telemetry Opt-in usage telemetry for skills. Use when enabling anonymized tracking to inform skill optimization, detect broken skills in field, or prioritize maintenance. Privacy-respecting by design.">
+    <td class="skill-name"><code>nc-usage-telemetry</code></td>
+    <td class="skill-desc">Opt-in usage telemetry for skills. Use when enabling anonymized tracking to inform skill optimization, detect broken skills in field, or prioritize maintenance. Privacy-respecting by design.</td>
+    <td class="ide-list"><span class="ide-badge" data-ide="claude-code">Claude Code</span> <span class="ide-badge" data-ide="antigravity">Antigravity</span> <span class="ide-badge" data-ide="cursor">Cursor</span> <span class="ide-badge" data-ide="windsurf">Windsurf</span> <span class="ide-badge" data-ide="copilot">Copilot</span> <span class="ide-badge" data-ide="continue">Continue</span> <span class="ide-badge" data-ide="aider">Aider</span> <span class="ide-badge" data-ide="zed">Zed</span> <span class="ide-badge" data-ide="jetbrains">JetBrains</span> <span class="ide-badge" data-ide="void">Void</span></td>
+    <td class="meta">167 LOC</td>
   </tr>
 
   <tr data-search="nc-websockets Realtime patterns: WebSockets, Server-Sent Events (SSE), polling. Use when building chat, live dashboards, notifications, collaborative editing, or choosing realtime transport.">

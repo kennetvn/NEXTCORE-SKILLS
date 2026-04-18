@@ -2343,6 +2343,154 @@ concurrency:
 
 ---
 
+## nc-code-gen
+
+
+
+Generate boilerplate + ensure compile-time safety between layers.
+
+## OpenAPI → TypeScript client
+
+```bash
+npx openapi-typescript https://api.example.com/openapi.json -o src/api-types.ts
+
+npx @openapitools/openapi-generator-cli generate \
+  -i ./openapi.yaml -g typescript-fetch -o src/api
+```
+
+```ts
+import { UsersApi, Configuration } from "./api";
+const api = new UsersApi(new Configuration({ basePath: "https://api.example.com" }));
+const user = await api.getUser({ id: 42 });  // typed
+```
+
+## Prisma → TS types
+
+```bash
+npx prisma generate
+# Reads schema.prisma, outputs @prisma/client with full type safety
+```
+
+```ts
+import { PrismaClient, User, Order } from "@prisma/client";
+const prisma = new PrismaClient();
+
+const users: User[] = await prisma.user.findMany();
+// ^ type-safe, autocomplete on fields
+```
+
+## GraphQL → TS types (codegen)
+
+```bash
+npx graphql-codegen
+```
+
+Config:
+
+```yaml
+# codegen.yml
+schema: http://localhost:4000/graphql
+documents: 'src/**/*.graphql'
+generates:
+  src/gql/:
+    preset: client
+    plugins: []
+```
+
+```ts
+import { graphql } from "./gql";
+const USER_QUERY = graphql(`query GetUser($id: ID!) { user(id: $id) { email } }`);
+const { data } = useQuery(USER_QUERY, { variables: { id: "1" } });
+// data.user.email — typed
+```
+
+## Protobuf → gRPC service
+
+```bash
+protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto \
+  --ts_proto_out=./gen \
+  --ts_proto_opt=outputServices=grpc-js \
+  ./proto/service.proto
+```
+
+## Prisma → Zod schemas (validation)
+
+```bash
+npx prisma-zod-generator
+```
+
+Generates Zod schemas matching Prisma models — useful for API input validation.
+
+## Orval (OpenAPI → React Query hooks)
+
+```bash
+npx orval --config orval.config.ts
+```
+
+```ts
+// Auto-generated hooks
+const { data: user } = useGetUser({ id: 42 });
+const { mutate } = useCreateUser();
+```
+
+## Custom codegen patterns
+
+### TypeScript Compiler API
+
+```ts
+import * as ts from "typescript";
+
+// Parse source file, modify AST, emit new code
+const source = ts.createSourceFile("x.ts", code, ts.ScriptTarget.Latest);
+const transformer = context => node => ts.visitEachChild(node, ...);
+const result = ts.transform(source, [transformer]);
+```
+
+### String templates (simple)
+
+```ts
+const model = { name: "User", fields: [...] };
+const code = `
+export interface ${model.name} {
+${model.fields.map(f => `  ${f.name}: ${f.type};`).join("\n")}
+}
+`;
+fs.writeFileSync(`src/types/${model.name}.ts`, code);
+```
+
+## Generate in CI
+
+```yaml
+# .github/workflows/codegen.yml
+- run: npx openapi-typescript api/openapi.yaml -o src/api-types.ts
+- name: Check diff
+  run: git diff --exit-code  # fail if generated code drifted
+```
+
+## Re-generation workflow
+
+1. Update source schema (openapi.yaml, schema.prisma, etc.)
+2. Run generator
+3. Check diff — review new types match expectations
+4. Commit both schema + generated code
+5. Generated files should have header: "DO NOT EDIT — auto-generated"
+
+## Anti-patterns
+
+- Hand-edit generated code (lost on regeneration)
+- Generate into git-ignored dir (other devs lack types)
+- Generate without CI check (drift between schema + generated)
+- Over-generating (tiny schema → 5000 LOC of code)
+- Mixing generators (Prisma types + OpenAPI types conflict)
+
+## Integration
+
+- `nc-api-contracts` — schema source (OpenAPI, gRPC)
+- `nc-prisma-helper` — Prisma generate workflow
+- `nc-ci-cd` — codegen drift check in pipeline
+
+---
+
 ## nc-code-review
 
 
@@ -8817,6 +8965,329 @@ eas update                    # OTA hot fix
 
 ---
 
+## nc-refactor
+
+
+
+Principle: **behavior-preserving transformations**. Tests pass before + after.
+
+## Golden rule
+
+Never combine refactor + feature change in same commit. Split:
+
+1. Commit A: refactor (no behavior change)
+2. Commit B: feature change (uses refactored structure)
+
+## Common refactorings
+
+### Extract method
+
+Identify repeated logic or long function → extract to named method.
+
+```ts
+// Before
+function processOrder(order) {
+  // 30 lines of validation
+  // 20 lines of tax calculation
+  // 40 lines of saving
+}
+
+// After
+function processOrder(order) {
+  validateOrder(order);
+  const tax = calculateTax(order);
+  return saveOrder(order, tax);
+}
+```
+
+### Rename symbol (cross-file)
+
+1. Grep for all occurrences: `grep -rn "oldName" src/`
+2. Check: direct refs, string refs (SQL, templates), comments
+3. Rename in declaration first
+4. Rename all usages
+5. Run tests
+6. Commit
+
+IDE features (VS Code "Rename Symbol", IntelliJ refactor) handle TS/JS/Java accurately. For SQL strings, templates, config files — manual grep.
+
+### Extract interface
+
+```ts
+// Before
+function sendEmail(config: { host: string; port: number; user: string; pass: string }) {}
+
+// After
+interface EmailConfig {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+}
+function sendEmail(config: EmailConfig) {}
+```
+
+### Replace conditional with polymorphism
+
+```ts
+// Before
+function area(shape) {
+  if (shape.type === "circle") return Math.PI * shape.r ** 2;
+  if (shape.type === "square") return shape.side ** 2;
+  if (shape.type === "rectangle") return shape.w * shape.h;
+}
+
+// After
+abstract class Shape { abstract area(): number; }
+class Circle extends Shape { constructor(public r: number) {} area() { return Math.PI * this.r ** 2; } }
+class Square extends Shape { constructor(public side: number) {} area() { return this.side ** 2; } }
+```
+
+## Impact analysis
+
+Before refactoring, measure blast radius:
+
+```bash
+# How many files reference this?
+grep -rln "functionName" src/ | wc -l
+
+# Which tests cover it?
+grep -rln "functionName" tests/
+
+# Who called recently (git)?
+git log -p --all -S "functionName" | head
+```
+
+If > 20 files → plan incremental migration (see `nc-migration-patterns`).
+
+## Dead code detection
+
+```bash
+# Unused exports (TS)
+npx ts-prune
+
+# Unused dependencies
+npx depcheck
+
+# Unused components
+grep -rL "import.*ComponentName" src/  # files NOT importing
+
+# Dead routes
+# Diff routes declared vs analytics data (real traffic)
+```
+
+## Test-first refactoring
+
+```
+1. Write characterization tests — capture current behavior
+2. Run tests, ensure green
+3. Refactor
+4. Run tests, ensure green
+5. If test fails → refactor broke behavior, investigate
+```
+
+Without tests: safe refactor is impossible at scale. Add tests BEFORE touching the code.
+
+## Large refactor strategy
+
+For 1000+ line changes:
+
+1. Feature-flag the new path
+2. Implement new alongside old
+3. Gradually route traffic (5% → 25% → 100%)
+4. Remove old when confident
+5. Remove flag
+
+See `nc-migration-patterns` for expand+contract details.
+
+## Refactoring smells to look for
+
+- Function > 200 LOC → extract
+- Copy-pasted code in 3+ places → extract
+- Parameter list > 5 → group into object
+- Deep nesting > 4 levels → early returns / extract
+- Mutable module-level state → inject via constructor
+- "Utils" file with unrelated functions → split by domain
+
+## Anti-patterns
+
+- Refactor + feature in same PR (hard to review, unsafe rollback)
+- Refactor without tests (changes behavior silently)
+- Massive rename in single commit across 100+ files (hard to review)
+- Extract method for single-use short code (over-engineering)
+- Premature abstraction (extract before seeing 3+ usages)
+
+## Tools
+
+- **ts-morph** — TypeScript AST manipulation (programmatic refactor)
+- **jscodeshift** — JS codemods (Facebook)
+- **comby** — language-agnostic structural search/replace
+- **semgrep** — pattern-based code search + transform
+
+## Integration
+
+- `nc-migration-patterns` — strangler fig for big refactors
+- `nc-test` — run tests before + after every refactor
+- `nc-debug` — if test fails post-refactor, debug exact diff
+
+---
+
+## nc-replay
+
+
+
+Resume a failed or interrupted workflow from snapshot, applying fixes.
+
+## Use cases
+
+- Deploy pipeline failed at step 5 → fix + replay from step 5 (not start)
+- Multi-file refactor half-done → agent crashed → replay from checkpoint
+- CI/CD failure → replicate locally + investigate
+- User cancelled → want to resume later
+
+## Requires `nc-snapshot`
+
+Replay depends on snapshots being taken. No snapshot = no replay.
+
+## Replay workflow
+
+```
+1. Identify failed snapshot
+   → ls <storage-project>/agent-infra/snapshots/
+   → find most recent "failed" marker in meta.yaml
+
+2. Read snapshot context
+   → agent-notes.md: what was being done
+   → git-state.txt: where we were
+   → uncommitted.diff: in-progress changes
+
+3. Restore workspace
+   → git checkout <commit>
+   → git apply uncommitted.diff
+
+4. Identify failure point
+   → What step failed?
+   → What error?
+   → What's the fix?
+
+5. Apply fix
+   → Manual edit, or update plan, or change config
+
+6. Resume from checkpoint
+   → Run steps N..end (not 1..end)
+   → Agent picks up mid-pipeline
+
+7. On success: snapshot new state
+   On failure: snapshot again, iterate
+```
+
+## Replay vs re-run
+
+| Replay | Re-run |
+|---|---|
+| Resume from mid-pipeline | Start from beginning |
+| Preserves partial work | Discards partial work |
+| Needs snapshot | No prerequisites |
+| Good for long workflows | Good for short workflows |
+
+Use replay when restart-from-zero costs > 10 min.
+
+## Pipeline checkpoints
+
+Workflows should emit checkpoint markers:
+
+```
+nc-cook pipeline:
+  [x] Step 1: research done → checkpoint saved
+  [x] Step 2: plan approved → checkpoint saved
+  [x] Step 3: phase 1 implemented → checkpoint saved
+  [ ] Step 4: phase 2 implementation (FAILED)
+  [ ] Step 5: tests
+  [ ] Step 6: review
+```
+
+On failure: next session starts by reading last checkpoint.
+
+## Replay with modifications
+
+Common: original plan had a flaw, replay with updated plan.
+
+```
+1. Load snapshot
+2. Edit plan.md (fix phase 4's approach)
+3. Re-run nc-cook with updated plan
+4. nc-cook detects existing phases 1-3 done, skips to phase 4
+```
+
+Plans should have per-phase status:
+
+```yaml
+phase-1: done
+phase-2: done
+phase-3: done
+phase-4: failed  # will be replayed
+phase-5: pending
+phase-6: pending
+```
+
+## Deployment replay
+
+```
+Deploy failed at "health check":
+  1. snapshot taken automatically on failure
+  2. Inspect logs → DB migration didn't apply correctly
+  3. Apply migration manually
+  4. Replay deploy from "post-migration health check" step
+  5. If green: mark success
+```
+
+## CI/CD replay locally
+
+```bash
+# GitHub Actions failed → replicate locally
+act -j deploy --secret-file .env.ci
+
+# Or: download failed job artifacts
+gh run download <run-id>
+# Investigate with full context
+```
+
+## Failure analysis from snapshot
+
+Before replay, understand why it failed:
+
+```
+1. Read agent-notes.md for the failed snapshot
+2. Check error message in meta.yaml
+3. Git diff between last success snapshot and failed snapshot
+4. What changed? What's the minimal fix?
+```
+
+If root cause unclear → run `nc-debug` first, fix, then replay.
+
+## Replay safety
+
+- Don't replay destructive operations without review
+- DB migrations: verify idempotent before replay
+- External API calls: check if already processed (use `nc-queues` idempotency keys)
+- Deploys: verify current state matches snapshot expectation before resuming
+
+## Anti-patterns
+
+- Replaying without understanding failure (repeats same mistake)
+- Replaying destructive ops that aren't idempotent
+- Skipping human review on important pipelines
+- Replaying days-old snapshots (codebase drifted too much)
+- No checkpoint granularity (can only replay from start)
+
+## Integration
+
+- `nc-snapshot` — required dependency, provides checkpoints
+- `nc-debug` — investigate failure before replay
+- `nc-migration-patterns` — ensure DB migrations are replay-safe (idempotent)
+
+---
+
 ## nc-repomix
 
 
@@ -10379,6 +10850,165 @@ User says `/nc-ship official` → ship to main with full docs + journal.
 
 ---
 
+## nc-skill-bench
+
+
+
+Quantitative performance measurement per skill.
+
+## Metrics
+
+Per invocation:
+
+- **Tokens used** — input + output tokens (cost indicator)
+- **Time-to-complete** — wall-clock from start to finish
+- **Steps** — number of tool calls / subagents
+- **Memory** — peak context size during execution
+- **Success rate** — % of runs completing without errors
+
+## Baseline benchmark run
+
+```bash
+node scripts/bench-skill.js --skill nc-plan --iterations 10 --model claude-opus-4-7
+```
+
+Output:
+
+```json
+{
+  "skill": "nc-plan",
+  "model": "claude-opus-4-7",
+  "iterations": 10,
+  "tokens": { "p50": 12500, "p95": 18000, "mean": 13200 },
+  "time_sec": { "p50": 45, "p95": 72, "mean": 51 },
+  "steps": { "p50": 8, "p95": 12, "mean": 9 },
+  "success_rate": 1.0,
+  "date": "2026-04-18T18:30:00Z"
+}
+```
+
+## Regression detection
+
+Compare new run to baseline:
+
+```
+If tokens.p95 > baseline.p95 * 1.20:   # 20% worse
+  → FAIL: token regression
+If time.p95 > baseline.time_p95 * 1.30:
+  → WARN: latency regression
+If success_rate < baseline.success_rate - 0.05:
+  → FAIL: reliability regression
+```
+
+## Cost analysis
+
+Track $/invocation across models:
+
+| Model | Tokens p95 | $/invoke |
+|---|---|---|
+| claude-opus-4-7 | 18000 | $0.27 |
+| claude-sonnet-4-6 | 16500 | $0.05 |
+| claude-haiku-4-5 | 15000 | $0.009 |
+
+Decide: do we need Opus for this skill? Or is Sonnet enough?
+
+## Variant comparison
+
+Test 2 versions of same skill side-by-side:
+
+```bash
+node scripts/bench-skill.js --skill nc-plan --variant a --variant b --iterations 20
+```
+
+Outputs comparison table, statistical significance (t-test):
+
+```
+                  Variant A    Variant B   Diff (%)  Significant?
+tokens (p50)      12,500       10,200      -18.4%    Yes (p<0.01)
+time (p50)        45s          38s         -15.6%    Yes (p<0.05)
+success_rate      1.00         0.95        -5.0%     No (p=0.12)
+```
+
+## Benchmarks over time
+
+```
+.github/workflows/bench.yml runs weekly:
+  - Bench all active skills
+  - Upload results to benchmarks.json
+  - Generate trend chart (over N weeks)
+  - Alert if any skill degrades > 20%
+```
+
+## Test harness (minimal)
+
+```js
+// scripts/bench-skill.js
+import { performance } from 'perf_hooks';
+
+async function benchSkill(skillName, query, iterations = 10) {
+  const results = [];
+  for (let i = 0; i < iterations; i++) {
+    const start = performance.now();
+    const r = await runClaudeWithSkill(skillName, query);
+    results.push({
+      tokens: r.usage.input + r.usage.output,
+      time_ms: performance.now() - start,
+      success: r.success,
+    });
+  }
+  return summarize(results);  // p50, p95, mean
+}
+```
+
+## Benchmark queries
+
+Each skill has a canonical "benchmark query" in `skills/{name}/bench.yaml`:
+
+```yaml
+queries:
+  - name: "small feature"
+    prompt: "plan a single-endpoint CRUD for blog posts"
+    expected_time_p95: 45  # seconds
+    expected_tokens_p95: 12000
+
+  - name: "large feature"
+    prompt: "plan multi-service payment integration with webhooks"
+    expected_time_p95: 120
+    expected_tokens_p95: 25000
+```
+
+## Cost tracking dashboard
+
+```
+┌────────────────────────┐
+│ Weekly skill cost      │
+├────────────────────────┤
+│ nc-plan:    $4.20      │
+│ nc-cook:    $12.80     │
+│ nc-debug:   $2.10      │
+│ nc-research: $1.50     │
+│ Total:      $20.60     │
+└────────────────────────┘
+```
+
+Optimize top 3 spenders first.
+
+## Anti-patterns
+
+- Benchmarking on single run (high variance)
+- Ignoring p95 (outliers matter more than median)
+- Not normalizing query complexity (unfair skill comparison)
+- No model-specific baseline (Opus baseline ≠ Sonnet)
+- Benchmarking without production data (synthetic may not match real use)
+
+## Integration
+
+- `nc-skill-eval` — quality metric complements performance
+- `nc-usage-telemetry` — production data to inform bench queries
+- CI: weekly bench + drift alert
+
+---
+
 ## nc-skill-composition
 
 
@@ -10500,6 +11130,315 @@ If budget exceeds 60%, split into 2 sessions:
 - `nc-context-budget` — when to split pipeline across sessions
 - `nc-parallel-dispatch` — parallelize independent phases (e.g., research + predict)
 - `nc-router` — route user intent to correct starting skill
+
+---
+
+## nc-skill-eval
+
+
+
+Measure skill quality, detect regression, compare variants.
+
+## What to evaluate
+
+1. **Trigger accuracy** — does description activate skill on right queries?
+2. **Output quality** — does skill produce useful, accurate output?
+3. **Token efficiency** — is skill body justified by value added?
+4. **Composition** — does skill chain well with related skills?
+
+## Test harness structure
+
+```
+skills/nc-plan/evals/
+  ├── cases.yaml        # test cases (query → expected behavior)
+  ├── baseline.json     # previous run scores
+  └── results/          # per-run output
+```
+
+## Cases YAML format
+
+```yaml
+- name: "plans a full feature"
+  query: "plan a real-time notifications feature"
+  expected_skill: nc-plan
+  expected_output_contains:
+    - "phases"
+    - "success criteria"
+  forbidden_output:
+    - "I'll do it right now"  # shouldn't skip to implementation
+  min_score: 7
+
+- name: "doesn't trigger for trivial"
+  query: "rename variable x to y"
+  expected_skill: null  # should NOT invoke nc-plan
+  min_score: 8
+```
+
+## Evaluation prompt (LLM-as-judge)
+
+```
+You are grading an AI coding assistant's response to a user query.
+
+Query: {query}
+Skill invoked: {skill_name}
+Response: {response}
+Expected behavior: {expected}
+
+Score 0-10:
+- 10: exactly as expected, high quality
+- 7: right direction, minor issues
+- 5: partially useful, significant gaps
+- 2: wrong approach but no harm
+- 0: harmful or completely wrong
+
+Return: { score: N, reasoning: "..." }
+```
+
+## Running evals
+
+```bash
+# Single skill
+node scripts/run-eval.js --skill nc-plan
+
+# All skills
+node scripts/run-eval.js --all
+
+# Compare variant
+node scripts/run-eval.js --skill nc-plan --variant experimental
+```
+
+## Metrics tracked
+
+Per skill:
+- **Precision** — when invoked, how often was it right?
+- **Recall** — when it should have been invoked, was it?
+- **Avg score** — LLM judge's quality rating
+- **Tokens used** — p50, p95 per invocation
+- **Time-to-complete** — from invoke to done
+
+## Regression detection
+
+```
+Run new evaluation → compare vs baseline.json
+
+If avg_score drops > 1 point OR any test fails:
+  → fail CI
+  → require review before accepting skill change
+```
+
+## Skill A/B testing
+
+For iterating on descriptions or body:
+
+1. Create `skills/nc-plan-v2/` variant
+2. Route 50% of test queries to each variant
+3. Compare scores after N queries
+4. Promote winner to replace current
+
+## Judge model choice
+
+- **Claude Opus 4** — highest quality judge, best for nuanced cases
+- **Claude Sonnet 4** — balanced, most cases
+- **GPT-4o** — independent perspective, catches Claude-specific bias
+- **Gemini 2.5 Pro** — large context for multi-file eval
+
+Use 2-3 judges, average scores — single judge is biased.
+
+## Baseline + drift
+
+Record baseline per skill at release:
+
+```json
+{
+  "skill": "nc-plan",
+  "version": "2.0.0",
+  "baseline_date": "2026-04-18",
+  "avg_score": 8.2,
+  "precision": 0.91,
+  "recall": 0.87
+}
+```
+
+Weekly/monthly: rerun → alert if drift > threshold.
+
+## Anti-patterns
+
+- Evaluating skill without baseline (no comparison point)
+- Single judge (bias)
+- Tiny eval set (< 10 cases — low confidence)
+- No adversarial cases (only happy path tested)
+- Human-graded only (doesn't scale)
+
+## Integration
+
+- `nc-skill-bench` — measures performance (speed, tokens), complements this
+- `nc-usage-telemetry` — production data to inform test cases
+- CI pipeline: fail on regression
+
+---
+
+## nc-snapshot
+
+
+
+Capture workspace state + agent context at key moments. Enables rollback and recovery.
+
+## What to snapshot
+
+- **Git state** — current branch, commit SHA, uncommitted diff
+- **File inventory** — which files agent has touched
+- **Agent notes** — key decisions, open questions, findings
+- **Plan + progress** — active plan, completed phases, current step
+- **Environment** — relevant env vars, running processes
+
+## Snapshot structure
+
+```
+<storage-project>/agent-infra/snapshots/
+  260418-1835-before-prisma-migration/
+    ├── meta.yaml
+    ├── git-state.txt
+    ├── uncommitted.diff
+    ├── agent-notes.md
+    └── context-refs.txt
+```
+
+### meta.yaml
+
+```yaml
+name: before-prisma-migration
+created: 2026-04-18T18:35:00Z
+trigger: manual | phase-boundary | risky-op
+reason: About to run destructive DB migration
+agent: claude-opus-4-7
+session-id: abc123
+plan-ref: plans/260418-1700-vip-redesign/
+```
+
+### git-state.txt
+
+```bash
+git branch --show-current
+git log -1 --format="%H %s"
+git status --short
+```
+
+### uncommitted.diff
+
+```bash
+git diff > uncommitted.diff
+git diff --cached > uncommitted-staged.diff
+```
+
+### agent-notes.md
+
+Markdown file with:
+- Key decisions made this session
+- Findings from research phase
+- Known blockers
+- Next planned step
+- Relevant file references
+
+### context-refs.txt
+
+List of files the agent read + modified:
+
+```
+read: src/api/vip/route.ts
+read: src/lib/db.ts
+modified: src/api/vip/route.ts
+modified: prisma/schema.prisma
+```
+
+## When to snapshot
+
+**Manual (user-triggered):**
+- Before destructive operation (DB migration, mass delete)
+- Before major refactor starts
+- At end of session (for resumption later)
+
+**Auto (on phase boundary):**
+- After research phase completes (before planning)
+- After plan approved (before implementation)
+- After implementation (before testing)
+- Before deploy
+
+**Auto (on risk trigger):**
+- Detected schema drift → snapshot first
+- Large diff (> 500 LOC) → snapshot first
+- Multi-file refactor → snapshot first
+
+## Restoration workflow
+
+```bash
+# List snapshots
+ls <storage-project>/agent-infra/snapshots/
+
+# Review snapshot before restore
+cat .../260418-1835-before-prisma-migration/meta.yaml
+cat .../260418-1835-before-prisma-migration/agent-notes.md
+
+# Restore git state
+git checkout <commit-from-git-state.txt>
+git apply .../uncommitted.diff
+
+# Agent loads notes
+cat .../agent-notes.md  # becomes context for new session
+```
+
+## Snapshot-on-failure
+
+If a workflow fails (tests broken, deploy failed):
+
+```ts
+async function onFailure(error: Error) {
+  await snapshot({
+    reason: "workflow-failure",
+    error: error.message,
+    trigger: "auto"
+  });
+  // Agent can resume with full context after fix
+}
+```
+
+## Diff-only snapshots
+
+Full snapshots are heavy. Most cases: just `meta.yaml + uncommitted.diff + agent-notes.md` is enough.
+
+```
+~/.nc-snapshots/ (local, gitignored)
+  260418-1835/
+    meta.yaml              # 500 bytes
+    uncommitted.diff       # 5KB
+    agent-notes.md         # 2KB
+  = 7.5KB per snapshot
+```
+
+Keep last 20 snapshots per project. Auto-delete older.
+
+## Cross-session recovery
+
+If agent session crashes:
+
+1. New agent starts
+2. Reads latest snapshot's `meta.yaml`
+3. Reviews `agent-notes.md` — what was being done
+4. Checks git state — is branch still valid?
+5. Offers to user: "Last session was working on X at step Y. Resume?"
+
+## Anti-patterns
+
+- Snapshot everything all the time (disk + time cost)
+- No expiration (old snapshots pile up)
+- Snapshot without notes (just state, no "why")
+- Restoring without reviewing meta (may restore to broken state)
+- Snapshots in git (should be `.gitignored`)
+
+## Integration
+
+- `nc-replay` — snapshots enable replay of failed workflows
+- `nc-context-budget` — snapshot is dumping strategy for long sessions
+- `nc-journal` — snapshot summary written to journal
 
 ---
 
@@ -12038,6 +12977,170 @@ Scope notice: This checklist is for App UI (iOS/Android/React Native/Flutter).
 - [ ] Color is not the only indicator
 - [ ] Reduced motion and dynamic text size are supported without layout breakage
 - [ ] Accessibility traits/roles/states (selected, disabled, expanded) are announced correctly
+
+---
+
+## nc-usage-telemetry
+
+
+
+**Privacy-first:** disabled by default. User explicitly enables. No PII. Anonymized. Revocable.
+
+## What we track (when opted in)
+
+- Skill invocations (which skill, when)
+- Model used (opus/sonnet/haiku)
+- Session duration for skill
+- Success/failure signal (not content)
+- Approximate token usage bucket (small/medium/large)
+- IDE (claude-code/cursor/etc)
+
+## What we DON'T track
+
+- User prompts/queries
+- Code content
+- File paths
+- Error messages
+- API keys or secrets
+- Any PII
+
+## Consent flow
+
+### First-time prompt
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ NEXTCORE Telemetry                                          │
+├─────────────────────────────────────────────────────────────┤
+│ Help improve NEXTCORE by sharing anonymous usage data?     │
+│                                                             │
+│ We track: skill invocations, success rate, duration.        │
+│ We NEVER track: your code, prompts, files, or PII.          │
+│                                                             │
+│ [ Allow ]  [ Decline ]  [ Learn more ]                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Choice saved to `~/.nc.json`:
+
+```json
+{
+  "telemetry": { "enabled": true, "userId": "anon-abc123..." }
+}
+```
+
+## Data format
+
+```json
+{
+  "event": "skill_invoked",
+  "skill": "nc-plan",
+  "userId": "anon-abc123...",
+  "sessionId": "sess-xyz789",
+  "timestamp": "2026-04-18T10:30:00Z",
+  "ide": "cursor",
+  "model": "claude-opus-4-7",
+  "success": true,
+  "duration_bucket": "30-60s",
+  "token_bucket": "10k-20k",
+  "version": "2.4.0"
+}
+```
+
+Events: `skill_invoked`, `skill_completed`, `skill_failed`, `session_start`, `session_end`.
+
+## Opt-out
+
+Disable anytime:
+
+```bash
+nc telemetry --disable
+# or edit ~/.nc.json:
+# "telemetry": { "enabled": false }
+```
+
+Existing data NOT retroactively collected. After opt-out, no new data sent.
+
+## Data retention
+
+- 90 days rolling window
+- Aggregated stats retained longer (no per-user data)
+- User can request deletion via email → anon ID removed within 30 days
+
+## Collection endpoint
+
+```
+POST https://telemetry.nextcore.dev/v1/events
+```
+
+- HTTPS only
+- Rate-limited (100 events/min per user)
+- Failed sends retry once, then drop (no blocking user)
+- Opt-out check before every send
+
+## What telemetry enables
+
+### For maintainers
+
+- **Most-used skills** — prioritize maintenance
+- **Broken skills** — error rate spike → investigate
+- **Slow skills** — p95 > threshold → optimize
+- **Model drift** — same skill slower on new model → report bug
+- **IDE adoption** — which IDEs have active users
+
+### For users (opt-in dashboard)
+
+- Personal stats: skills used this week, time saved estimate
+- Suggestions: "You haven't tried nc-predict — useful for big refactors"
+- Cost tracking (if model API used directly)
+
+## Privacy architecture
+
+- **Client-side aggregation** — send daily batches, not per-event when possible
+- **No IP logging** — strip at ingestion
+- **No device fingerprinting**
+- **Anon ID rotatable** — user can reset via command
+- **Open-source telemetry code** — auditable at `scripts/telemetry.js`
+
+## GDPR / CCPA compliance
+
+- Explicit consent required
+- Right to access (`nc telemetry --export`)
+- Right to delete (`nc telemetry --delete`)
+- Data processing agreement published
+- EU data residency (if required)
+
+## Dashboard example (for maintainers)
+
+```
+Weekly skill usage (anonymous)
+┌─────────────────────────────────────┐
+│ nc-plan:       4,230 invocations    │
+│ nc-cook:       3,890                │
+│ nc-debug:      2,100                │
+│ nc-brainstorm: 1,800                │
+│ ...                                 │
+│                                     │
+│ Error rate by skill                 │
+│ nc-security:   1.2% (high!)         │
+│ nc-cook:       0.3%                 │
+└─────────────────────────────────────┘
+```
+
+## Anti-patterns
+
+- Tracking without consent (illegal in most jurisdictions)
+- Tracking content (privacy violation)
+- No opt-out path
+- Requiring telemetry for skill function
+- Sharing individual user data publicly
+- Retention forever
+
+## Integration
+
+- `nc-skill-eval` — telemetry informs eval case selection
+- `nc-skill-bench` — real-world perf data supplements synthetic bench
+- `nc-observability` — uses same stack internally (OpenTelemetry)
 
 ---
 
