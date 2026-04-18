@@ -87,3 +87,49 @@ NextCore stack: VPS only (example-homestay.com, <YOUR_VPS_IP>). No Cloudflare Wo
 | Niche | 7 | 0 | -7 | -1185 |
 | Infrastructure | 6 | 4 | -2 | -256 |
 | **Total** | **81** | **69 active** | **-12** | **-2035 LOC** |
+
+---
+
+## 2026-04-18 — Cognitive cluster
+
+Reviewed: `cook`, `fix`, `brainstorm`, `ask`, `sequential-thinking`, `problem-solving`, `research`
+
+Grep check: `ask`/`sequential-thinking`/`problem-solving` referenced only by internal skill theater (fix activation matrix, nc-debug conditional hints, nc-plan research phase, test thinking). No `.claude/rules/`, no `.claude/commands/`, no `CLAUDE.md`, no user workflow invocations.
+
+| Skill | LOC | Decision | Reason |
+|---|---|---|---|
+| `cook` | 158 | Keep | Mandatory workflow: "ALWAYS activate before EVERY feature". Core daily use. |
+| `fix` | 157 | Keep | Mandatory workflow: "ALWAYS activate before ANY bug". Core daily use. |
+| `brainstorm` | 125 | Keep | NextCore-branded trade-off analysis. Has `/nc:brainstorm` command. Different scope from `superpowers:brainstorming`. |
+| `research` | 175 | Keep | Has Gemini toggle + `.claude/.nc.json` integration, caps at 5 tool calls. Referenced by `nc:cook` + `nc:docs-seeker` integration. |
+| `ask` | 61 | **DELETE** | Generic "Senior Systems Architect" prompt theater — 4 fake advisor personas. Claude 4.7 handles architecture Q&A natively. Zero real use. |
+| `sequential-thinking` | 97 | **DELETE** | Generic "think step by step" wrapper. Superseded by Claude 4.7 native extended thinking + `nc-predict` for multi-persona + `nc-plan` for structured planning. |
+| `problem-solving` | 99 + 573 refs | **DELETE** | 672 LOC of generic "lateral thinking" techniques (collision-zone, inversion, scale-game, etc.). Vague triggers ("complexity spirals"). Never invoked in practice. |
+
+### Changes
+- Deleted `skills/ask/`, `skills/sequential-thinking/`, `skills/problem-solving/` (including 6-file references/ subdir)
+- Cleaned dead references in 5 files:
+  - `fix/SKILL.md`: removed from Conditional list
+  - `fix/references/workflow-standard.md`: removed step 3 bullets + table
+  - `fix/references/workflow-deep.md`: removed step 5 mention + table
+  - `fix/references/skill-activation-matrix.md`: merged "stuck" into brainstorm row, removed from Standard workflow + keyword triggers
+  - `brainstorm/SKILL.md`: replaced sequential-thinking bullet with generic sub-step guidance
+  - `nc-debug/SKILL.md`: replaced problem-solving hint with brainstorm
+  - `nc-plan/references/research-phase.md`: removed entire "Sequential Thinking" section
+  - `test/SKILL.md`: removed thinking bullet
+
+### Net result
+7 → 4 active. -3 skills, -830 LOC (99 + 97 + 61 SKILL.md + 573 problem-solving references).
+
+---
+
+## Session 2026-04-18 total (updated)
+
+| Cluster | Before | After | Deleted | LOC removed |
+|---|---|---|---|---|
+| Documentation | 6 | 5+1 internal | -1 | -123 |
+| Design | 6 | 4 | -2 | -471 |
+| Niche | 7 | 0 | -7 | -1185 |
+| Infrastructure | 6 | 4 | -2 | -256 |
+| Cognitive | 7 | 4 | -3 | -830 |
+| **Total** | **81** | **66 active** | **-15** | **-2865 LOC** |

@@ -86,7 +86,6 @@ Reports        → report-format.md
 - **Browser**: `nc:chrome-devtools` skill for UI testing (screenshots, ARIA, console, network)
 - **Analysis**: `nc:ai-multimodal` skill for screenshot analysis
 - **Debugging**: `nc:debug` skill when tests reveal bugs requiring investigation
-- **Thinking**: `nc:sequential-thinking` skill for complex test failure analysis
 
 ## Quality Standards
 

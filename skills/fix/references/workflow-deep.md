@@ -67,7 +67,7 @@ Use `planner` subagent to create implementation plan.
 
 ### Step 5: Implement
 `TaskUpdate(T5, status="in_progress")`
-Implement per plan. Use `nc:context-engineering`, `nc:sequential-thinking`, `nc:problem-solving`.
+Implement per plan. Use `nc:context-engineering` for token-budget-aware implementation.
 
 **Parallel Verification:** Launch `Bash` agents: typecheck + lint + build
 See `references/parallel-exploration.md`
@@ -112,7 +112,7 @@ See `references/review-cycle.md` for mode-specific handling.
 | 2 | `researcher` (runs parallel with step 1) |
 | 3 | `nc:brainstorm` |
 | 4 | `planner` |
-| 5 | `nc:problem-solving`, `nc:sequential-thinking`, `nc:context-engineering`, parallel `Bash` |
+| 5 | `nc:context-engineering`, parallel `Bash` |
 | 6 | `tester` |
 | 7 | `code-reviewer` |
 | 8 | `nc:project-management`, `docs-manager`, `Bash` |

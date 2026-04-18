@@ -109,7 +109,7 @@ Frontend fix   → frontend-verification.md (Chrome/devtools)
 - **Codebase:** `nc:docs-seeker` skill for package/plugin docs; `nc:repomix` skill for codebase summary
 - **Scouting:** `/nc:scout` or `/nc:scout ext` for finding relevant files
 - **Frontend:** Chrome browser or `nc:chrome-devtools` skill for visual verification (screenshots, console, network)
-- **Skills:** Activate `nc:problem-solving` skill when stuck on complex issues
+- **Skills:** Activate `nc:brainstorm` when stuck — re-evaluate root cause assumptions with trade-off analysis
 
 ## Red Flags
 

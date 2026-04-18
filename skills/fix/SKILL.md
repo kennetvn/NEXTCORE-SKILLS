@@ -120,7 +120,7 @@ Classify before routing. See `references/complexity-assessment.md`.
 See `references/skill-activation-matrix.md` for complete matrix.
 
 **Always activate:** `nc:debug` (all workflows)
-**Conditional:** `nc:problem-solving`, `nc:sequential-thinking`, `nc:brainstorm`, `nc:context-engineering`, `nc:project-management` (moderate+ for task hydration/sync-back)
+**Conditional:** `nc:brainstorm`, `nc:context-engineering`, `nc:project-management` (moderate+ for task hydration/sync-back)
 **Subagents:** `debugger`, `researcher`, `planner`, `code-reviewer`, `tester`, `Bash`
 **Parallel:** Multiple `Explore` agents for scouting, `Bash` agents for verification
 

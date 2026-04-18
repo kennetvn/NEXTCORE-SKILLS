@@ -23,9 +23,7 @@ Skip Tasks for Quick workflow (< 3 steps). See `references/task-orchestration.md
 
 | Skill | Activate When |
 |-------|---------------|
-| `nc:problem-solving` | Stuck on approach, multiple failed attempts |
-| `nc:sequential-thinking` | Complex logic chain, multi-step reasoning needed |
-| `nc:brainstorm` | Multiple valid approaches, architecture decision |
+| `nc:brainstorm` | Multiple valid approaches, architecture decision, stuck on approach |
 | `nc:context-engineering` | Fixing AI/LLM/agent code, context window issues |
 | `nc:ai-multimodal` | UI issues, screenshots provided, visual bugs |
 | `nc:project-management` | Moderate+ workflows — task hydration, sync-back, progress tracking |
@@ -63,7 +61,7 @@ See `references/parallel-exploration.md` for detailed patterns.
 | Workflow | Skills Activated |
 |----------|------------------|
 | Quick | `nc:debug`, `nc:code-review`, parallel `Bash` verification |
-| Standard | Above + Tasks, `nc:problem-solving`, `nc:sequential-thinking`, `nc:project-management`, `tester`, parallel `Explore` |
+| Standard | Above + Tasks, `nc:project-management`, `tester`, parallel `Explore` |
 | Deep | All above + `nc:brainstorm`, `nc:context-engineering`, `nc:project-management`, `researcher`, `planner` |
 | Parallel | Per-issue Task trees + `nc:project-management` + `fullstack-developer` agents + coordination via `TaskList` |
 
@@ -72,8 +70,6 @@ See `references/parallel-exploration.md` for detailed patterns.
 | Keyword/Pattern | Skill to Consider |
 |-----------------|-------------------|
 | "AI", "LLM", "agent", "context" | `nc:context-engineering` |
-| "stuck", "tried everything" | `nc:problem-solving` |
-| "complex", "multi-step" | `nc:sequential-thinking` |
-| "which approach", "options" | `nc:brainstorm` |
+| "which approach", "options", "stuck" | `nc:brainstorm` |
 | "latest docs", "best practice" | `researcher` subagent |
 | Screenshot attached | `nc:ai-multimodal` |

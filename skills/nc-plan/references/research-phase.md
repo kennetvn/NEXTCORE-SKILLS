@@ -9,11 +9,6 @@
 - Wait for all researcher agents to report back before proceeding
 - Each researcher investigates a specific aspect or approach
 
-### Sequential Thinking
-- Use `nc:sequential-thinking` skill for dynamic and reflective problem-solving
-- Structured thinking process for complex analysis
-- Enables multi-step reasoning with revision capability
-
 ### Documentation Research
 - Use `nc:docs-seeker` skill to read and understand documentation
 - Research plugins, packages, and frameworks

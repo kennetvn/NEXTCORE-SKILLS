@@ -52,8 +52,7 @@ See `references/parallel-exploration.md` for patterns.
 `TaskUpdate(T3, status="in_progress")` — auto-unblocked when T1 + T2 complete.
 Fix the issue following debugging findings.
 
-- Apply `nc:problem-solving` skill if stuck
-- Use `nc:sequential-thinking` for complex logic
+- If stuck after 2 attempts, step back and question assumptions before continuing
 
 **After implementation - Parallel Verification:**
 Launch `Bash` agents in parallel to verify:
@@ -102,7 +101,7 @@ See `references/review-cycle.md` for mode-specific handling.
 |------|------------------|
 | 1 | `nc:debug`, `debugger` subagent |
 | 2 | Multiple `Explore` subagents in parallel (optional) |
-| 3 | `nc:problem-solving`, `nc:sequential-thinking`, parallel `Bash` for verification |
+| 3 | parallel `Bash` for verification |
 | 4 | `tester` subagent |
 | 5 | `code-reviewer` subagent |
 | 6 | `nc:project-management`, `git-manager`, `docs-manager` subagents |
