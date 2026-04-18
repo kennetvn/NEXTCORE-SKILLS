@@ -1,10 +1,13 @@
 ---
 name: nc:markdown-novel-viewer
-description: View markdown files with calm, book-like reading experience via HTTP server. Use for long-form content, documentation preview, novel reading, report viewing, distraction-free reading.
+description: "Internal helper for nc:preview view mode. Backend HTTP server rendering markdown with book-like UI. Invoked automatically by /nc:preview — users should use /nc:preview instead of calling this directly."
 argument-hint: "[file-or-directory]"
+user-invocable: false
 metadata:
   author: nextcoreskill
-  version: "1.0.0"
+  version: "1.1.0"
+  audit-date: "2026-04-18"
+  audit-status: "keep-internal"
 ---
 
 # markdown-novel-viewer
