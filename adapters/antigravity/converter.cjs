@@ -20,7 +20,11 @@ var ALLOWLIST = [
   "nc-skill-announce","nc-contribute","nc-install-tweaks","nc-company-os","nc-response-format",
   "nc-onboard",
   "nc-kubernetes","nc-terraform","nc-linux-sysadmin","nc-networking","nc-backup-recovery","nc-incident-response",
-  "nc-prompt-engineering","nc-llm-integration","nc-rag-patterns","nc-vector-db","nc-ai-evaluation"
+  "nc-prompt-engineering","nc-llm-integration","nc-rag-patterns","nc-vector-db","nc-ai-evaluation",
+  "nc-performance-profiling","nc-debugging-advanced","nc-code-archaeology",
+  "nc-user-research","nc-ux-writing","nc-accessibility-deep",
+  "nc-bug-triage","nc-test-strategy","nc-chaos-engineering",
+  "nc-working-memory","nc-cost-routing"
 ];
 
 function parseFrontmatter(content) {

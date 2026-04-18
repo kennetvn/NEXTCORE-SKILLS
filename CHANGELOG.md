@@ -2,6 +2,82 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [3.0.0] - 2026-04-18
+
+**Peak Agent Framework** — full v3.0.0 release. Tiers C/D/E (9 skills) + 2 meta skills + 4 spec docs + dependency graph script.
+
+### Added — Tier C: Dev deep (3)
+
+- **nc-performance-profiling** — measurement-first patterns by domain (Node, Python, web, DB), bottleneck taxonomy, optimization protocol
+- **nc-debugging-advanced** — heisenbugs, race conditions, distributed system failures, intermittent prod bugs; eBPF/strace/valgrind kit
+- **nc-code-archaeology** — 5-question protocol before changing legacy code, git toolbox, codebase onboarding, intent recovery
+
+### Added — Tier D: Design deep (3)
+
+- **nc-user-research** — pick-the-method matrix, interview protocol, sample size, synthesis discipline
+- **nc-ux-writing** — error/button/empty-state copy, voice vs tone, consistency rules, localization-friendly patterns
+- **nc-accessibility-deep** — WCAG-aware semantic HTML, focus management, screen readers, mobile a11y, real-user testing
+
+### Added — Tier E: Tester deep (3)
+
+- **nc-bug-triage** — triage flow, severity vs priority, routing, backlog grooming, recurring-pattern detection
+- **nc-test-strategy** — pyramid + modern caveats, what to test/mock, anti-flaky tactics, CI strategy
+- **nc-chaos-engineering** — readiness checklist, fault injection by mode, game day structure, hypothesis-driven drills
+
+### Added — Meta skills (2)
+
+- **nc-working-memory** — short-term per-session memory (distinct from nc-memory long-term); auto-prune at context pressure; promotion to long-term
+- **nc-cost-routing** — auto-select Claude tier (Haiku/Sonnet/Opus) by task class; budget guards; prompt caching + batch API patterns
+
+### Added — Meta specs (4 docs)
+
+- **docs/rollback-protocol.md** — `undoable: true|false|partial` frontmatter convention; auto-snapshot for destructive skills; /nc-undo command spec
+- **docs/streaming-spec.md** — phase-update + token-streaming patterns; frontmatter `streams:` field; cancellation
+- **docs/telemetry-spec.md** — opt-in privacy-first usage telemetry; what's collected (and explicitly NOT); trust contract
+- **docs/skill-deps-graph.md** — `depends_on:` + `suggests:` frontmatter convention; viz via Mermaid/DOT; CI circular-check
+
+### Added — Tooling
+
+- **scripts/skills-deps-graph.cjs** — generates Mermaid/DOT graph; checks circular deps; outputs JSON; supports per-skill subgraph
+- **docs/skills-graph.md** — auto-generated visualization of all 133 skills
+
+### Coverage
+
+- 11 new skills × 10 IDEs = 110 new adapter files
+- Total: **133 skills** across 10 IDEs
+- catalog.json bumped to v3.0.0
+- jetbrains/void AGENTS.md aggregated to 126 sections
+- Validator: 57/133 clean, 0 errors, 177 warnings (legacy)
+- Dep graph: 0 circular deps (after fix to inferred-only check)
+
+### v3.0.0 vs v2.5.0 — what changed across the arc
+
+| Layer | v2.5.0 | v3.0.0 |
+|---|---|---|
+| Skills | 100 | 133 (+33) |
+| Tiers | 1-5 (depth-only) | S/A/B/C/D/E + meta |
+| Agent UX | None | Tier S (persona, memory, sentiment, etc.) |
+| Community | Manual PRs | nc-contribute auto flow |
+| Customization | Code-only | nc-install-tweaks (~/.nc/overrides/) |
+| Org modeling | None | nc-company-os (25+ roles, frameworks, processes) |
+| Onboarding | None | nc-onboard (3-q survey) |
+| Test scenarios | None | 7 simulated user flows |
+| Validator | None | scripts/validate-skills.cjs |
+| Specs | None | Context Protocol + Rollback + Streaming + Telemetry + Deps |
+| Dep graph | None | scripts/skills-deps-graph.cjs |
+
+### Why 3.0.0
+
+This release unifies "skills as workflows" (v1-v2.5) with "agent ecosystem framework" (v2.5.x → v3.0.0). It's no longer just a slash-command pack — it's a self-improving teammate framework. Major version reflects scope, not breaking changes (full backwards compat preserved).
+
+### Pending v3.x
+
+- Adoption of `depends_on:` frontmatter (currently 0 declared, 9 inferred)
+- Adoption of `undoable:` frontmatter (currently 0 declared)
+- LLM-graded scenario test runner (`scripts/eval-scenarios.cjs`)
+- Telemetry hook implementation (spec ready)
+- 177 legacy skill warnings cleanup (community PR opportunity)
+
 ## [2.6.0] - 2026-04-18
 
 Two new tiers — Sysadmin/DevOps (Tier A, 6 skills) + AI-aware (Tier B, 5 skills) — plus converter regex fix that ends years of CRLF noise.

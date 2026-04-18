@@ -1,12 +1,21 @@
 # NEXTCORE-SKILLS
 
-> **Peak Agent Framework** — 111 curated skills as slash commands across **10 AI IDEs**. Beyond just workflows: includes Agent UX (persona, memory, sentiment), community contribution loop, per-install customization, and tech-company organizational modeling.
+> **Peak Agent Framework v3.0.0** — 133 curated skills as slash commands across **10 AI IDEs**. Full ecosystem: Agent UX (persona/memory/sentiment), community contribution loop, per-install customization, tech-company org modeling, sysadmin/devops depth, AI-aware engineering, design/QA depth, and meta-layer infrastructure (Context Protocol, rollback, streaming, telemetry, dep graph).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 **Supported IDEs (10):** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider · Codeium · Zed · JetBrains AI · Void
 
-## What's new in v2.5.4 (April 2026)
+## What's new in v3.0.0 (April 2026)
+
+- **Tier C — Dev deep**: nc-performance-profiling, nc-debugging-advanced, nc-code-archaeology
+- **Tier D — Design deep**: nc-user-research, nc-ux-writing, nc-accessibility-deep
+- **Tier E — Tester deep**: nc-bug-triage, nc-test-strategy, nc-chaos-engineering
+- **Meta skills**: nc-working-memory (short-term), nc-cost-routing (Haiku/Sonnet/Opus)
+- **Meta specs** (`docs/`): rollback-protocol · streaming-spec · telemetry-spec · skill-deps-graph
+- **Skills dep graph**: `node scripts/skills-deps-graph.cjs` → Mermaid + circular check
+
+## Earlier in v2.5.x
 
 - **First-run onboarding** (`nc-onboard`) — 3-question survey calibrates persona, language, depth in <60s
 - **Agent UX layer** (`nc-persona` · `nc-memory` · `nc-clarify` · `nc-explain` · `nc-mirror` · `nc-sentiment`) — agent acts like a teammate, not a wizard
@@ -60,17 +69,17 @@ When you spot a missing skill or improvement, this drives a full GitHub PR via y
 
 | IDE | Install target | Workflows | Hooks | Subagents |
 |---|---|:---:|:---:|:---:|
-| Claude Code | `.claude/` | ✅ 111 | ✅ 15 | ✅ |
-| Antigravity | `.agent/workflows/` | ✅ 105 | — | via `ai-team/*` |
-| Cursor | `.cursor/commands/` | ✅ 105 | — | general agent |
-| Windsurf | `.windsurf/workflows/` | ✅ 105 | — | Cascade |
-| GitHub Copilot | `.github/prompts/` | ✅ 105 | — | Copilot agent |
-| Continue.dev | `.continue/prompts/` | ✅ 105 | — | general agent |
-| Aider | `.aider/nextcore/` | ✅ 105 | — | CLI conversation |
-| Codeium | `.codeium/prompts/` | ✅ 105 | — | general agent |
-| Zed AI | `.zed/prompts/` | ✅ 105 | — | built-in Claude |
-| JetBrains AI | `.idea/ai-prompts/` | ✅ 105 | — | Assistant agent |
-| Void | `.void/prompts/` | ✅ 105 | — | native VS Code fork agent |
+| Claude Code | `.claude/` | ✅ 133 | ✅ 15 | ✅ |
+| Antigravity | `.agent/workflows/` | ✅ 127 | — | via `ai-team/*` |
+| Cursor | `.cursor/commands/` | ✅ 127 | — | general agent |
+| Windsurf | `.windsurf/workflows/` | ✅ 127 | — | Cascade |
+| GitHub Copilot | `.github/prompts/` | ✅ 127 | — | Copilot agent |
+| Continue.dev | `.continue/prompts/` | ✅ 127 | — | general agent |
+| Aider | `.aider/nextcore/` | ✅ 127 | — | CLI conversation |
+| Codeium | `.codeium/prompts/` | ✅ 127 | — | general agent |
+| Zed AI | `.zed/prompts/` | ✅ 127 | — | built-in Claude |
+| JetBrains AI | `.idea/ai-prompts/` | ✅ 127 | — | Assistant agent |
+| Void | `.void/prompts/` | ✅ 127 | — | native VS Code fork agent |
 
 Claude Code is source of truth — other IDEs get skill **content** (portable markdown). Hooks and subagent orchestration are Claude Code exclusive.
 

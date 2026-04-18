@@ -17705,3 +17705,1821 @@ Start hand-rolled. Adopt a framework when you outgrow it.
 - `nc-observability` — production eval pipeline
 - `nc-claude-api` — Anthropic message batching for cheap eval runs
 
+---
+
+## nc-performance-profiling
+
+
+
+Find and fix performance bottlenecks empirically. Use when something is slow but you don't know why, before optimizing speculatively, or when establishing performance baselines. Measure first, optimize second.
+
+Premature optimization wastes time. Measurement-first patterns by domain.
+
+## The 3 questions before profiling
+
+1. **Is it actually slow?** Define the baseline. p50? p95? worst case?
+2. **Does it matter?** UX-critical path or batch job nobody waits on?
+3. **What's the budget?** "Make it faster" is open-ended. "<200ms p95" is actionable.
+
+If you skip these, you'll optimize the wrong thing.
+
+## Domain-specific tooling
+
+### Node.js / JS
+
+```bash
+# CPU profile
+node --cpu-prof --cpu-prof-name=cpu.cpuprofile app.js
+# Open in Chrome DevTools → Performance tab → Load profile
+
+# Memory snapshot
+node --inspect app.js
+# Chrome DevTools → Memory tab → Heap snapshot
+
+# Quick bottleneck spot
+clinic doctor -- node app.js     # npm i -g clinic
+clinic flame -- node app.js      # flamegraph
+clinic bubbleprof -- node app.js # async io patterns
+```
+
+### Python
+
+```bash
+# CPU
+python -m cProfile -o output.prof script.py
+snakeviz output.prof              # pip install snakeviz
+
+# Line-by-line
+pip install line_profiler
+@profile
+def slow_fn(): ...
+kernprof -l -v script.py
+
+# Memory
+pip install memray
+memray run script.py
+memray flamegraph memray-script.bin
+```
+
+### Web (browser)
+
+- Chrome DevTools → Performance → Record → measure interactions
+- **Core Web Vitals** in production: LCP, INP, CLS via web-vitals lib
+- **Lighthouse** in CI for regression detection
+- React: React DevTools Profiler → flame graph of renders
+
+### Database
+
+```sql
+-- Postgres
+EXPLAIN ANALYZE SELECT ...;
+-- Look for: Seq Scan on big tables, Sort spills, Hash Join with high cost
+SELECT * FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 10;
+
+-- MySQL
+EXPLAIN FORMAT=JSON SELECT ...;
+-- slow query log: long_query_time = 1
+```
+
+## Bottleneck taxonomy
+
+| Symptom | Likely | Tool |
+|---|---|---|
+| 1 CPU pegged at 100% | Sync compute, regex disasters | CPU profiler |
+| All CPUs idle, slow response | I/O wait, lock contention | Async profiler, db EXPLAIN |
+| Memory grows unbounded | Leak, missing limit | Heap snapshots compared over time |
+| GC pauses | Allocation churn | GC logs, allocation profiler |
+| Slow first request, fast subsequent | Cold cache, JIT | Cache, prewarm |
+| Slow under concurrency only | Lock contention, connection pool exhaustion | Thread/lock profiler |
+| Network-heavy, slow remote | DNS, TLS handshake, RTT | mtr, tcpdump |
+
+## Common wins (often more impact than micro-optimizations)
+
+1. **Don't N+1 the database** — 1 query joining > 100 queries
+2. **Add the index** — EXPLAIN ANALYZE shows seq scans
+3. **Cache the hot read** — even 1-second TTL helps
+4. **Defer the slow thing** — queue + worker > inline
+5. **Stream don't buffer** — large payloads → backpressure
+6. **Compress text payloads** — gzip/brotli at edge
+7. **Pool connections** — DB, HTTP, Redis
+8. **Move CPU to edge** — CDN for assets, ISR for pages
+
+## Optimization protocol
+
+```
+1. Measure baseline (p50, p95, worst)
+2. Profile the slow case (don't guess)
+3. Find the biggest contributor
+4. Fix it
+5. Re-measure
+6. If still slow, repeat from step 3
+7. Stop when budget met or diminishing returns
+```
+
+Document each iteration. "Reduced p95 from 800ms → 180ms by adding index on `users.email`."
+
+## Anti-patterns
+
+- Optimizing without measuring (often the bottleneck is elsewhere)
+- Micro-optimizing (`++i` vs `i++`) when DB is doing 200ms scan
+- Caching everything (cache invalidation is the hard problem)
+- Adding parallelism without measuring lock contention first
+- Profiling local env (different perf characteristics from prod)
+- Optimizing cold paths (the rare slow query that runs once a day)
+- Calling something "fast enough" without numeric target
+
+## Integration
+
+- `nc-debugging-advanced` — when slow + buggy together
+- `nc-databases` — DB-specific perf patterns (indexes, EXPLAIN)
+- `nc-observability` — production perf metrics
+- `nc-react-best-practices` — React perf patterns
+- `nc-incident-response` — perf regression as incident
+- `nc-ai-evaluation` — measure latency in LLM apps
+
+
+---
+
+## nc-debugging-advanced
+
+
+
+Debug hard problems — heisenbugs, race conditions, distributed system failures, memory corruption, intermittent prod issues. Use when nc-debug isn't enough and you need scientific-method discipline + advanced tools (gdb, strace, eBPF, distributed tracing).
+
+For bugs that resist normal debugging. Discipline matters more than tools.
+
+## The scientific method (mandatory for hard bugs)
+
+1. **Observe** — write down EXACTLY what's happening (timestamps, symptoms, frequency)
+2. **Hypothesize** — what mechanism could cause this?
+3. **Predict** — if hypothesis true, X should also happen
+4. **Test** — add logging / instrumentation to verify
+5. **Conclude** — confirm or rule out
+6. Repeat until root cause found
+
+Don't skip step 1. Symptom drift is real — what you saw at 2am may not be what you describe at 9am.
+
+## Heisenbugs (disappear when you look)
+
+Bug behavior changes when you observe it.
+
+Causes:
+- Logging changes timing → race condition masked
+- Debug build optimizations differ → bug only in release
+- Attaching debugger pauses thread → other thread "wins" race
+- printf flushes → buffering hid the issue
+
+Tactics:
+- Use ring buffer logs (cheap, in-memory) instead of stdout
+- `dtrace` / `eBPF` (kernel-level, low overhead)
+- Reproduce under load (stress test) — heisenbugs love idle systems
+- Add tracing in branches that "can't" be reached — they often are
+
+## Race conditions
+
+Symptoms: works locally, fails under load. Different result each run.
+
+Detection:
+```bash
+# Go: built-in race detector
+go test -race ./...
+
+# Java: ThreadSanitizer or jcstress
+# C/C++: ThreadSanitizer (-fsanitize=thread), Helgrind
+# Python: rare with GIL but possible (use threading.Lock audits)
+# JS: single-threaded, but async race conditions are common (await ordering)
+```
+
+Common shapes:
+- Check-then-act without lock (TOCTOU)
+- Lazy init without synchronization
+- Counter increment without atomic
+- Multiple consumers reading/writing same key
+- Caching with no version/etag
+
+Fixes (in order of preference):
+1. Don't share state (immutable data, message passing)
+2. Use atomic primitives (compare-and-swap)
+3. Mutex / RWLock (last resort, easy to deadlock)
+
+## Distributed system failures
+
+Hardest class of bugs. Default assumption: anything can fail at any time.
+
+Diagnostic kit:
+- **Distributed tracing** (OpenTelemetry, Jaeger, Honeycomb) — see request across services
+- **Correlation IDs** — propagate through every log line
+- **Wall-clock vs monotonic time** — clock skew is real
+- **Network partition simulation** — `tc qdisc add dev eth0 root netem loss 5%`
+
+Common patterns:
+- Retries amplify failure (thundering herd) → exponential backoff + jitter
+- Cascading timeouts (timeout < downstream timeout → orphaned work) → set deadlines, not timeouts
+- Split brain (two leaders) → quorum / consensus (Raft)
+- Slow node treated as healthy → end-to-end health checks
+
+Read: Designing Data-Intensive Applications (Martin Kleppmann), Aphyr's Jepsen reports.
+
+## Linux observability with strace / eBPF
+
+```bash
+# What syscalls does this process make?
+strace -p <PID> -e trace=read,write,openat -f
+strace -c -p <PID>                        # summary stats
+
+# What files is process touching?
+lsof -p <PID>
+
+# eBPF (modern, low-overhead) — bcc-tools or bpftrace
+bpftrace -e 'tracepoint:syscalls:sys_enter_openat { @[comm] = count(); }'
+opensnoop                                   # who's opening files
+execsnoop                                   # who's spawning processes
+biolatency                                   # disk I/O latency histogram
+tcptop                                       # top TCP connections
+```
+
+For containerized: run in privileged debug pod with same PID namespace.
+
+## Memory issues
+
+```bash
+# C/C++: valgrind (catches leaks, use-after-free, OOB)
+valgrind --leak-check=full --show-leak-kinds=all ./binary
+
+# C/C++ at runtime: AddressSanitizer (faster than valgrind)
+gcc -fsanitize=address -g main.c
+
+# Java: heap dump on OOM
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
+# Analyze with Eclipse MAT
+
+# Node.js leak detection
+node --inspect app.js → Chrome DevTools Memory → 3 snapshots, compare
+```
+
+Leaks are detection-by-pattern: snapshot N, run more workload, snapshot N+M, see what grew.
+
+## Intermittent prod-only bugs
+
+"Happens randomly, can't reproduce locally."
+
+Strategy:
+1. Lower the cost of capturing detail when it happens (always-on lightweight tracing)
+2. Capture environment delta (load, time of day, recent deploys)
+3. Search logs for similar past occurrences (pattern over time)
+4. Add hypothesis-testing instrumentation (don't fix yet — verify cause)
+5. Reproduce in staging with prod-like load (k6, locust)
+
+If truly unreproducible: consider canary rollback to bisect what introduced it.
+
+## Bisecting
+
+When a bug appeared in some version:
+
+```bash
+git bisect start
+git bisect bad HEAD                 # current is bad
+git bisect good v1.2.0              # last known good
+# Run test → mark good/bad
+git bisect good                     # or: git bisect bad
+# Repeat until git pinpoints commit
+git bisect reset
+```
+
+Pair with automated test → `git bisect run ./test.sh` does it for you.
+
+## Anti-patterns
+
+- "Try this fix" without verifying root cause (bug may return shifted)
+- Adding logs everywhere → even more heisenbugs
+- "Restart fixes it" as solution (delays the inevitable)
+- Single-threaded reasoning about concurrent code
+- Trusting wall-clock time in distributed systems
+- Looking only at the failing service's logs (it's often upstream)
+- Re-running test to "confirm" (flakes happen — need many runs)
+
+## Integration
+
+- `nc-debug` — entry-level systematic debugging
+- `nc-incident-response` — debugging during prod incident
+- `nc-performance-profiling` — when slow + buggy together
+- `nc-observability` — distributed tracing setup
+- `nc-test-strategy` — chaos / fault injection prevents bugs
+- `nc-code-archaeology` — when "why was this code written" matters
+
+
+---
+
+## nc-code-archaeology
+
+
+
+Understand legacy / unfamiliar code. Use when inheriting a codebase, investigating why some weird code exists, finding the original requirement behind a feature, or before refactoring code older than your tenure.
+
+Code that looks weird usually had a reason. Find the reason before "fixing" it.
+
+## The 5-question protocol before changing legacy code
+
+1. **When was it added?** — `git blame`, `git log -- <file>`
+2. **Why was it added?** — commit message, PR description, linked ticket
+3. **Who owns it?** — `git shortlog`, CODEOWNERS file, current team
+4. **What broke last time someone "improved" it?** — search closed issues, postmortems
+5. **Is the original requirement still valid?** — confirm with PM / stakeholder
+
+Skipping any of these = inviting a regression that already happened once.
+
+## Git archaeology toolbox
+
+```bash
+# Who wrote this line and when?
+git blame -L 42,50 src/auth.ts
+
+# Follow the line through history (across renames!)
+git log --follow -p -- src/auth.ts | less
+
+# Why was this file changed?
+git log --oneline --all -- src/auth.ts | head -20
+git log -p -- src/auth.ts | head -100
+
+# Find when a string appeared / disappeared
+git log -S "specificString" --oneline               # added or removed
+git log -G "regex.*pattern" --oneline               # any change matching regex
+
+# What did this file look like at version X?
+git show v1.2.0:src/auth.ts
+
+# Bisect for behavior introduction
+git bisect start; git bisect bad HEAD; git bisect good v1.0.0
+
+# Show all commits touching a function (best-effort)
+git log -L :functionName:src/auth.ts
+```
+
+## Reading commit messages
+
+Good messages have:
+- WHY (the bug, the request, the constraint)
+- Linked ticket / issue
+- Tradeoff considered
+
+Bad messages: `fix`, `update`, `wip`, `as discussed`. When you see these:
+- Check the merge commit — maybe the PR description has the why
+- Check linked issues / PRs in repo platform
+- Check Slack/Linear/Jira around the date
+- Ask the author (still around?) — but only after exhausting written sources
+
+## Finding original intent
+
+For features whose purpose isn't obvious:
+
+1. **Ticket archaeology**: search Jira/Linear/GitHub issues by date range + keywords
+2. **PR description**: github/gitlab UI, look at the merge that introduced
+3. **Old design docs**: search Confluence/Notion/Google Drive for keywords
+4. **Slack archive**: search messages around merge date
+5. **Postmortems**: maybe this code IS the fix to a past incident
+6. **Tests as documentation**: tests often encode invariants the code enforces
+
+If still mystery: respect Chesterton's Fence. Don't remove until you know why it's there.
+
+## Codebase onboarding (fresh repo)
+
+When you join a project:
+
+```
+Day 1:
+- Read README, CONTRIBUTING, top-level docs
+- Run the project locally — feel the dev loop
+- git log --oneline | head -50 — recent activity
+- find . -name CODEOWNERS -o -name .github/CODEOWNERS — who owns what
+- ls docs/ adr/ rfc/ — design decisions
+
+Day 2-3:
+- Read 5 most-changed files: git log --pretty=format: --name-only | sort | uniq -c | sort -rg | head
+- Trace a happy-path request end-to-end (entry → DB → response)
+- Trace one auth flow
+- Identify the hot paths via observability dashboards
+
+Week 1:
+- Pick a small bug, fix it, ship it (forces touching the dev loop)
+- Map services + dependencies on a whiteboard
+- Document gaps in onboarding for next person
+```
+
+## Identifying load-bearing code
+
+Some files are sacred — touching them breaks things. Spot them:
+
+| Signal | Meaning |
+|---|---|
+| Many recent commits across many authors | Active hot zone, careful |
+| Few commits, all old | Stable foundation OR forgotten swamp |
+| `.bak`, `.old`, `_v2`, `final_FINAL` versions | Past refactor scar |
+| TODO / FIXME with year > 2 | Tech debt, low priority |
+| Test files that test obscure invariants | Past bug enshrined, don't break |
+| `// DO NOT REMOVE`, `// hack for ticket-1234` | Read the linked ticket BEFORE touching |
+
+## Tracking down "why is this slow / broken / weird"
+
+```
+1. Reproduce the behavior (capture exact input + output)
+2. git blame the suspect line(s)
+3. Read the commit that introduced it
+4. Read the commit message + PR description
+5. If unclear → check linked ticket
+6. If still unclear → ask author
+7. Document findings in current PR (so future you doesn't redo this)
+```
+
+Your refactor PR description should include "WHY this code exists today: <link to original PR>; WHY it can be changed now: <link to obsoleted ticket / changed requirement>".
+
+## When to NOT remove "weird" code
+
+Even after archaeology, sometimes leave it:
+- Workaround for external bug still present (link the upstream issue in a comment)
+- Edge case for a customer that pays a lot
+- Compatibility shim for a deprecation path not yet complete
+- Performance optimization that benchmarks confirmed
+
+If you must change: add tests that prove the behavior stays correct.
+
+## Anti-patterns
+
+- "This code is bad, let me clean it up" without checking why it's there
+- Mass refactor PRs touching unrelated files
+- Removing comments that document non-obvious behavior
+- Trusting `// TODO` from 5 years ago (often already done elsewhere)
+- Bypassing CODEOWNERS to ship faster (you'll get reverted)
+- Asking "who owns this?" before doing 30 min of archaeology yourself
+- "git blame is mean" — git blame is informational, use it
+
+## Integration
+
+- `nc-debugging-advanced` — when bug is in unfamiliar code
+- `nc-debug` — root cause sometimes lives in commit history
+- `nc-refactor` — archaeology before touch
+- `nc-company-os` — code review uses CODEOWNERS / RACI
+- `nc-docs` — document findings as ADRs for next archaeologist
+- `nc-incident-response` — postmortems as archaeology source
+
+
+---
+
+## nc-user-research
+
+
+
+Plan + run user research without burning credibility. Use when planning user interviews, designing surveys, doing usability tests, deciding sample size, or interpreting qualitative findings. Default to lightweight, frequent research over big formal studies.
+
+Most product mistakes are research mistakes. Cheap, frequent, real-user feedback beats elaborate one-off studies.
+
+## Pick the right method
+
+| Question | Method |
+|---|---|
+| "What problems do users have?" | 1:1 interviews (5-8 users) |
+| "Which solution do they prefer?" | Prototype usability test (5 users) |
+| "How big is this segment?" | Survey (n=100+) |
+| "Why is this metric dropping?" | Funnel analysis + 5 user interviews |
+| "Will they pay for it?" | Smoke test landing page + waitlist |
+| "What's their workflow?" | Diary study or shadowing |
+| "Are we accessible?" | Usability test with disabled users |
+
+Mismatch ruins research. Don't survey when you need depth; don't interview to size a market.
+
+## Interview structure (45-60 min)
+
+```
+0-5min:  Warm-up. "Tell me about yourself / your role."
+5-15min: Context. "Walk me through the last time you did X." (story, not opinion)
+15-40min: Deep dive. Follow up on pain, workarounds, surprises.
+40-50min: Probe (only after they've shown the problem). Show prototype if relevant.
+50-55min: Snowball. "Who else struggles with this?"
+55-60min: Wrap. "What questions did I miss?"
+```
+
+## Question rules (golden rules)
+
+- Past behavior > future intent. "What did you do?" not "Would you use?"
+- Open > closed. "How did that feel?" not "Was that frustrating?"
+- Specific > abstract. "Last Tuesday's meeting" not "in general"
+- Listen 80% / talk 20%. Silence is your friend.
+- Don't pitch. They'll be polite. Shows you're insecure about the idea.
+
+Bad questions:
+- "Do you like X?" (acquiescence bias)
+- "Would you pay $20/month?" (intent ≠ behavior)
+- "Wouldn't it be great if...?" (leading)
+- Multiple questions in one breath
+
+Good questions:
+- "Tell me about the last time you tried to solve X."
+- "What did you do before / after?"
+- "Show me." (let them demo on their actual machine)
+- "What was annoying about that?"
+- "Who else is involved?"
+
+## Sample size
+
+| Method | Sample | Why |
+|---|---|---|
+| Generative interviews | 5-8 | Diminishing returns past 8 (Nielsen) |
+| Usability test | 5 per persona | Catches ~85% of issues |
+| Quant survey | 100+ for ±10% margin, 400+ for ±5% | Statistical power |
+| A/B test | 1000+ per variant typical | Effect size dependent |
+
+For pre-launch validation: 5 user interviews is enough to invalidate, not enough to validate. Negatives are reliable; "yes, I'd buy" needs more proof.
+
+## Recruiting
+
+- Existing users (waitlist, support contacts) — fastest, biased toward existing fit
+- User Interviews / Respondent.io / Userlytics — pay for screened panels ($30-100/session)
+- Twitter/LinkedIn cold outreach — slow, biased to your network
+- Friends-of-friends — convenience sample, take findings with salt
+
+Always screen with 3-5 questions. "Have you done X in the past 30 days?" filters fakers.
+
+## Synthesis (after interviews)
+
+Don't transcribe everything. Don't theme-and-grouping for 3 days. Use this process:
+
+1. After each interview: write 5-10 bullet "what I learned" while fresh
+2. After all interviews: cluster bullets into 3-5 themes
+3. For each theme: write 1 sentence finding + 2 supporting quotes
+4. List actions: what changes, what to investigate further, what to drop
+
+Output: 1 page max. Long reports get unread.
+
+## Usability test protocol
+
+```
+1. Set context: "I'm testing the design, not you. Speak your thoughts aloud."
+2. Give a TASK, not an instruction. "Book a 2-night stay" not "Click Book Now."
+3. Stay quiet during attempt. Resist the urge to help.
+4. After: ask "what did you expect to happen at <step>?"
+5. Severity-rank issues: blocker (can't complete) / friction (slow) / nit
+```
+
+## Survey design
+
+- Lead with easy questions (commit them to finishing)
+- Demographics LAST (or skip if not needed)
+- 1 idea per question
+- Likert (1-5) > binary for opinion; 5-point > 7-point (less analysis paralysis)
+- Open-ended sparingly (max 2-3 in survey, can't synthesize 1000 free responses easily)
+- Pilot with 5 people before mass-sending — typos and ambiguous wording always exist
+- Estimate completion time honestly; tell respondents
+
+## Interpretation traps
+
+- **Confirmation bias**: hearing what supports your idea. Counter: actively look for disconfirming.
+- **Loud minority**: 1 user with vivid story ≠ representative. Counter: count instances.
+- **Recency**: last interview overweighted. Counter: synthesize with all on table.
+- **Solutioning during research**: user said "I want X feature" — dig WHY first, X may not be the fix.
+- **Polite participants**: many will say nice things. Reading body language / hesitation matters.
+
+## Anti-patterns
+
+- "Let's interview to validate the feature" (research is for learning, not validating)
+- Showing prototype before understanding their problem
+- Single interview → product decision
+- Surveys with "How likely on a scale of 1-10..." NPS-style overuse
+- Recruiting only your friends (will love everything you do)
+- Note-taking during interview without recording (you'll miss things)
+- Long reports that no one reads → 1-page findings + 1 video clip per insight
+
+## Integration
+
+- `nc-ux-writing` — research informs language users actually use
+- `nc-accessibility-deep` — usability tests with disabled users
+- `nc-company-os` — research is PM + Designer collaboration
+- `nc-frontend-design` — designs informed by what you heard
+- `nc-ai-evaluation` — eval datasets sourced from real user queries
+- `nc-brainstorm` — bring research findings into ideation
+
+
+---
+
+## nc-ux-writing
+
+
+
+Write UI copy that respects users — error messages, button labels, empty states, onboarding, microcopy. Use when text in the product feels generic, condescending, or makes users feel dumb. Tone-of-voice consistency across product.
+
+The text IS the interface. Bad copy adds friction; good copy disappears.
+
+## Principles (in order of priority)
+
+1. **Clear over clever** — "Delete account" not "Wave goodbye 👋"
+2. **Concise** — every word earns its place
+3. **Conversational** — read aloud test: would a person say this?
+4. **Consistent** — same idea = same word, every time
+5. **Caring** — never blame the user
+
+## Voice + tone
+
+- **Voice** stays constant (your brand). Friendly? Formal? Witty?
+- **Tone** adapts to context. Friendly + error = warmer. Friendly + success = celebratory.
+
+Define voice in 3 axes:
+- Formal ↔ Casual
+- Serious ↔ Playful
+- Reserved ↔ Enthusiastic
+
+Document in a tone-of-voice doc. Audit randomly.
+
+## Error messages
+
+Bad: "Error: Invalid input."
+Good: "Phone number must be 10 digits. You entered 9."
+
+Formula: **What happened + Why + How to fix.**
+
+| Bad | Good |
+|---|---|
+| "Something went wrong." | "We couldn't save your changes. Check your internet and try again." |
+| "Invalid email." | "Email address needs an @ symbol. Like name@example.com." |
+| "User already exists." | "An account with this email already exists. Sign in instead?" |
+| "Authentication failed." | "Wrong password. Forgot it?" |
+| "404 Not Found" | "We can't find that page. It may have moved. Search instead?" |
+
+Never use:
+- "Oops!" (childish for serious errors)
+- "Sorry for any inconvenience" (generic, dismissive)
+- "Please contact administrator" (who? how?)
+- All caps, multiple ! 
+- Stack traces in user-facing UI
+
+## Buttons
+
+- Verb + Noun. "Save changes" not "Submit" or "OK"
+- Match the action. Cancel button cancels. Don't make Cancel mean "go back"
+- Pair clearly. ["Cancel" | "Delete account"] — destructive on right with strong color
+- Loading state: "Saving…" not "Loading…" (specific = trust)
+- Disabled state: tooltip explaining why ("Add at least 1 item to checkout")
+
+Bad button labels: "OK", "Submit", "Continue", "Click here", "Yes/No"
+Good: "Save draft", "Send invitation", "Delete file", "Got it", "Maybe later"
+
+## Empty states
+
+Don't waste them. Empty = teaching moment.
+
+Pattern:
+1. Headline (what this is)
+2. 1-line description (why empty)
+3. Primary action (what to do next)
+4. Optional secondary (alternative path)
+
+Example (empty inbox):
+> 📥 You're all caught up.
+> No messages right now. New invites land here.
+> [Invite someone]
+
+## Onboarding microcopy
+
+- **First impression** — welcome them, set expectation: "Let's get you set up. ~3 minutes."
+- **Progress visibility** — "Step 2 of 4"
+- **Skip path** — always offer "Skip for now"
+- **Completion celebration** — light, not over-the-top
+- **Don't over-explain** — if a field is obvious, no helper text
+
+## Form labels + helpers
+
+- Labels above the field (not floating, accessibility win)
+- Optional fields marked optional. Required is default expectation.
+- Helper text BELOW field, before validation: "We'll never email this."
+- Error replaces helper text in red, with clear fix
+
+Anti: putting hint inside placeholder (disappears when typing)
+
+## Tone for delicate moments
+
+| Moment | Tone |
+|---|---|
+| Account deletion | Calm, confirms intent, mentions what's lost |
+| Payment failure | Concrete, not anxious — "Card was declined. Check details or try another card." |
+| Subscription cancel | No guilt-trip; offer pause; thank for trying |
+| Privacy / data export | Plain language, not legalese |
+| Unavailable feature | Honest reason + ETA if known |
+
+## Consistency rules
+
+Pick one. Stick with it.
+
+- "Sign in" OR "Log in" — never both in same product
+- "Email" OR "Email address" — pick one
+- "Cancel" OR "Discard" for losing changes
+- Title Case OR Sentence case for buttons (sentence case modern)
+- Em dash OR en dash for ranges
+
+Maintain a glossary doc.
+
+## Localization-friendly copy
+
+- Avoid puns / idioms / pop refs (don't translate)
+- Leave room for German (30-50% longer than English)
+- Don't concatenate: "You have {n} {item}{s}" breaks for many languages → use ICU MessageFormat
+- Date/number formats locale-specific (`Intl` APIs in JS)
+- Avoid culturally-specific imagery in word choice
+
+## Reading-level check
+
+Aim for grade 6-8 reading level for consumer products. Tools: Hemingway Editor, readable.com.
+
+Long sentences, jargon, passive voice → cut.
+
+| Before | After |
+|---|---|
+| "Your account has been successfully deactivated." | "Your account is deactivated." |
+| "Please be advised that..." | (delete) |
+| "In order to..." | "To..." |
+| "Utilize" | "Use" |
+| "Approximately" | "About" |
+
+## Anti-patterns
+
+- "Are you sure?" 5x (warn once, well)
+- Apologizing for things that aren't problems
+- Brand voice taking over functional copy ("Whoops, looks like our hamsters are taking a nap!")
+- Empty states with no CTA
+- Disabled buttons without explanation
+- "Click here" (links should be the action: "Read the docs")
+- Silently failing (user doesn't know it didn't work)
+
+## Integration
+
+- `nc-user-research` — copy uses words real users say
+- `nc-accessibility-deep` — copy supports screen readers, clear language
+- `nc-frontend-design` — copy reviewed alongside design
+- `nc-copywriting` — marketing copy, more emotional, related skillset
+- `nc-mirror` — agent should mirror user's vocabulary
+- `nc-persona` — voice/tone analogous to agent persona work
+
+
+---
+
+## nc-accessibility-deep
+
+
+
+Build accessibility into UI — not as audit afterthought. Use when designing components, planning a11y testing, fixing audit findings, supporting screen readers / keyboard nav, or going beyond WCAG checklist into real user impact.
+
+Accessibility shipped early is cheap. Bolted on at audit is expensive and incomplete.
+
+## The 4 disability categories (don't optimize for one)
+
+| Category | Includes | Key needs |
+|---|---|---|
+| Visual | Blindness, low vision, color blindness | Screen readers, contrast, zoom |
+| Auditory | Deaf, hard of hearing | Captions, transcripts, no audio-only signals |
+| Motor | Limited dexterity, tremor, paralysis | Keyboard nav, large hit targets, no precise gestures required |
+| Cognitive | Dyslexia, ADHD, memory issues | Simple language, clear structure, no time pressure |
+
+WCAG 2.2 AA is minimum. AAA is gold. Beyond standards: real user testing.
+
+## Semantic HTML first (free 60% accessibility)
+
+```html
+<!-- BAD: divs everywhere, no meaning -->
+<div onclick="..." class="btn">Submit</div>
+
+<!-- GOOD: native semantics -->
+<button type="submit">Submit</button>
+```
+
+Native elements give you for free:
+- Keyboard support (button = Enter/Space activates)
+- Screen reader semantics ("button, Submit")
+- Focus states
+- Form integration
+
+Custom div widgets need ALL the wiring + ARIA + tests. Use native HTML when it exists.
+
+## Focus management
+
+```css
+/* Visible focus ring — never `outline: none` without replacement */
+:focus-visible {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+}
+.skip-link:focus { top: 0; }
+```
+
+```html
+<a href="#main" class="skip-link">Skip to main content</a>
+<header>...</header>
+<main id="main">...</main>
+```
+
+Modal dialogs:
+- Focus moves to dialog on open
+- Tab cycles within dialog (focus trap)
+- Escape closes
+- Focus returns to trigger on close
+
+```typescript
+// React: use react-focus-trap or radix-ui Dialog
+import * as Dialog from '@radix-ui/react-dialog';
+// Handles all focus management correctly
+```
+
+## Color + contrast
+
+- Text contrast: ≥ 4.5:1 (normal), ≥ 3:1 (large 18pt+ or 14pt bold)
+- UI components: ≥ 3:1 against background
+- Don't rely on color alone — pair with icon, text, or pattern
+
+```
+Color blind safe palette:
+- Avoid red/green only signaling (most common color blindness)
+- Pair colors with icons (✓ green check, ✗ red cross)
+- Use shape + color (filled vs outlined, solid vs dashed)
+```
+
+Test: Chrome DevTools → Rendering → Emulate vision deficiencies. Or stark.co plugin.
+
+## Screen reader patterns
+
+```html
+<!-- Visible text always best -->
+<button>Save</button>
+
+<!-- When icon-only, visible label or aria-label -->
+<button aria-label="Save document">
+  <svg>...</svg>
+</button>
+
+<!-- Decorative images -->
+<img src="divider.png" alt="">  <!-- empty alt = decorative, screen reader skips -->
+
+<!-- Meaningful images -->
+<img src="chart.png" alt="Sales grew 23% in Q2 2026">
+
+<!-- Live regions for dynamic updates -->
+<div aria-live="polite">{statusMessage}</div>
+<div aria-live="assertive">{urgentError}</div>
+```
+
+ARIA rules:
+1. **First rule of ARIA**: don't use ARIA. Use semantic HTML.
+2. **Second rule**: when you must, don't change semantics. `<button role="link">` is wrong.
+3. Test with actual screen reader (VoiceOver on Mac, NVDA on Windows). Reading aloud is the test.
+
+## Forms
+
+```html
+<!-- Label associated correctly -->
+<label for="email">Email address</label>
+<input type="email" id="email" name="email" required aria-describedby="email-hint email-error" />
+<p id="email-hint">We'll never share your email.</p>
+<p id="email-error" role="alert">{errorMessage}</p>
+```
+
+Rules:
+- Every input has a `<label for=>` (visible, top placement)
+- Required fields: visually marked + `aria-required="true"`
+- Errors via `aria-describedby` + `role="alert"` for screen reader
+- Error focus: move focus to first error on submit
+- Group related: `<fieldset><legend>...`
+
+## Keyboard navigation
+
+Every interactive element must be reachable + operable by keyboard alone.
+
+Test: unplug mouse for 30 minutes. Use only keyboard. What can't you do? Fix that.
+
+Standard keys:
+- Tab / Shift+Tab — move focus
+- Enter — activate buttons/links
+- Space — activate buttons, check checkboxes
+- Arrow keys — within composite widgets (radio groups, menus, tabs)
+- Escape — close dialog/menu
+
+Custom widgets need explicit keyboard handlers.
+
+## Mobile accessibility
+
+- Tap targets ≥ 44×44 px (Apple HIG) / 48×48 dp (Material)
+- Don't rely on hover (no hover on touch)
+- Don't require multi-finger gestures (single-finger required)
+- Pinch-to-zoom NEVER disabled (`<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">`)
+- Voiceover/TalkBack support: test with screen reader on physical device
+
+## Auditing tools (don't ship without)
+
+- **axe DevTools** (browser ext) — automated catches ~30-50% of issues
+- **Lighthouse** (Chrome) — accessibility section, aim ≥95
+- **WAVE** (browser ext) — visual overlay
+- **NVDA** (Windows, free) — screen reader test
+- **VoiceOver** (Mac built-in) — Cmd+F5
+- **Pa11y** — CLI for CI integration
+- **Manual keyboard test** — irreplaceable
+
+In CI:
+```bash
+npx pa11y https://staging.example.com/page  # fails build on errors
+```
+
+## Cognitive accessibility
+
+Often forgotten. Quick wins:
+
+- Plain language (grade 6-8 reading level)
+- Don't auto-advance carousels (user controls pace)
+- No flashing content (>3 flashes/sec = seizure risk — WCAG)
+- Animations: respect `prefers-reduced-motion`
+  ```css
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+  ```
+- No time limits on form completion (or: extend on request)
+- Clear error recovery (don't lose form data on validation fail)
+
+## Testing with real users
+
+Lab tests with users who use assistive tech catch what tools miss.
+
+- Recruit 3-5 users per disability category
+- Pay them ($75-150/hr typical)
+- Compensate fairly even if their device couldn't access your site (the finding IS the value)
+
+Organizations to recruit through: Fable, AccessibilityWorks, NFB, AFB.
+
+## Anti-patterns
+
+- "We'll add accessibility in v2" (it gets harder, not easier)
+- Lighthouse 100 ≠ accessible (false confidence)
+- ARIA-everywhere (often makes worse than no ARIA)
+- `tabindex="-1"` to "fix" focus issues (hides, doesn't fix)
+- Custom toggles/dropdowns when native exists
+- Ignoring screen reader output (must hear it to know)
+- Color contrast issues "we'll style around it" (no, fix the colors)
+- Disabling zoom on mobile
+- Auto-playing audio/video with sound
+
+## Integration
+
+- `nc-frontend-design` — bake a11y into design system from day 1
+- `nc-ui-styling` — shadcn/ui has accessible primitives
+- `nc-ux-writing` — clear copy IS accessibility
+- `nc-user-research` — test with disabled users
+- `nc-web-design-guidelines` — broader UX rules
+- `nc-test-strategy` — automated a11y in CI
+- `nc-react-best-practices` — Radix UI is a11y-first
+
+
+---
+
+## nc-bug-triage
+
+
+
+Triage bug reports — sort signal from noise, assign severity, route correctly, write actionable issues. Use when bug backlog is overwhelming, when reproducing reports, or when bugs keep slipping through to wrong owners.
+
+Untriaged backlog = noise. Triaged backlog = work queue. The difference is discipline.
+
+## Triage flow (per bug)
+
+```
+New bug arrives
+   │
+   ↓
+1. Reproducible? ── no ──→ Ask reporter for steps; close if no response in 7d
+   │ yes
+   ↓
+2. Already known? ── yes ──→ Link as duplicate, close
+   │ no
+   ↓
+3. In scope? ── no ──→ Move to "won't fix" with reason
+   │ yes
+   ↓
+4. Set severity (S1-S4)
+   ↓
+5. Set priority (P0-P3) — based on severity × impact × business
+   ↓
+6. Assign owner (or label for team to claim)
+   ↓
+7. Add reproducer info (steps, env, screenshots, logs)
+   ↓
+8. Close labels: "triaged"
+```
+
+Time per bug: 2-5 min. Backlog of 500 → 1-2 days of focused triage.
+
+## Severity vs Priority (these are different)
+
+**Severity** = how broken (technical impact)
+**Priority** = how soon to fix (business impact)
+
+A typo on the marketing site (S4) can be P0 if launching today.
+A rare edge case crash (S1) can be P3 if affects 0.01% of users on deprecated path.
+
+| Sev | What |
+|---|---|
+| S1 / Critical | Data loss, security breach, complete failure |
+| S2 / High | Major feature broken for many users |
+| S3 / Medium | Workaround exists, affects subset |
+| S4 / Low | Cosmetic, edge case, easy workaround |
+
+| Pri | When |
+|---|---|
+| P0 | Drop everything, fix now |
+| P1 | This week |
+| P2 | This sprint / month |
+| P3 | Backlog, opportunistic |
+
+## The reproduction script
+
+Bugs without reproduction steps are wishes. Always require:
+
+```
+**Environment**
+- Browser/OS/version
+- App version (or commit SHA)
+- User role / permissions
+- Date/time of occurrence
+
+**Steps to reproduce**
+1. ...
+2. ...
+3. ...
+
+**Expected result**
+...
+
+**Actual result**
+...
+
+**Frequency**: always | sometimes | once
+**Workaround**: ...
+**Logs / screenshots**: ...
+```
+
+If reporter doesn't provide → ask once. If silent for 7 days → close as "Insufficient info".
+
+## Routing
+
+Look at the bug. Where does it live?
+
+| Symptom | Route to |
+|---|---|
+| 500 error from API | Backend team |
+| Layout broken in Safari | Frontend / browser-test |
+| Email not sending | Notifications + email provider check |
+| DB query slow | Backend + DBA |
+| Webhook missing | Integrations team + provider status |
+| Onboarding step blank | Frontend + analytics check |
+| Permission denied for valid user | Auth + roles |
+
+Not sure → assign to "needs-routing" label, weekly grooming meeting decides.
+
+## Duplicates
+
+Search before triaging:
+- Title keywords
+- Stack trace fingerprint (if available)
+- Error message exact text
+- Reporter said "I think this is similar to..."
+
+Mark dupes with comment "Duplicate of #123, closing this one. Subscribe to #123 for updates." Don't merge silently — reporter loses thread.
+
+## Backlog grooming (weekly, 30 min)
+
+For piles of stale bugs:
+
+1. Sort by oldest open
+2. For each:
+   - Still relevant? (Was the affected feature removed? Closed)
+   - Still reproducible? (Try it; if not → "Cannot reproduce, please reopen with new info")
+   - Still important? (Has user complained again? Drop priority)
+3. Update labels, severity, priority
+4. Close stale (no activity 90d, low priority)
+
+This compounds — discipline now means less noise later.
+
+## Bug report quality grading (for reporters)
+
+When inviting external reports, share a template + grading:
+
+- 🟢 Great: video repro + env + expected/actual
+- 🟡 Usable: text steps + env
+- 🔴 Useless: "It's broken"
+
+Educate users to file better bugs. Internal: lead by example in your own bug filings.
+
+## Recurring bug patterns (root cause analysis)
+
+Same kind of bug appearing 3+ times = systemic. Don't just fix the instance.
+
+Examples:
+- 5 bugs about timezone display → no timezone strategy → write ADR
+- 3 bugs about validation messages → no validation framework → adopt one
+- Multiple "missing translation" bugs → no i18n CI check → add one
+
+Track via labels (e.g., `pattern:timezone`, `pattern:validation`).
+
+## Anti-patterns
+
+- "We'll triage later" (later = never; backlog accumulates)
+- Severity = priority (lose nuance)
+- Closing without explanation (reporter feels ignored)
+- Reopen wars (user → "this is broken!", agent → "WORKSFORME"). Talk first.
+- 50 labels (use 5-10, opinionated)
+- Triaging in panic during incidents (separate process — see `nc-incident-response`)
+- Ignoring "edge case" bugs that hint at deeper issue
+- Silent prioritization decisions (write WHY P3 not P0 in comment)
+
+## Integration
+
+- `nc-incident-response` — P0 incidents bypass normal triage
+- `nc-test-strategy` — recurring bugs → missing test category
+- `nc-debugging-advanced` — for hard reproducers
+- `nc-company-os` — bug triage is QA + EM workflow
+- `nc-debug` — engineer's debugging starts after triage
+- `nc-journal` — postmortem-worthy bugs noted here
+
+
+---
+
+## nc-test-strategy
+
+
+
+Design test strategy that catches real bugs without slowing dev. Use when starting a project, adding tests to legacy code, deciding what to mock vs not, balancing unit/integration/e2e, or fighting flaky tests.
+
+Tests are insurance. Too few = bugs ship. Too many (or wrong kind) = slow CI + brittle suite. Get the mix right.
+
+## The test pyramid (still useful)
+
+```
+          ┌──────┐
+          │ E2E  │  Few. Critical user flows. Slow but high confidence.
+         ┌┴──────┴┐
+         │ Integ. │  Some. Across layers (DB + API). Medium speed.
+        ┌┴────────┴┐
+        │  Unit    │  Many. Pure logic. Milliseconds.
+       └───────────┘
+```
+
+Rough mix: 70% unit / 25% integration / 5% E2E.
+
+Modern caveat: in many web apps, integration tests give the best ROI (test components with real DB). Pure unit tests of "trivial getters" waste time.
+
+## What to test (by value)
+
+| Code | Test? | Why |
+|---|---|---|
+| Business logic / algorithms | YES, unit | Cheapest place to catch bugs |
+| Validation rules | YES, unit | High value, low cost |
+| API endpoints | YES, integration | Catches contract bugs |
+| Database queries | YES, integration | ORM lies; real DB tests reality |
+| UI components (Storybook) | YES, visual snapshots | Catch regression visually |
+| Critical user flows (login, checkout) | YES, E2E | If broken, business stops |
+| Trivial getters/setters | NO | Test what could plausibly break |
+| Constants | NO | If wrong, immediately obvious |
+| Generated code | NO | Trust the generator |
+| Third-party libs | NO | They have their own tests |
+
+## What to mock vs use real
+
+| Dependency | Default |
+|---|---|
+| Database | Use real (test DB or Testcontainers) |
+| Internal APIs (own services) | Real if fast, mock if slow |
+| External APIs (Stripe, etc.) | Mock (their test mode if possible) |
+| Time | Inject (clock interface) — testing time-dependent code with real Date is flaky |
+| Random | Inject seed |
+| Filesystem | Use temp dirs (real) |
+| Network | Real for E2E, mock for unit |
+
+Excessive mocking = testing your mocks, not your code.
+
+## Coverage targets
+
+- 80%+ on business logic / domain code
+- 60%+ overall
+- 0% required on generated, trivial accessors
+
+Coverage is a proxy. 100% coverage on bad tests catches nothing. Look at:
+- Mutation testing (Stryker / mutmut) — change code, do tests catch it?
+- Branch coverage > line coverage
+- Test failures over time — are tests catching real bugs?
+
+## Anti-flaky tests (the silent killer)
+
+Flaky test = passes sometimes, fails sometimes, no code change. Costs trust.
+
+Common causes + fixes:
+
+| Cause | Fix |
+|---|---|
+| Time dependency | Inject clock; use deterministic dates |
+| Random data | Seed RNG |
+| Test order dependency | Reset state between tests; randomize order in CI |
+| Race condition / async timing | Await the actual signal, not `setTimeout` |
+| Network call to real service | Mock or use VCR/cassette pattern |
+| Shared DB state | Transactional rollback per test |
+| Browser timing (E2E) | Use auto-wait selectors, not arbitrary sleeps |
+| Resource leaks | Tear down properly |
+
+Quarantine flaky tests (skip + label) immediately. Fix or delete in 1 week. Never let them poison signal.
+
+## Test naming
+
+```
+// BAD
+test('user works', () => { ... })
+
+// GOOD
+test('createUser_throws_when_email_already_exists', () => { ... })
+// or
+describe('createUser', () => {
+  it('throws when email already exists', () => { ... })
+})
+```
+
+Pattern: `[unit]_[scenario]_[expected]` or `describe(unit) → it(scenario, expected)`.
+
+## Fixtures + factories
+
+Don't repeat user-creation 100 times. Factory:
+
+```typescript
+function makeUser(overrides: Partial<User> = {}): User {
+  return {
+    id: randomUUID(),
+    email: `test-${Date.now()}@example.com`,
+    role: 'member',
+    createdAt: new Date(),
+    ...overrides
+  };
+}
+
+// Usage
+const admin = makeUser({ role: 'admin' });
+```
+
+Patterns: factory-bot (Ruby), Faker.js, Mimesis (Python).
+
+## Testing legacy code (no tests exist)
+
+1. Don't try to backfill 80% coverage
+2. Add tests when you change code (Boy Scout Rule)
+3. Add a "characterization test" first: capture current behavior even if buggy
+4. Then refactor under test
+5. Then fix bugs (now safely)
+
+Working Effectively with Legacy Code (Feathers) — the canonical reference.
+
+## CI strategy
+
+```
+On PR:
+  - Lint (5s)
+  - Type check (15s)
+  - Unit tests (30s)
+  - Integration tests (1-2 min)
+  - Build (1 min)
+  → Block merge if any fail
+
+On merge to main:
+  - All of above
+  - E2E tests (5-10 min)
+  - Visual regression (1-2 min)
+  - Deploy to staging
+  → Notify on failure, don't block
+
+Nightly:
+  - Full E2E across browsers
+  - Performance benchmark
+  - Security scan
+```
+
+Keep PR feedback under 5 min. >10 min and devs context-switch.
+
+## Visual regression
+
+Storybook + Chromatic / Percy / Playwright screenshots:
+- Each component snapshotted in canonical states
+- PR shows visual diff
+- Approve or fix
+- Catches CSS regressions humans miss
+
+## Snapshot tests (use sparingly)
+
+```typescript
+expect(rendered).toMatchSnapshot();
+```
+
+Pros: catches accidental changes
+Cons: noisy on intentional changes; "approve all to update" is rubber-stamping
+
+Use for: rarely-changing structures, output of pure transforms.
+Avoid for: rendered components (use visual regression instead), volatile data.
+
+## Anti-patterns
+
+- "We'll add tests later" (later = never; tests get harder, not easier)
+- Tests that test implementation, not behavior (refactor breaks tests for no reason)
+- One mega test class for everything in a file (small focused test files)
+- Mock everything (you're testing the mocks)
+- 100% coverage as the goal (gaming metric)
+- Tests in production paths (`if (env === 'test')`)
+- Sleep-based waits in E2E (always flaky)
+- Skipping flaky tests forever (delete or fix)
+- Test data that depends on real DB seed state
+
+## Integration
+
+- `nc-bug-triage` — recurring bugs reveal missing tests
+- `nc-debugging-advanced` — write tests AFTER fixing hard bug (regression guard)
+- `nc-ci-cd` — pipeline integration
+- `nc-chaos-engineering` — fault injection complements unit tests
+- `nc-web-testing` — Playwright/Vitest specifics
+- `nc-ai-evaluation` — eval suites are tests for LLM apps
+- `nc-company-os` — testing strategy is tech-lead concern
+
+
+---
+
+## nc-chaos-engineering
+
+
+
+Find weakness by injecting faults BEFORE prod finds them. Use when system is past prototype, when designing failure modes, planning game days, or after an incident reveals a class of failures you don't test for.
+
+Production WILL break. Better to find out in a controlled drill than at 3am.
+
+## When you're ready
+
+Don't start chaos engineering before:
+- [ ] Real users in production (otherwise unclear what to protect)
+- [ ] Monitoring + alerting works (else you can't see impact)
+- [ ] Rollback / kill-switch exists (else you can't stop)
+- [ ] Team has incident response practice (else they panic)
+- [ ] At least one prior real incident (or postmortem from elsewhere)
+
+If not all → focus on test-strategy first.
+
+## The chaos protocol
+
+```
+1. Hypothesis: "If X fails, system should still <behavior>"
+2. Steady state: define metrics that prove healthy (latency p95, error rate, business metric)
+3. Smallest blast radius: run on 1 instance / 1% traffic / 1 region first
+4. Inject: do the failure
+5. Observe: did steady state hold? Did alerts fire correctly?
+6. Roll back immediately if customer impact
+7. Document: hypothesis confirmed/disproven, gaps found, action items
+8. Fix gaps before scaling chaos to wider radius
+```
+
+Skip step 3 → you cause an incident, not a drill.
+
+## Failure modes to inject (in order of value)
+
+| Failure | Frequency in nature | Easy to inject? |
+|---|---|---|
+| Single server crash | Often | Yes — `kill` process |
+| Network latency to dependency | Often | `tc qdisc add ... netem delay 200ms` |
+| Network packet loss | Sometimes | `tc qdisc add ... netem loss 5%` |
+| Dependency returns 500 | Often | Toxiproxy / WireMock |
+| Dependency slow (timeout) | Often | Toxiproxy / WireMock |
+| DB primary failover | Sometimes | RDS / managed DB tooling |
+| Region failure | Rarely but catastrophic | Multi-region only |
+| Disk full | Sometimes | `dd if=/dev/zero of=fillme bs=1M count=10000` |
+| CPU spike | Often | `stress-ng --cpu 4` |
+| Memory pressure | Sometimes | `stress-ng --vm 4 --vm-bytes 2G` |
+| Clock drift | Rarely but devastating | `date -s` (test environment) |
+| DNS failure | Sometimes | Override resolver |
+| Cert expiry | Predictable | Roll cert in test env |
+
+Start with most-frequent. Region failure is exciting but rarely the right first drill.
+
+## Tools
+
+| Tool | Use for |
+|---|---|
+| **Chaos Monkey** (Netflix) | Random instance termination |
+| **Litmus** | Kubernetes chaos workflows |
+| **Chaos Mesh** | Kubernetes, broad fault types |
+| **Gremlin** | Hosted, polished UI, less DIY |
+| **Toxiproxy** | Network proxy with controllable faults |
+| **WireMock / mountebank** | HTTP service simulation |
+| **stress-ng / tc / iptables** | Linux primitives, free |
+| **AWS FIS** | Native AWS chaos service |
+
+For first chaos drill: do it manually. Tools come once you have a routine.
+
+## Game days (the practice run)
+
+Quarterly minimum. 2-4 hours.
+
+Structure:
+1. **Prep** (2 days before):
+   - Define hypothesis + steady state
+   - Schedule with on-call team aware
+   - Status page reads "scheduled maintenance" if customer-impacting risk
+   - Communicate plan + abort criteria
+   - Pre-stage rollback
+
+2. **Run** (90 min):
+   - Inject fault
+   - Watch dashboards live
+   - Did alerts fire? Within how long?
+   - Did the system degrade gracefully or cascade?
+   - If catastrophic → rollback immediately
+
+3. **Debrief** (30 min):
+   - What went as expected?
+   - What surprised you?
+   - What gap exists in monitoring / rollback / docs?
+   - Action items with owners + due dates
+
+4. **Follow-up** (within 1 week):
+   - File issues for each action item
+   - Update runbooks based on findings
+   - Schedule next game day
+
+## Hypotheses by maturity level
+
+### Beginner (your first chaos)
+- "If primary DB instance goes down, app fails over within 30s"
+- "If we kill 1 of N app servers, no requests fail"
+- "If S3 returns 500 on uploads, we show user-friendly error"
+
+### Intermediate
+- "If payment provider is slow (5s), checkout shows progress, doesn't time out at user"
+- "If half of cache nodes die, latency stays under 2x"
+- "If internal API returns malformed JSON, we don't 500 — we degrade"
+
+### Advanced
+- "If region us-east-1 goes down, traffic shifts to us-west-2 within 90s with <0.1% error rate"
+- "If clock skews 30s between nodes, distributed lock still works"
+- "If DNS for one of our services fails, queue absorbs without dropping requests"
+
+## Continuous chaos (in-prod, automated)
+
+Once team is confident: run controlled chaos in prod continuously.
+
+- 1 random instance terminated daily during business hours (Chaos Monkey original)
+- Network latency injected to 1% of traffic randomly
+- Dependency 500 injected for specific test users
+- Auto-rollback if error rate > threshold
+
+Feels scary. After 6 months, system is genuinely robust. Resilience is built, not assumed.
+
+## What NOT to chaos-inject
+
+- Customer data destruction (use real backup drill in isolation)
+- Security controls (don't disable auth as a "chaos test")
+- Rate limits (don't intentionally take down dependency for everyone)
+- Anything during high-load business hours (Black Friday)
+- Without coordination with on-call (don't surprise team)
+- During incidents (one fire at a time)
+
+## Anti-patterns
+
+- "We don't need chaos, our tests pass" — tests cover known modes
+- Chaos as performance demo (Netflix flex)
+- No hypothesis (just breaking things isn't learning)
+- Skip blast radius escalation (1 instance → all instances → region)
+- Not debriefing (drill without learning is theater)
+- Doing chaos without business buy-in (someone WILL freak out)
+- Same drill every quarter (scenarios should evolve with system)
+- Treating it as one-off project (it's a practice)
+
+## Integration
+
+- `nc-incident-response` — chaos drill = practice for real incident
+- `nc-test-strategy` — chaos covers what unit tests can't
+- `nc-observability` — alerts must fire correctly during chaos
+- `nc-backup-recovery` — restore drill is a form of chaos
+- `nc-kubernetes` — Litmus / Chaos Mesh for k8s
+- `nc-debugging-advanced` — distributed system bugs surface during chaos
+- `nc-company-os` — game day = SRE + Eng + EM exercise
+
+
+---
+
+## nc-working-memory
+
+
+
+Short-term session memory — distinct from nc-memory (long-term). Use to track facts derived during the current session that are too volatile for permanent storage but valuable across turns. Auto-pruned when context budget tightens.
+
+Per-session scratchpad. Survives turns within a conversation; doesn't persist across sessions (that's `nc-memory`).
+
+## Why distinct from nc-memory
+
+| Aspect | nc-memory (long-term) | nc-working-memory (short-term) |
+|---|---|---|
+| Lifespan | Days, months, permanent | Current session only |
+| Granularity | Stable facts, preferences, decisions | In-flight observations, intermediate results |
+| Storage | `~/.nc-memory/` (filesystem) | `plans/.scratch/working-memory.md` or in-context |
+| Auto-prune | Manual + 90-day rolling | Automatic at context pressure |
+| Examples | "Uses pnpm", "deploys to VPS" | "User said port is 3001 not 3000", "branch name is feat/auth-x" |
+
+If a session ends without writing to long-term, working memory dies — that's the point.
+
+## What goes in working memory
+
+- Numbers / IDs / paths user mentioned (so you don't re-ask)
+- Intermediate analysis results (cached)
+- Current focus / which feature being worked on
+- Hypotheses being tested
+- Files touched this session
+- Errors encountered + workaround applied
+- "Open questions" to revisit
+
+NOT for:
+- User identity / preferences (→ `nc-memory._global`)
+- Project facts (→ `nc-memory.{project}.facts`)
+- Decisions with long-term reasoning (→ `nc-memory.{project}.decisions`)
+
+## Storage format
+
+Working memory file (auto-managed):
+
+```markdown
+---
+session_id: 260418-2046-foo
+started: 2026-04-18T20:46:00+07:00
+last_updated: 2026-04-18T21:12:00+07:00
+context_pressure: medium
+---
+
+## Active focus
+Adding nc-onboard feature — currently in step 3 (write-it section).
+
+## Facts learned this session
+- User runs API on port 3001 (not default 3000)
+- Branch: feat/v3-onboard
+- User prefers terse responses today (sentiment: focused/no chat)
+
+## Open questions
+- [x] What's the API base URL? → confirmed http://localhost:3001
+- [ ] Does staging support feature X? → ASK
+
+## Intermediate results
+- Validator output: 0 errors, 175 warnings (cached at 21:05)
+- Build time: ~4s with --skip-build
+
+## Recently touched files
+- skills/nc-onboard/SKILL.md (new)
+- adapters/antigravity/converter.cjs (allowlist)
+```
+
+## Auto-prune rules
+
+When context budget hits 50% capacity, prune by priority:
+
+| Priority | Drop first | Keep |
+|---|---|---|
+| 1 (highest) | Stale intermediate results | Active focus + open questions |
+| 2 | Files touched > 1 hour ago | Recent file activity |
+| 3 | Old "facts learned" superseded | Current confirmed facts |
+| 4 | Closed open questions | Open + answered for context |
+
+If still tight: summarize entire working memory into 5 bullets, drop everything else.
+
+## Read pattern
+
+At each turn start (cheap), agent reads working memory if exists. Skip if:
+- Empty file
+- Trivial single-step request
+- User explicitly says "fresh start"
+
+## Write pattern
+
+After significant turn, append/update working memory if:
+- Learned a new fact that affects upcoming work
+- Completed a step
+- Hit a blocker
+- Made a decision (small one — big ones go to `nc-memory.decisions`)
+
+## Promotion to long-term
+
+Working memory items earn promotion when:
+- Same fact confirmed across 3+ turns → maybe a long-term fact
+- User says "remember this" → explicit promote
+- End of session via `nc-watzup` → review and promote
+
+Promotion adds to `nc-memory`; original entry stays in working memory until session ends.
+
+## Anti-patterns
+
+- Bloating working memory with conversation transcript (it's not a log)
+- Reading entire memory on every turn (load lazily)
+- Writing speculative or low-confidence things (these belong in chat, not memory)
+- Treating it as durable (it dies; that's the design)
+- Manually managing — agent should do it automatically with light user override
+- Same data in working AND long-term (decide which; pick one)
+
+## Integration
+
+- `nc-memory` — long-term counterpart; promotion target
+- `nc-context-budget` — triggers auto-prune at pressure thresholds
+- `nc-router` — checks working memory before re-asking
+- `nc-clarify` — references working memory before asking clarifying Qs
+- `nc-watzup` — session-end review promotes durable items
+- `nc-skill-composition` — handoff between skills carries working memory
+- Context Protocol (`docs/context-protocol.md`) — lives at `plans/{session}/context/working-memory.md`
+
+
+---
+
+## nc-cost-routing
+
+
+
+Auto-select Claude model tier (Haiku / Sonnet / Opus) based on task complexity. Use to keep cost in check without sacrificing quality on hard tasks. Complements nc-router (skill selection) — this skill picks the model.
+
+Same task, different models, 10-20x cost difference. Pick right model per task class.
+
+## Default tier mapping (April 2026)
+
+| Tier | Model | $/1M in | $/1M out | Best for |
+|---|---|---|---|---|
+| **Light** | Haiku 4.5 | $0.80 | $4 | Classification, extraction, simple Q&A, formatting |
+| **Standard** | Sonnet 4.6 | $3 | $15 | Most production work — coding, reasoning, agents |
+| **Heavy** | Opus 4.7 | $15 | $75 | Hard reasoning, novel problems, multi-step planning, code generation in unfamiliar codebases |
+
+Default to Standard. Move down for trivial, up only when Standard provably fails.
+
+## Classification rules
+
+```
+Inputs to classify:
+- Task description / first prompt
+- Has tools? How many?
+- Requires multi-step?
+- Domain familiarity (in-distribution or weird)?
+- Required output length
+
+Classify (sample heuristic):
+  if extraction_or_classification AND output_short:
+    → Light
+  if reasoning_required OR coding OR multi-step:
+    → Standard
+  if novel_problem OR multi-component_system_design OR proven_failure_at_standard:
+    → Heavy
+```
+
+Implement as a small classifier prompt to Light model (cheap) → outputs tier, cost ~ $0.001 per routing decision.
+
+## Routing decision tree
+
+```
+Request → 
+   │
+   ├─ User explicitly specified model? ── yes → use it
+   │   no
+   ↓
+   ├─ User override config in install-tweaks? ── yes → use it
+   │   no
+   ↓
+   ├─ Cost budget hit? ── yes → forced downgrade + warn user
+   │   no
+   ↓
+   ├─ Task class match high-confidence rule? ── yes → use that tier
+   │   no
+   ↓
+   └─ Default to Standard tier
+```
+
+## When to escalate (auto-detect)
+
+Sometimes Standard struggles. Auto-escalate when:
+- Standard model says "I'm not sure" / "this is complex" 
+- Output fails schema validation 2+ times
+- Task involves N+ steps (long agent loops)
+- User explicitly retries asking same thing different way (`nc-sentiment` frustration signal)
+
+Escalation pattern:
+```typescript
+let tier = classify(prompt);
+let result = await ask(tier, prompt);
+if (looksUncertain(result) && tier !== "heavy") {
+  result = await ask("heavy", prompt + "\n\nGive a definitive answer.");
+}
+```
+
+## When to downgrade (cost optimization)
+
+- Repeated similar tasks (e.g., 1000 extractions) → benchmark Light first
+- Internal/dev tools (no user waiting) → Light is fine
+- Background batch jobs → Light + Anthropic batch API (50% off)
+- Cached / templated outputs → Light + prompt caching = ultra-cheap
+
+## Per-task budget guards
+
+```typescript
+const BUDGETS = {
+  per_request_max_usd: 0.50,       // single user request shouldn't cost more
+  per_user_per_day_usd: 5.00,      // free tier
+  org_per_day_usd: 200.00          // hard cap
+};
+
+function canSpend(estimated: number, ctx: { user, org }): boolean {
+  if (estimated > BUDGETS.per_request_max_usd) return false;
+  if (todaySpentByUser(ctx.user) + estimated > BUDGETS.per_user_per_day_usd) return false;
+  if (todaySpentByOrg(ctx.org) + estimated > BUDGETS.org_per_day_usd) return false;
+  return true;
+}
+```
+
+When over budget: degrade gracefully (use Light), warn (UI banner), or refuse (paid tier upsell).
+
+## Prompt caching (huge cost reducer)
+
+For stable system prompts: cache them. 90%+ cost reduction on cache hits.
+
+```typescript
+{
+  model: "claude-sonnet-4-6",
+  system: [
+    { type: "text", text: STABLE_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }
+  ],
+  messages: [...]
+}
+```
+
+Cache TTL is ~5 min. Pattern: keep system prompt stable; vary only user message.
+
+## Batch API (50% off)
+
+For non-realtime workloads (overnight processing, eval runs):
+
+```typescript
+const batch = await client.messages.batches.create({
+  requests: [
+    { custom_id: "1", params: { model: "claude-sonnet-4-6", ... } },
+    { custom_id: "2", params: { ... } }
+  ]
+});
+// Results in ~24h, half price
+```
+
+Use for: nightly evals, document indexing, summaries-at-scale.
+
+## Visibility
+
+User should see (optionally):
+```
+> [Standard / Sonnet 4.6 · $0.0034 · 2.1s]
+```
+
+Builds trust + helps user understand why some queries are slow/expensive.
+
+Set via `nc-install-tweaks`:
+- `show_model_per_response`: bool
+- `show_cost_per_response`: bool
+- `daily_budget_warn_pct`: 0.8
+
+## Multi-provider routing (advanced)
+
+If using multiple providers (Anthropic + OpenAI + Gemini):
+
+| Task | Provider |
+|---|---|
+| Vision-heavy | Gemini Pro (best vision) |
+| Reasoning + tools | Anthropic Claude (default) |
+| Speed-critical | OpenAI o-mini or Haiku |
+| Creative writing | Claude Opus or GPT-4 |
+| Long context (>500k) | Claude (1M context) |
+
+Don't add complexity unless meaningful cost/quality difference.
+
+## Anti-patterns
+
+- Always Opus "to be safe" → 5x cost for 5% quality bump on most tasks
+- Always Haiku "to save money" → user loses trust when answers are wrong
+- No budget guards → one bug burns $1000 in an hour
+- Hidden classifier failures → silently downgrades hard tasks
+- Reclassifying every turn → wasteful; cache classification per session
+- No fallback when chosen model is rate-limited / down
+- Budget refuse without offering upgrade path (frustrating UX)
+
+## Integration
+
+- `nc-router` — picks the SKILL; this picks the MODEL
+- `nc-llm-integration` — implements the wrapping layer
+- `nc-claude-api` — Anthropic-specific (caching, batch, files)
+- `nc-install-tweaks` — user override for default tier
+- `nc-context-budget` — large context → Claude (1M); small fits anywhere
+- `nc-ai-evaluation` — measure quality per tier on YOUR tasks before locking in
+- `nc-observability` — track cost per route over time
+
