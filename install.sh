@@ -51,13 +51,14 @@ if [ -z "$TARGET" ]; then
   case "$IDE" in
     claude-code) TARGET="${PWD}/.claude" ;;
     antigravity) TARGET="${PWD}/.agent" ;;
-    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity)" ;;
+    cursor)      TARGET="${PWD}/.cursor" ;;
+    *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor)" ;;
   esac
 fi
 
 case "$IDE" in
-  claude-code|antigravity) ;;
-  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity)" ;;
+  claude-code|antigravity|cursor) ;;
+  *) err "Unsupported IDE: $IDE (supported: claude-code, antigravity, cursor)" ;;
 esac
 
 log "Installing NextCoreSkill for $IDE → $TARGET (mode: $MODE)"
@@ -135,6 +136,19 @@ elif [ "$IDE" = "antigravity" ]; then
 
   SKILL_COUNT=$(find "$TARGET/workflows" -maxdepth 1 -name "nc-*.md" | wc -l)
   HOOK_COUNT=0
+
+elif [ "$IDE" = "cursor" ]; then
+  SRC_CMDS="$NC_SOURCE/adapters/cursor/commands"
+  [ -d "$SRC_CMDS" ] || err "Adapter source missing: $SRC_CMDS"
+  mkdir -p "$TARGET/commands"
+  if [ "$MODE" = "update" ]; then
+    rsync -a --ignore-existing "$SRC_CMDS/" "$TARGET/commands/"
+  else
+    cp -r "$SRC_CMDS"/* "$TARGET/commands/"
+  fi
+  [ "$MINIMAL" = true ] && warn "--minimal ignored for cursor (no skill assets to trim)"
+  SKILL_COUNT=$(find "$TARGET/commands" -maxdepth 1 -name "nc-*.md" | wc -l)
+  HOOK_COUNT=0
 fi
 
 # Cleanup temp clone
@@ -153,10 +167,16 @@ if [ "$IDE" = "claude-code" ]; then
   echo -e "${C}Next steps:${NC}"
   echo "  1. Restart Claude Code to load hooks + skills"
   echo "  2. Type /nc: in chat to see available slash commands"
-else
+elif [ "$IDE" = "antigravity" ]; then
   echo "  Workflows: $SKILL_COUNT"
   echo
   echo -e "${C}Next steps:${NC}"
   echo "  1. Restart Antigravity to discover new workflows"
   echo "  2. Type /nc- in chat to see available slash commands"
+elif [ "$IDE" = "cursor" ]; then
+  echo "  Commands: $SKILL_COUNT"
+  echo
+  echo -e "${C}Next steps:${NC}"
+  echo "  1. Restart Cursor to discover new slash commands"
+  echo "  2. Type /nc- in chat to see available commands"
 fi
