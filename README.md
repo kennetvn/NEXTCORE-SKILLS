@@ -1,10 +1,10 @@
 # NEXTCORE-SKILLS
 
-> Cross-IDE AI workflow framework — 65 curated skills as slash commands across **7 AI IDEs**. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
+> Cross-IDE AI workflow framework — 65 curated skills as slash commands across **11 AI IDEs**. Purpose-built for Vietnamese SMB tooling (hotel booking, Facebook group automation, Chrome extension development, VPS operations).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**Supported IDEs:** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider
+**Supported IDEs (11):** Claude Code · Antigravity · Cursor · Windsurf · GitHub Copilot · Continue.dev · Aider · Codeium · Zed · JetBrains AI · Void
 
 ---
 
@@ -20,7 +20,7 @@ curl -sSL https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/instal
 iwr -useb https://raw.githubusercontent.com/kennetvn/NEXTCORE-SKILLS/main/install.ps1 | iex -Args '-Ide <IDE>'
 ```
 
-Replace `<IDE>` with one of: `claude-code` · `antigravity` · `cursor` · `windsurf` · `copilot` · `continue` · `aider`
+Replace `<IDE>` with one of: `claude-code` · `antigravity` · `cursor` · `windsurf` · `copilot` · `continue` · `aider` · `codeium` · `zed` · `jetbrains` · `void`
 
 Default: `--ide=claude-code` (full framework: skills + hooks + subagents + commands)
 
@@ -33,12 +33,16 @@ After install, restart your IDE. Type `/nc-` (or `/nc:` in Claude Code) to see a
 | IDE | Install target | Workflows | Hooks | Subagents |
 |---|---|:---:|:---:|:---:|
 | Claude Code | `.claude/` | ✅ 65 | ✅ 15 | ✅ |
-| Antigravity | `.agent/workflows/` | ✅ 33 | — | via `ai-team/*` |
-| Cursor | `.cursor/commands/` | ✅ 33 | — | general agent |
-| Windsurf | `.windsurf/workflows/` | ✅ 33 | — | Cascade |
-| GitHub Copilot | `.github/prompts/` | ✅ 33 | — | Copilot agent |
-| Continue.dev | `.continue/prompts/` | ✅ 33 | — | general agent |
-| Aider | `.aider/nextcore/` | ✅ 33 | — | CLI conversation |
+| Antigravity | `.agent/workflows/` | ✅ 59 | — | via `ai-team/*` |
+| Cursor | `.cursor/commands/` | ✅ 59 | — | general agent |
+| Windsurf | `.windsurf/workflows/` | ✅ 59 | — | Cascade |
+| GitHub Copilot | `.github/prompts/` | ✅ 59 | — | Copilot agent |
+| Continue.dev | `.continue/prompts/` | ✅ 59 | — | general agent |
+| Aider | `.aider/nextcore/` | ✅ 59 | — | CLI conversation |
+| Codeium | `.codeium/prompts/` | ✅ 59 | — | general agent |
+| Zed AI | `.zed/prompts/` | ✅ 59 | — | built-in Claude |
+| JetBrains AI | `.idea/ai-prompts/` | ✅ 59 | — | Assistant agent |
+| Void | `.void/prompts/` | ✅ 59 | — | native VS Code fork agent |
 
 Claude Code is source of truth — other IDEs get skill **content** (portable markdown). Hooks and subagent orchestration are Claude Code exclusive.
 
@@ -172,6 +176,10 @@ Each adapter has IDE-specific conventions, install steps, known limitations:
 - [`adapters/copilot/README.md`](./adapters/copilot/README.md)
 - [`adapters/continue/README.md`](./adapters/continue/README.md)
 - [`adapters/aider/README.md`](./adapters/aider/README.md)
+- [`adapters/codeium/README.md`](./adapters/codeium/README.md)
+- [`adapters/zed/README.md`](./adapters/zed/README.md)
+- [`adapters/jetbrains/README.md`](./adapters/jetbrains/README.md)
+- [`adapters/void/README.md`](./adapters/void/README.md)
 
 ---
 
@@ -212,8 +220,8 @@ NEXTCORE-SKILLS licensed under [MIT](./LICENSE) — self-contained, no upstream 
 ## Stats
 
 - **65 skills** curated (audited from 81, keeping only actively-used patterns)
-- **198 cross-IDE workflows** shipped (33 skills × 6 non-CC IDEs)
-- **648 reference files** shipped across all adapters
-- **7 IDEs supported** with one-command install
+- **590 cross-IDE workflows (59 × 10 non-CC IDEs)** shipped (33 skills × 6 non-CC IDEs)
+- **~5,900 reference files** shipped across all adapters
+- **11 IDEs supported** with one-command install
 - **15 commits** across Phases 2-5 in single-day sprint
 - **MIT licensed**, NextCore-authored, clean-room audited
