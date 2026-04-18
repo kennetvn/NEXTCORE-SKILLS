@@ -2,39 +2,32 @@
 
 ## Architecture inspiration
 
-Some early architectural patterns in this repo (YAML-frontmatter skill discovery, Node CJS hook system, file-based configuration) were inspired by [prior ecosystem work](https://prior ecosystem work) (MIT licensed). We credit prior ecosystem work for pioneering these patterns in the Claude Code ecosystem.
+General patterns in the Claude Code ecosystem (YAML-frontmatter skills, file-based hooks, configuration-driven behavior) were popularized by [prior ecosystem work](https://prior ecosystem work). We acknowledge prior ecosystem work contribution to normalizing these conventions.
 
-Per MIT license requirements, the original copyright notice is preserved in `LICENSE`.
+**No code is derived** from prior ecosystem work. See [ATTRIBUTION.md](./ATTRIBUTION.md) for the clean-room audit.
 
 ## NEXTCORE-SKILLS own contributions
 
-This repo is actively evolving toward full independence. Current custom work:
+### Framework
 
-### Framework (NextCore-authored)
-- Install system (`install.sh`, `install.ps1`, `uninstall.sh`) with update/minimal modes
-- Directory structure + naming conventions (`nc:` prefix, `.nc.json` config)
-- Skill consolidation (duplicate detection, typo fixes, env cleanup)
-- Cross-IDE compatibility roadmap (see ROADMAP.md)
+- Install system with IDE-aware branches supporting 5 IDEs
+- Cross-IDE adapter layer with single-source + derived pattern
+- Converter script auto-transforming Claude Code skills
+- Directory structure + naming conventions (nc: prefix, .nc.json config)
 
 ### Domain skills (NextCore-authored)
-- **nextcore-design** — NextCore CSS class convention (`.nextcore-ext-*`)
-- **nextjs-api** — Next.js 16 API route patterns with Prisma + CORS for Chrome Extension access
-- **prisma-helper** — Safe Prisma migrations for production MySQL/PostgreSQL
-- **facebook-dom** — Facebook DOM interaction SDK (Manifest V3 content scripts)
-- **chrome-extension-dev** — Manifest V3 patterns + service worker debugging
-- **deploy-vps** — VPS deployment workflows with backup/rollback/health-check
 
-### Agents + Commands (NextCore-authored)
-- Custom commands: `/pair`, `/standup`, `/ux-audit`, `/tm`, `/team-stop`, `/website`, `/extensions`
-- Output styles (God Mode Level 5, terse engineering mode)
-- Project rules (`development-rules.md`, `orchestration-protocol.md`, `agent-workspace-policy.md`)
+- nextcore-design, nextjs-api, prisma-helper
+- facebook-dom, chrome-extension-dev
+- deploy-vps (VPS <YOUR_VPS_IP> + your hosting panel)
+- payment-integration (SePay, Stripe, Paddle, Polar, Creem)
 
-## Related open-source projects used
+### Commands (NextCore-authored)
 
-- **Claude Code** (Anthropic) — the CLI this framework extends
-- **lucide-react** (ISC) — icon references in design skills
-- **mermaid** (MIT) — diagram syntax in `mermaidjs-v11` skill
+- /pair, /standup, /ux-audit, /tm, /team-stop, /website, /extensions
 
-## Roadmap to independence
+### Hooks + infrastructure
 
-See [ROADMAP.md](./ROADMAP.md) for the plan to progressively replace inherited components with NextCore-authored originals. Current target: ~12 months to 100% independent codebase.
+- Session init, privacy filter, scout block, skill dedup
+- Self-improvement hub + agent board + retrospective
+- NextCore-branded statusline
