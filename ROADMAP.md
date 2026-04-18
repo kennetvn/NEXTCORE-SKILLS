@@ -57,7 +57,55 @@ Each audited skill gets one of:
 
 ---
 
+## Phase 2.5 — Cross-IDE Adapters, IDE-by-IDE (1-3 months)
+
+Goal: port skill *content* to other AI coding IDEs one at a time, optimized for each IDE's native format. Pulled earlier from Phase 4 so Phase 2 audit doesn't create CC-only debt that needs redoing.
+
+### Strategy
+
+1. Separate skill *content* (portable markdown) from *packaging* (IDE-specific slash cmd / hook / subagent syntax)
+2. `skills/` stays authoritative (Claude Code source format)
+3. `adapters/{ide}/` holds derived, pre-converted files
+4. Ship IDE adapters incrementally — one IDE fully before the next
+
+### IDE priority
+
+1. **Antigravity** ✅ v1 shipped (2 skills: brainstorm, research) — `adapters/antigravity/`
+2. **Cursor** (planned) — `.cursor/rules/*.mdc` format
+3. **Windsurf** (planned) — `.windsurfrules` fragments
+4. **GitHub Copilot** (planned) — `.github/copilot-instructions.md` merge
+5. **Continue.dev / Aider** (later)
+
+### Per-skill portability matrix (evolving)
+
+| Category | Count | Portability |
+|---|---|---|
+| Fully portable (content-only) | ~15 | brainstorm, research, docs, docs-seeker, mermaidjs-v11, ui-ux-pro-max, react-best-practices, copywriting, … |
+| Portable with rewrite (light subagent refs) | ~10 | nc-plan, nc-debug, nc-scenario, nc-security, cook, fix, … |
+| Claude Code only (heavy hook/subagent) | ~5 | team, nc-autoresearch, kanban, plans-kanban, skill-creator |
+
+### Deliverables per IDE
+
+- [ ] `adapters/{ide}/README.md` — install + IDE quirks + conversion rules
+- [ ] `adapters/{ide}/workflows/` (or equivalent) — converted files for "fully portable" skills first
+- [ ] Second wave: "portable with rewrite" skills with IDE-specific subagent mapping
+- [ ] `install.sh --ide={ide}` flag wiring (currently scaffolded, only `claude-code` works)
+- [ ] Optional: auto-converter script (`adapters/{ide}/converter.cjs`) to regenerate from `skills/`
+
+### Antigravity status
+
+**v1 (shipped):** `nc-brainstorm`, `nc-research` — 2 manually-converted workflows proving the pattern works.
+
+**v2 (next):** batch-convert all "fully portable" skills. Target: 15 Antigravity workflows shipped.
+
+**v3:** subagent-heavy rewrites (cook, fix, nc-plan, nc-debug) mapping to Antigravity's `ai-developer`, `ai-tester`, `ai-ux-reviewer` built-ins.
+
+**v4:** `install.sh --ide=antigravity` automation.
+
+---
+
 ## Phase 3 — Core Framework Rewrite (2-4 months)
+
 
 Goal: replace inherited framework code with NextCore originals. After this, `LICENSE` upstream attribution becomes optional.
 
@@ -79,7 +127,7 @@ Goal: replace inherited framework code with NextCore originals. After this, `LIC
 
 ---
 
-## Phase 4 — Cross-IDE Adapters (3-6 months)
+## Phase 4 — Cross-IDE Adapters, completion wave (superseded by Phase 2.5, retained for niche IDEs)
 
 Goal: skill content (not hooks) portable to non-Claude-Code environments.
 
