@@ -2,6 +2,29 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [3.0.1] - 2026-04-18
+
+Hot-take ship: Anthropic launched Claude Design (April 17, 2026) — generates prototype/slide/mockup from prompts, reads codebase + design tokens for brand consistency. Adding workflow skill the next day.
+
+### Added
+
+- **nc-claude-design** — workflow for Claude Design (Anthropic's prototype generator)
+  - When to use vs traditional design tools (Figma, Canva)
+  - Codebase preparation: which files Claude Design reads best (CSS vars, tokens.json, Tailwind config) vs not (Figma binaries, compiled CSS)
+  - Setup checklist (5 min, one-time per repo)
+  - Prompting patterns (prototype, slide deck, one-pager)
+  - Export workflow (URL / PDF / PPTX / Canva)
+  - Review checklist before any external use (no invented stats, no copyrighted imagery, no unaccessible colors)
+  - Codebase ↔ Claude Design feedback loop (improving design tokens improves output)
+  - Plan availability (Pro/Max/Team/Enterprise; Opus 4.7 powered)
+
+### Coverage
+
+- 1 new skill × 10 IDEs = 10 adapter files
+- Total: **134 skills** across 10 IDEs
+- catalog.json bumped to v3.0.1
+- jetbrains/void AGENTS.md = 127 sections
+
 ## [3.0.0] - 2026-04-18
 
 **Peak Agent Framework** — full v3.0.0 release. Tiers C/D/E (9 skills) + 2 meta skills + 4 spec docs + dependency graph script.

@@ -1,6 +1,6 @@
 {
-  "version": "3.0.0",
-  "generatedAt": "2026-04-18T13:57:51.061Z",
+  "version": "3.0.1",
+  "generatedAt": "2026-04-18T14:12:03.878Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 133,
+  "totalSkills": 134,
   "skills": [
     {
       "name": "agent-browser",
@@ -767,6 +767,24 @@
       "name": "nc-clarify",
       "description": "Detect ambiguity, ask one minimal clarifying question only when needed. Use when request has multiple plausible interpretations or missing critical info — never to fish for context the agent can infer.",
       "loc": 100,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-claude-design",
+      "description": "Workflow for Claude Design — Anthropic's prototype/slide/mockup generator that reads your codebase + design system. Use when preparing a repo for Claude Design ingestion, exporting outputs to production code, or deciding when Claude Design fits vs traditional design tools.",
+      "loc": 192,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",

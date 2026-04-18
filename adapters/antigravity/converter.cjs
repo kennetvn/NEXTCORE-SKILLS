@@ -24,7 +24,8 @@ var ALLOWLIST = [
   "nc-performance-profiling","nc-debugging-advanced","nc-code-archaeology",
   "nc-user-research","nc-ux-writing","nc-accessibility-deep",
   "nc-bug-triage","nc-test-strategy","nc-chaos-engineering",
-  "nc-working-memory","nc-cost-routing"
+  "nc-working-memory","nc-cost-routing",
+  "nc-claude-design"
 ];
 
 function parseFrontmatter(content) {
