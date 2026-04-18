@@ -161,9 +161,40 @@ When a subagent reports back to lead:
 - **Action-oriented** — every finding should lead to a concrete next step
 - **No padding** — no "Executive Summary" for < 200 word reports
 
+## Standard agent message envelope
+
+Every non-trivial agent response should fit this envelope (collapse sections that don't apply):
+
+```
+> {announce: 1-line, what skill + purpose — see nc-skill-announce}
+
+{body: actual work output, in the right template above}
+
+{footer: status + next step + handoff hint, 1-3 lines}
+```
+
+### Announce line examples
+
+- `> Dùng nc-debug để tìm root cause lỗi 500.`
+- `> Pipeline: nc-research → nc-plan → nc-cook. Bắt đầu research.`
+- `> Embodying Tech Lead role per nc-company-os; writing RFC.`
+
+Skip announce when: trivial single-step work, user is mid-frustration, same skill as last turn.
+
+### Footer line examples
+
+- `> Status: DONE. Next: chạy nc-test verify.`
+- `> Status: BLOCKED. Need: VPS ssh access. Sẽ chờ.`
+- `> Done with phase 2/4. Handoff written to context/handoffs.md.`
+
+Footer feeds the [Context Protocol](../../docs/context-protocol.md) handoff file when applicable.
+
 ## Integration
 
 - Every skill output should conform to one of these templates
+- `nc-skill-announce` — supplies the announce-line at the top of the envelope
 - `nc-parallel-dispatch` subagents return in Subagent format
 - `nc-skill-composition` handoffs use Implementation/Debug reports as shared state
+- `nc-company-os` — chooses which template based on the role being embodied
+- `nc-persona` — calibrates verbosity within the template
 - Lead agent synthesizes subagent outputs using these templates

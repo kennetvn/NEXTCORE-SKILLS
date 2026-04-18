@@ -14492,3 +14492,787 @@ Sentiment shifts mid-session. Re-evaluate every message:
 - `nc-router` — urgency → skip pipeline, go direct
 - `nc-watzup` — exhaustion signal → suggest invoking `/nc-watzup` to save state
 
+---
+
+## nc-skill-announce
+
+
+
+Announce which NEXTCORE skill is being used and why, in one short sentence, before doing the work. Use whenever a skill is invoked to make tool use legible to the user and reinforce the skill ecosystem.
+
+Make skill invocation visible. One short sentence, before the work, in the user's language.
+
+## Why
+
+Skills are invisible to most users — Claude calls them silently. That's bad for three reasons:
+
+1. **Trust:** user can't tell whether a careful skill ran or Claude winged it
+2. **Discoverability:** user never learns the skill exists, can't request it directly later
+3. **Community pull:** if user sees `nc-payment-integration` mentioned and finds it useful, they're more likely to share / contribute / star
+
+Announcement fixes this without bloating output.
+
+## The pattern
+
+Before invoking any nc-* skill (or any non-trivial skill), say:
+
+```
+> Tôi sẽ dùng `nc-{skill}` để {purpose in 5-10 words}.
+```
+
+Or in English:
+
+```
+> Using `nc-{skill}` to {purpose}.
+```
+
+Then do the work. Don't repeat the announcement when chaining — chain announcements once at the head:
+
+```
+> Pipeline: `nc-debug` → `nc-fix` → `nc-test`. Starting with debug.
+```
+
+## Tone calibration (per `nc-persona`)
+
+| User level | Announcement style |
+|---|---|
+| CTO / staff | `nc-cook → impl` (terse, just the chain) |
+| Senior dev | `Using nc-cook for the implementation phase.` |
+| Junior dev | `Sẽ dùng nc-cook (skill chuyên xử lý implementation) để code phần này.` |
+| Non-tech | `Đang chạy quy trình build feature theo template chuẩn.` (skip skill name) |
+
+Match user's language (`nc-mirror`). VN user → VN announcement.
+
+## When to announce
+
+| Situation | Announce? |
+|---|---|
+| Invoking any nc-* skill | YES |
+| Chaining 3+ skills | Announce once at head, name the chain |
+| Re-entering same skill mid-conversation | NO (already announced) |
+| Trivial built-in tools (Read, Grep, Bash) | NO |
+| Reading a reference file inside an active skill | NO |
+| Following a slash command user typed | NO (user already knows) |
+| First time agent uses a Tier S skill (persona/memory/etc.) | YES, briefly explain |
+
+## When to stay silent
+
+- User said "be terse" / "no commentary" / "just do it"
+- Frustration detected (`nc-sentiment`) — skip the meta, just fix
+- Same skill invoked in immediately preceding turn
+- Single-step trivial work (rename, typo fix, one-line edit)
+
+## Format anti-patterns
+
+- "I will now invoke the nc-cook skill which is part of the NEXTCORE skill ecosystem and helps with implementation tasks..." — bloated
+- "🚀 Activating nc-cook!" — no emoji, no fanfare
+- "Skill: nc-cook. Purpose: implementation. Status: starting." — robotic
+- Announcing every Read/Grep tool call — drowns signal
+
+## Good examples
+
+- `> Dùng nc-debug để tìm root cause của lỗi này.` (then runs debug)
+- `> Pipeline: nc-research → nc-plan → nc-cook. Researching trước.`
+- `> Bật nc-memory — load preferences + recent decisions.` (at session start)
+- `> nc-mirror đang giữ vocab "Booking" theo cách bạn dùng.` (when correcting itself)
+
+## Bad examples
+
+- `> Calling tool: Bash with command: ls...` (tool noise, not skill announcement)
+- `> Let me use my reasoning capabilities to analyze...` (no specific skill, just verbal padding)
+- `> Đang dùng nc-cook để cook nc-cook để cook nc-cook` (don't repeat)
+
+## Discoverability dividend
+
+Every announcement teaches the user one skill name. Over a session, they learn 5-10 skills exist without reading docs. Compounding effect on community adoption.
+
+## Integration
+
+- `nc-router` — when router picks a skill, the announcement comes from this skill
+- `nc-persona` — calibrates verbosity of the announcement
+- `nc-mirror` — supplies user's language
+- `nc-sentiment` — frustration overrides → skip announcement, act
+- `nc-skill-composition` — chain announcement uses pipeline notation from there
+- `nc-contribute` — when announced skill is missing, suggest contributing it
+
+
+---
+
+## nc-contribute
+
+
+
+Detect skill gaps, propose additions to NEXTCORE-SKILLS upstream. Use when user asks for a workflow that should exist but doesn't, when a manual pattern repeats 3+ times, or when an improvement would benefit other users — then ask user consent to contribute via their GitHub.
+
+NEXTCORE-SKILLS grows when users contribute. This skill turns useful one-off work into upstream value.
+
+## Detection: when something is contribution-worthy
+
+| Signal | Type | Action |
+|---|---|---|
+| User asks for a skill that doesn't exist (and 2+ users likely want it) | New skill | Propose adding |
+| Same manual pattern done 3+ times across sessions | New skill or upgrade | Propose extracting |
+| Existing skill has a bug or gap user just hit | Bug / improvement | Propose fix |
+| User invented a clever pattern in their own workflow | New skill | Propose contributing |
+| User's edge case isn't covered by existing skill | Improvement | Propose extending |
+| User sets a tweak in their install repeatedly | Configurability | Propose making it a flag |
+
+If any signal fires, this skill activates the consent flow.
+
+## Consent flow (mandatory — never push without)
+
+```
+Bro, vừa rồi mình thấy một pattern hay (hoặc thiếu sót) ở NEXTCORE-SKILLS:
+
+  → {1-line description of the gap/improvement}
+
+Sếp Hảo (tác giả NEXTCORE-SKILLS) mong nhận đóng góp tích cực từ cộng đồng
+để bộ skill ngày càng tốt cho mọi người. Nếu bạn đồng ý, mình có thể giúp
+bạn submit contribution này qua GitHub account của bạn (fork → branch →
+commit → PR).
+
+Đồng ý đóng góp không? (yes / no / tell me more)
+```
+
+User responses:
+- `yes` → proceed to "Contribution flow" below
+- `no` → drop it, never re-ask this session, log a "deferred" note
+- `tell me more` → explain what would be in the PR, what review looks like, then re-ask
+
+## Contribution flow (after consent)
+
+1. **Verify gh auth**
+   - `gh auth status` — confirm user logged in to their GitHub
+   - If not: guide them through `gh auth login`, return to step 1
+
+2. **Fork upstream**
+   - `gh repo fork kennetvn/NEXTCORE-SKILLS --remote=false --clone=false`
+   - Clone fork to a temp working directory
+
+3. **Create branch**
+   - `feat/nc-{slug}` for new skill
+   - `fix/nc-{name}-{issue}` for bug
+   - `improve/nc-{name}-{aspect}` for improvement
+
+4. **Apply the change**
+   - For new skill: scaffold `skills/nc-{slug}/SKILL.md` using v2.5 template (frontmatter + purpose + pattern + examples + anti-patterns + integration)
+   - For improvement: edit existing skill, run converter + build-all to regenerate adapters
+   - For bug: minimal targeted fix, regen if needed
+   - Update `CHANGELOG.md` under `[Unreleased]`
+
+5. **Local verification**
+   - `node adapters/build-all.cjs` — must succeed
+   - `node scripts/generate-catalog-html.cjs` — must succeed
+   - Diff review with user before commit
+
+6. **Commit**
+   - Conventional commit message
+   - Body explains the WHY (the gap user hit)
+   - Co-author trailer if user wants attribution: `Co-authored-by: <user> <email>`
+
+7. **Push to fork**
+   - `git push origin feat/nc-{slug}`
+
+8. **Open PR**
+   - `gh pr create --repo kennetvn/NEXTCORE-SKILLS --title "..." --body "..."`
+   - PR body includes: motivation (real user scenario), what's added, how it integrates with existing skills, test plan
+   - Tag PR as `community-contribution`
+
+9. **Confirm + handoff**
+   - Print PR URL to user
+   - Tell user: "Sếp Hảo sẽ review. You'll get GitHub notifications. Cảm ơn đã đóng góp!"
+   - Save contribution record to `nc-memory` under `contributions.{date}`
+
+## What NOT to contribute
+
+- Personal/secrets/private business logic
+- Changes that only fit one user's repo
+- Drive-by refactors not requested
+- Cosmetic-only changes (whitespace, lint preferences)
+- Breaking changes without prior discussion in an issue
+
+For these: suggest user keep the change local in their `~/.nc/overrides/` (see `nc-install-tweaks`).
+
+## Frequency limit
+
+- Max 1 contribution proposal per user session (don't be pushy)
+- If user said `no` to contribution this session, don't re-ask for 7 days
+- Track refusals in `nc-memory.preferences.contribute_opt_out`
+- If user opts out permanently → respect it, never bring up again
+
+## Quality bar (so we don't spam upstream)
+
+Before proposing, check:
+- [ ] Pattern has been useful at least once in real work
+- [ ] Skill follows naming convention (`nc-{kebab-case}`)
+- [ ] Description is specific (trigger words user would actually type)
+- [ ] No overlap with existing skill (use `nc-find-skills` to check)
+- [ ] Under 200 LOC (per file size policy)
+- [ ] No emoji unless explicitly part of the topic
+
+If quality bar fails → don't propose, log to local notes for later refinement.
+
+## Anti-patterns
+
+- Suggesting contribution when user is mid-frustration (read `nc-sentiment` first)
+- Pushing through even after `no` (one ask per session, period)
+- Submitting a PR without showing user the diff first
+- Using maintainer's account or generic credentials — must be user's GitHub
+- Auto-merging or pinging maintainer aggressively
+- Contributing partial/half-baked work — better to skip than spam
+
+## Tracking outcomes
+
+Save to `nc-memory.contributions`:
+
+```json
+{
+  "contributions": [
+    { "date": "2026-04-18", "type": "new-skill", "name": "nc-foo", "pr": "https://...", "status": "open" }
+  ],
+  "preferences": {
+    "contribute_opt_out": false,
+    "last_proposal": "2026-04-18"
+  }
+}
+```
+
+On future sessions, agent can mention: "Your nc-foo PR was merged — thanks for contributing!"
+
+## Integration
+
+- `nc-skill-announce` — when announcing a skill that's a recent gap, hint contribution
+- `nc-find-skills` — used to check for overlap before proposing
+- `nc-memory` — stores opt-out preference + contribution log
+- `nc-install-tweaks` — local-only changes route here, NOT to contribute flow
+- `nc-persona` — calibrates the consent message tone
+- `nc-sentiment` — frustration → skip the ask entirely
+
+
+---
+
+## nc-install-tweaks
+
+
+
+Per-install customization layer. Use when user has install-specific preferences, local overrides, or repeated workflow tweaks that shouldn't be upstreamed but should persist across sessions and updates.
+
+NEXTCORE-SKILLS ships opinionated defaults. Real teams need adjustments that don't belong upstream. This skill captures those adjustments locally and survives updates.
+
+## Why this exists
+
+| Scenario | Why upstream is wrong |
+|---|---|
+| Team uses `pnpm` not `npm` | Local convention, not universal |
+| Deploy script targets `103.241.43.6` | One specific VPS |
+| Vietnamese as default response language | User-specific |
+| Custom commit prefix `[VIP-XXX]` | Team-specific |
+| `nc-cook` should always run tests | Personal discipline preference |
+| Skip `nc-clarify` consent for X actions | Trust level personal |
+
+These belong locally. Upstreaming them would corrupt defaults for everyone else.
+
+## Storage
+
+```
+~/.nc/overrides/
+├── overrides.json          # global tweaks (apply to all projects)
+├── {project-slug}/
+│   ├── overrides.json      # project-specific tweaks
+│   └── README.md           # human note on why these tweaks exist
+└── _backup/                # snapshots before each `--add` operation
+```
+
+## Override schema
+
+```json
+{
+  "version": "1.0",
+  "tweaks": [
+    {
+      "id": "use-pnpm",
+      "scope": "global",
+      "skill": "nc-cook",
+      "directive": "Use pnpm instead of npm for all install commands",
+      "added": "2026-04-18",
+      "rationale": "Team standard"
+    },
+    {
+      "id": "auto-test-after-cook",
+      "scope": "project:homestaylamdong",
+      "skill": "nc-cook",
+      "directive": "Always invoke nc-test after nc-cook completes, no confirm",
+      "added": "2026-04-18"
+    },
+    {
+      "id": "default-vn",
+      "scope": "global",
+      "skill": "nc-persona",
+      "directive": "Default response language is Vietnamese unless user explicitly switches"
+    }
+  ]
+}
+```
+
+## How tweaks apply
+
+Every skill invocation reads `overrides.json` (global + project) at start:
+1. Filter to tweaks matching the invoked skill
+2. Inject directives into the skill's effective behavior
+3. Tweaks are additive: defaults still apply unless explicitly overridden
+4. Conflicts: project scope wins over global; later wins over earlier
+
+`nc-context-budget` keeps overrides cheap — they're small, load always.
+
+## Adding a tweak
+
+User-visible flow:
+
+```
+> /nc-install-tweaks --add
+
+Bro, mình thấy bạn vừa làm thao tác X 3 lần rồi. Lưu thành tweak nhé?
+
+  → Skill: nc-cook
+  → Directive: "Always pipe build output to | tail -20 instead of full dump"
+  → Scope: project (chỉ áp dụng repo này) hoặc global (mọi repo)?
+
+(yes-project / yes-global / no)
+```
+
+Or explicit add via command:
+
+```
+> /nc-install-tweaks --add --skill nc-cook --directive "Use bun instead of npm"
+```
+
+## Listing tweaks
+
+```
+> /nc-install-tweaks --list
+
+Active tweaks (5 global, 3 project:homestaylamdong):
+
+GLOBAL:
+  [use-pnpm] nc-cook → Use pnpm instead of npm
+  [no-emoji] nc-persona → Never use emoji in any response
+  [vn-default] nc-persona → Default to Vietnamese
+  [terse] nc-response-format → Always use minimal template
+  [skip-confirm-deploy] nc-clarify → Skip confirm for staging deploys
+
+PROJECT (homestaylamdong):
+  [auto-test] nc-cook → Always run nc-test after cook
+  [vps-target] nc-deploy-vps → Target 103.241.43.6 only
+  [prisma-safe] nc-fix → Use .agent/scripts/prisma-safe.ps1 for any prisma cmd
+```
+
+## Removing / disabling
+
+```
+> /nc-install-tweaks --remove use-pnpm
+
+Removed tweak [use-pnpm]. Snapshot saved to ~/.nc/overrides/_backup/.
+```
+
+## Surviving updates
+
+When user updates NEXTCORE-SKILLS to a new version:
+1. Installer detects existing `~/.nc/overrides/`
+2. Validates each tweak against new skill versions:
+   - Skill still exists? → keep
+   - Skill renamed? → migrate (with confirm)
+   - Skill removed? → flag, ask user
+   - New conflicting default? → flag, ask user
+3. Overrides survive intact unless explicitly broken
+
+## Promotion to upstream
+
+If a tweak proves universally useful:
+- `nc-contribute` may pick it up and propose adding as a SKILL flag or default
+- User keeps local tweak; upstream addition makes it available to all
+- Both can coexist; local override always wins
+
+## Sharing tweaks within a team
+
+Export bundle:
+```
+> /nc-install-tweaks --export team-config.json
+```
+
+Teammate imports:
+```
+> /nc-install-tweaks --import team-config.json
+```
+
+Useful for onboarding new devs to team conventions.
+
+## Anti-patterns
+
+- Putting secrets in tweaks (use env vars / vault, not overrides.json)
+- Tweaks that contradict each other silently — installer must flag
+- Tweaks that disable safety checks for risky operations (require explicit ack)
+- Stuffing complex logic into a tweak — if logic is needed, write a real skill
+- Forgetting to document rationale (`rationale` field strongly recommended)
+
+## Inspection / debug
+
+```
+> /nc-install-tweaks --debug nc-cook
+
+Effective behavior of nc-cook (after applying tweaks):
+  Default: install → build → test → report
+  +[use-pnpm]: replace `npm` with `pnpm` in install step
+  +[auto-test-after-cook]: skip "run tests?" confirm, always yes
+  +[no-emoji]: response template strips emoji
+
+Final pipeline: pnpm install → build → test (auto) → report (no emoji)
+```
+
+## Integration
+
+- All skills — read overrides at start, apply matching directives
+- `nc-memory` — overrides are config, not memory; separate concern
+- `nc-contribute` — promotion path for universal-useful tweaks
+- `nc-context-budget` — overrides always-on (small, important)
+- Installer (`install.sh` / `install.ps1`) — preserves `~/.nc/overrides/` on update
+- `nc-persona` — common tweaks live here (language, terseness, emoji)
+
+
+---
+
+## nc-company-os
+
+
+
+Tech-company organizational model. Use to identify which role/department the agent should embody for a task, follow canonical processes (RFC, ADR, postmortem, sprint cycle), apply the right decision framework, and route work across roles. Activates when a request spans multiple disciplines or requires org-level reasoning.
+
+When a request is bigger than "fix this line", agent benefits from thinking like a company. This skill maps roles, processes, and decision frameworks used by mature tech companies (Google, Stripe, Shopify, Linear) so the agent can pick the right role, follow the right process, and produce work that fits how engineering orgs actually operate.
+
+---
+
+## Departments + roles
+
+### Engineering
+
+| Role | Owns | When agent embodies this |
+|---|---|---|
+| **CTO** | Tech vision, architecture decisions, hiring bar | Architecture choices, "should we use X stack" |
+| **VP Eng / Director** | Org structure, headcount, delivery | Cross-team coordination, capacity planning |
+| **Engineering Manager** | Team health, 1:1s, delivery, growth | Sprint planning, blocker removal, prioritization |
+| **Tech Lead / Staff Eng** | Technical direction of one team, design docs | Design docs, RFC reviews, hard tech decisions |
+| **Senior Engineer** | Owns features end-to-end, mentors juniors | Feature implementation, complex debugging |
+| **Mid Engineer** | Implements features under guidance | Standard CRUD, well-scoped tickets |
+| **Junior Engineer** | Learns, executes well-defined tasks | Bug fixes with clear repro, small features |
+| **Site Reliability Eng (SRE)** | Uptime, on-call, incident response | Production issues, capacity, runbooks |
+| **DevOps Engineer** | CI/CD, infra-as-code, deploy pipelines | Pipeline issues, deploy automation |
+| **Security Engineer** | Threat modeling, audits, vuln response | Security review, OWASP scan, secrets audit |
+| **Data Engineer** | Pipelines, warehouse, ETL | Schema design, batch jobs, data flow |
+| **ML / AI Engineer** | Model training, inference infra, evals | LLM integration, RAG, eval harness |
+
+### Product
+
+| Role | Owns | When agent embodies this |
+|---|---|---|
+| **CPO** | Product strategy, vision | Roadmap, market fit |
+| **Product Manager** | PRDs, prioritization, customer interviews | Feature scoping, requirements gathering |
+| **Technical PM** | Cross-functional spec, API contracts | Integration spec, dependency negotiation |
+| **Designer (UX)** | User flow, IA, research | User journey design, usability testing |
+| **Designer (UI / Visual)** | Mockups, design system, brand | Component design, polish, animation |
+| **Design Engineer** | Bridges design + code | Storybook, design tokens, prototypes |
+
+### Quality
+
+| Role | Owns | When agent embodies this |
+|---|---|---|
+| **QA Lead** | Test strategy, coverage targets | Test plan for a feature |
+| **QA Engineer** | Test execution, automation, bug triage | Writing/running tests, regression checks |
+| **Test Automation Eng** | Frameworks, CI integration | Test infrastructure |
+
+### Go-to-market
+
+| Role | Owns | When agent embodies this |
+|---|---|---|
+| **Sales / AE** | Deals, demos | Sales-friendly pitch, ROI talk |
+| **Customer Success** | Adoption, retention | Customer onboarding, integration help |
+| **Support** | Tickets, debugging customer issues | Customer-facing bug response |
+| **Marketing** | Positioning, content, demand | Landing pages, launch posts |
+| **DevRel / DX** | Docs, examples, community | API docs, sample apps, talks |
+
+### Operations
+
+| Role | Owns | When agent embodies this |
+|---|---|---|
+| **Tech Writer** | Docs, API reference, tutorials | Writing or improving docs |
+| **HR / People Ops** | Hiring, perf reviews, culture | Job descriptions, onboarding plans |
+| **Finance** | Budget, vendor mgmt, billing | Cost analysis, vendor evaluation |
+| **Legal** | Compliance, contracts, IP | License review, T&C, GDPR |
+
+---
+
+## Canonical processes
+
+### Feature development cycle
+
+```
+1. PM/Customer  → Problem statement (1-pager)
+2. Designer     → User flow + mockup
+3. Tech Lead    → Design doc / RFC
+4. Engineer     → Implementation in branch + tests
+5. Reviewer     → Code review (1-2 peers)
+6. QA           → Test execution
+7. DevOps       → Deploy via CI/CD (staging → prod gradual rollout)
+8. Customer Success → Rollout comms, monitor adoption
+9. PM           → Post-launch retro, metrics
+```
+
+Agent role mapping:
+- Brainstorming a feature → embody PM + Tech Lead
+- Writing the spec → PM (PRD section) + Tech Lead (design doc section)
+- Implementation → Senior Eng or Mid depending on complexity
+- Test planning → QA Lead
+- Code review → Staff Eng / Senior Eng
+- Deploy → DevOps / SRE
+- Communication → CS / PM
+
+### Incident response (production issue)
+
+```
+T+0:  Detect (alert/customer report)        — SRE on-call
+T+5:  Assess severity (P0-P4)               — SRE → escalate if P0/P1
+T+10: Form war room (P0/P1 only)            — SRE + Eng + EM
+T+15: Mitigate (rollback / kill switch)     — Eng with SRE approval
+T+30: Root cause investigation                — Eng + SRE
+T+1d: Postmortem draft                       — IC (incident commander)
+T+3d: Postmortem review meeting              — Team
+T+7d: Action items assigned + tracked         — EM
+```
+
+Agent role mapping:
+- User reports prod bug → SRE on-call
+- Severity assessment → SRE (P0=down, P1=major degraded, P2=minor, P3=cosmetic, P4=tracking)
+- Mitigate fast → Eng with rollback authority
+- Root cause → Eng + SRE pair
+- Postmortem → IC (use blameless template)
+
+### Code review process
+
+```
+Small PR (<200 LOC):  1 reviewer, 24h SLA
+Medium PR (200-500):  2 reviewers (1 senior), 48h SLA
+Large PR (>500):      Should be split; if not, design doc required first
+```
+
+Agent embodies reviewer role for code review. Apply this lens:
+- **Correctness:** does it do what it claims?
+- **Readability:** can a teammate maintain this in 6 months?
+- **Tests:** behavior covered, edge cases handled?
+- **Architecture:** fits existing patterns or proposes better?
+- **Security:** input validation, auth, secrets handling?
+- **Performance:** obvious bottlenecks?
+
+Output: critical / suggestion / nit (matching `nc-response-format`).
+
+### RFC / Design doc process
+
+For decisions affecting >1 team or hard-to-reverse choices:
+
+1. **Author:** Tech Lead or Senior Eng writes RFC
+2. **Sections:** Context · Goals · Non-goals · Proposal · Alternatives considered · Trade-offs · Migration · Open questions
+3. **Distribution:** post to #rfc channel, tag stakeholders
+4. **Comment period:** 1 week minimum
+5. **Decision meeting** (if needed): synthesize comments, make call
+6. **Status:** draft → open → accepted | rejected | deferred
+7. **Archive:** accepted RFCs become ADRs (Architecture Decision Records)
+
+Agent applies this when proposing architecture changes (use `context/decisions.md` per [Context Protocol](../../docs/context-protocol.md)).
+
+### Sprint cycle (2-week, optional)
+
+```
+Day 1:    Planning (capacity * priority) → committed scope
+Day 2-9:  Execution + daily standup (5 min, blockers only)
+Day 10:   Demo (show finished work) + Retro (what went well/poorly)
+Day 11:   Next sprint planning
+```
+
+Agent applies in long-running engagements: at "sprint boundary", produce demo summary + retro notes (`nc-retro` skill).
+
+### Hiring loop (when relevant)
+
+```
+1. JD draft           — Hiring Manager + Recruiter
+2. Sourcing           — Recruiter
+3. Phone screen       — Recruiter (culture/basic fit)
+4. Tech screen        — Eng (60min coding/system design)
+5. Onsite (4-5 loops) — Eng + EM + Cross-functional
+6. Debrief            — All interviewers
+7. Decision           — Hiring Manager + Recruiter
+8. Offer              — Recruiter + HM
+```
+
+Agent role: writing JDs, designing tech screens, evaluating interview transcripts.
+
+---
+
+## Decision frameworks
+
+### RACI (per task)
+- **R**esponsible: does the work
+- **A**ccountable: signs off (one person)
+- **C**onsulted: provides input
+- **I**nformed: kept in loop
+
+Agent applies when assigning work: "For this DB migration: R=Backend Eng, A=Tech Lead, C=DBA + SRE, I=PM"
+
+### Reversibility check (Bezos two-way doors)
+
+Before any action ask:
+- **Type 1 (one-way door):** hard to reverse → slow down, get review, write RFC
+- **Type 2 (two-way door):** cheap to reverse → just do it, learn from result
+
+Agent maps:
+- Type 1: schema migration, public API contract, infrastructure change, brand decision
+- Type 2: feature flag rollout, internal refactor, A/B test, copy change
+
+This calibrates `nc-clarify` thresholds — Type 1 = always ask, Type 2 = act + state.
+
+### MoSCoW prioritization
+- **Must:** non-negotiable for this release
+- **Should:** important but not blocking
+- **Could:** nice if time
+- **Won't (this time):** explicitly deferred
+
+Agent uses this when scoping a feature with PM hat.
+
+### DACI (decision-making meetings)
+- **D**river, **A**pprover, **C**ontributors, **I**nformed
+
+Lighter-weight than RACI for one-off decisions.
+
+### Eisenhower (priority)
+```
+Urgent + Important     → DO NOW
+Important not urgent   → SCHEDULE
+Urgent not important   → DELEGATE
+Neither                → DROP
+```
+
+Agent applies when triaging multiple incoming requests.
+
+---
+
+## Communication norms
+
+### Up the chain (to leadership / sleeping CTO)
+- BLUF: Bottom Line Up Front (one-line answer first, details after)
+- Risk-prefixed: "P0 incident — site down, ETA 10min" not "looking into something"
+- Numbers > vibes
+- Decisions needed clearly stated
+
+### Across the org (to peers)
+- Specific asks ("review by EOD" not "thoughts?")
+- Context links provided
+- Async-first; meeting only if 3+ rounds of comments
+
+### Down the chain (to juniors)
+- Why before what
+- Show the path, not the answer
+- Praise specific behavior, critique private
+
+Agent calibrates which mode based on `nc-persona`.
+
+---
+
+## Documentation hierarchy
+
+```
+Vision        → "Where we're going" (1 doc, owned by CTO)
+Strategy      → "How we'll get there" (per quarter, owned by VPs)
+RFC / ADR     → "Why we chose X" (per major decision, owned by author)
+Design doc    → "How we'll build Y" (per feature, owned by TL)
+Spec / PRD    → "What we're building" (per feature, owned by PM)
+Runbook       → "What to do when X breaks" (per system, owned by SRE)
+Postmortem    → "What went wrong, what we'll change" (per incident, owned by IC)
+Tutorial      → "How to use this" (owned by DevRel/Tech Writer)
+API reference → "What's available" (auto-generated where possible)
+```
+
+Agent role: knows which type of doc fits a request, writes in that shape.
+
+---
+
+## When this skill activates
+
+- User says "build a feature" / "design X" / "plan a release" → embody PM/TL chain
+- User reports prod incident → embody SRE incident commander
+- User asks for code review → embody Senior/Staff Eng reviewer
+- User wants to make architecture choice → write RFC, embody Tech Lead
+- User asks "should we hire / how to interview for X" → embody Hiring Manager
+- User asks for postmortem → embody IC, use blameless template
+- User asks "what should I prioritize?" → apply Eisenhower or MoSCoW
+
+When NOT to activate:
+- Single-line edit / typo fix
+- Direct factual question
+- User explicitly invoked a single skill (don't add org overhead)
+
+---
+
+## Role-switching mid-conversation
+
+It's normal to wear multiple hats in one session. Switch explicitly:
+
+> *"Switching from PM hat to Tech Lead hat — let's look at the implementation plan."*
+
+This makes the change legible to the user (per `nc-skill-announce`).
+
+---
+
+## Org-level anti-patterns to avoid
+
+- **Hero engineer:** one person owns everything → bus factor 1
+  - Instead: write design docs, pair, code review
+- **Death march:** scope creep without timeline reset
+  - Instead: re-MoSCoW, cut scope or push date
+- **Blameful postmortem:** focus on who, not what process failed
+  - Instead: blameless — assume people did their best given context
+- **Stealth deploy:** ship without comms
+  - Instead: notify CS + stakeholders before user-facing changes
+- **Premature scaling:** building for 1M users when you have 10
+  - Instead: ship for current scale + 1 order of magnitude headroom
+- **Drive-by review:** approving without reading
+  - Instead: "I haven't reviewed; please get another reviewer" is honest
+- **Meeting addiction:** scheduling syncs for things async-able
+  - Instead: 24h of comments first, meeting only if stuck
+
+---
+
+## Integration
+
+- `nc-router` — when task is large, route to the right "department" via this map
+- `nc-plan` — uses Feature Development Cycle as the implicit plan template
+- `nc-debug` → `nc-fix` — uses Incident Response template for prod bugs
+- `nc-code-review` — applies reviewer-role lens here
+- `nc-predict` — applies Reversibility check (Type 1 vs 2)
+- `nc-brainstorm` — applies decision frameworks (RACI, MoSCoW, DACI)
+- `nc-retro` — uses sprint Retro template
+- `nc-journal` — captures Postmortem template for incidents
+- `nc-skill-announce` — announces role switches
+- `nc-persona` — calibrates communication norms (up/across/down)
+- Context Protocol — RFCs/ADRs/postmortems live in `plans/{session}/context/decisions.md`
+
+---
+
+## Cheat sheet (TL;DR)
+
+| Request shape | Embody | Process | Output |
+|---|---|---|---|
+| "build feature X" | PM → TL → Eng | Feature dev cycle | PRD + design doc + impl |
+| "site is down" | SRE on-call | Incident response | Mitigation + postmortem |
+| "review my PR" | Senior Eng | Code review process | Critical/suggestion/nit |
+| "should we use X" | Tech Lead | RFC | Decision doc |
+| "what should I work on" | EM | Eisenhower / MoSCoW | Prioritized list |
+| "we just shipped X" | PM + DevRel | Launch comms | Release notes + announce |
+| "fix this small bug" | Mid Eng | (no overhead) | Patch + test |
+| "design the schema" | Tech Lead + DBA | Design doc | Schema + migration plan |
+

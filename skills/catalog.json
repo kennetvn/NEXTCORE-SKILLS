@@ -1,6 +1,6 @@
 {
-  "version": "2.5.2",
-  "generatedAt": "2026-04-18T12:43:34.903Z",
+  "version": "2.5.3",
+  "generatedAt": "2026-04-18T12:59:26.651Z",
   "repository": "https://github.com/kennetvn/NEXTCORE-SKILLS",
   "supportedIdes": [
     "claude-code",
@@ -14,7 +14,7 @@
     "jetbrains",
     "void"
   ],
-  "totalSkills": 106,
+  "totalSkills": 110,
   "skills": [
     {
       "name": "agent-browser",
@@ -710,9 +710,45 @@
       ]
     },
     {
+      "name": "nc-company-os",
+      "description": "Tech-company organizational model. Use to identify which role/department the agent should embody for a task, follow canonical processes (RFC, ADR, postmortem, sprint cycle), apply the right decision framework, and route work across roles. Activates when a request spans multiple disciplines or requires org-level reasoning.",
+      "loc": 339,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
       "name": "nc-context-budget",
       "description": "Manage agent token budget per session. Use when context usage exceeds 60%, before loading large refs, when deciding parallel vs serial dispatch, or when agent notices slow responses from context bloat.",
       "loc": 75,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-contribute",
+      "description": "Detect skill gaps, propose additions to NEXTCORE-SKILLS upstream. Use when user asks for a workflow that should exist but doesn't, when a manual pattern repeats 3+ times, or when an improvement would benefit other users — then ask user consent to contribute via their GitHub.",
+      "loc": 153,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -875,6 +911,24 @@
       "name": "nc-go-backend",
       "description": "Go backend development: HTTP servers, routing, database, goroutines. Use when building Go APIs/microservices, evaluating Go vs Node, or writing performance-critical backend services.",
       "loc": 224,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-install-tweaks",
+      "description": "Per-install customization layer. Use when user has install-specific preferences, local overrides, or repeated workflow tweaks that shouldn't be upstreamed but should persist across sessions and updates.",
+      "loc": 189,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1162,7 +1216,7 @@
     {
       "name": "nc-response-format",
       "description": "Response templates per task type (plan, debug, review, research, implement). Use when agent output would benefit from structured form, when consistency matters across multi-phase work, or when subagent summaries need standard format.",
-      "loc": 172,
+      "loc": 203,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",
@@ -1253,6 +1307,24 @@
       "name": "nc-sentiment",
       "description": "Detect user emotional state (frustration, urgency, satisfaction, exploration) and adjust response speed and depth. Use to override default behavior — faster for frustration, thorough for exploration, concise for busy.",
       "loc": 129,
+      "referenceFiles": 0,
+      "ideSupport": [
+        "claude-code",
+        "antigravity",
+        "cursor",
+        "windsurf",
+        "copilot",
+        "continue",
+        "aider",
+        "zed",
+        "jetbrains",
+        "void"
+      ]
+    },
+    {
+      "name": "nc-skill-announce",
+      "description": "Announce which NEXTCORE skill is being used and why, in one short sentence, before doing the work. Use whenever a skill is invoked to make tool use legible to the user and reinforce the skill ecosystem.",
+      "loc": 104,
       "referenceFiles": 0,
       "ideSupport": [
         "claude-code",

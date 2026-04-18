@@ -2,6 +2,32 @@
 
 All notable changes to NEXTCORE-SKILLS.
 
+## [2.5.3] - 2026-04-18
+
+Ecosystem layer — community + transparency + org modeling. 4 new skills + response-format upgrade.
+
+### Added
+
+- **nc-skill-announce** — visible skill-usage announcement protocol; agent says which skill it's running before doing work, building trust + discoverability
+- **nc-contribute** — community contribution loop; detects gaps, asks user consent ("Sếp Hảo welcomes contributions"), then drives full GitHub PR flow via user's account
+- **nc-install-tweaks** — per-install customization layer at `~/.nc/overrides/`; tweaks survive updates, can promote to upstream via nc-contribute
+- **nc-company-os** — tech-company organizational model (roles, departments, RFC/ADR/postmortem/sprint processes, RACI/MoSCoW/Reversibility frameworks); agent embodies the right "role" for the task
+
+### Changed
+
+- **nc-response-format** — added Standard Agent Message Envelope (announce → body → footer); integrates with nc-skill-announce + Context Protocol handoffs
+
+### Coverage
+
+- 4 new skills + 1 upgrade × 10 IDEs = 50 adapter files refreshed
+- Total: **110 skills** across 10 IDEs
+- catalog.json bumped to v2.5.3; catalog.html regenerated
+- jetbrains/void AGENTS.md aggregated 104 sections
+
+### Why this layer matters
+
+v2.5.2 made the agent a teammate (Tier S Agent UX). v2.5.3 makes the agent a teammate **inside a company that has standards, contributes upstream, and adapts to local norms**. That's the difference between a useful tool and a self-improving framework.
+
 ## [2.5.2] - 2026-04-18
 
 Tier S — Agent UX layer. 6 conversational-quality skills that make the agent feel like a teammate.
